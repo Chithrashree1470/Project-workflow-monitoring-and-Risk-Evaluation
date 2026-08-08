@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project Risk Prediction</title>
+</head>
+<body>
+
+<h1>AI-Based Predictive Workflow Monitoring System</h1>
+
+<h2>Create New Project</h2>
+
+<form action="/predict" method="POST">
+
+    <label>Project Name</label><br>
+    <input type="text" name="project_name"><br><br>
+
+    <label>Project Type</label><br>
+    <input type="text" name="project_type"><br><br>
+
+    <label>Team Size</label><br>
+    <input type="number" name="team_size"><br><br>
+
+    <label>Project Budget</label><br>
+    <input type="number" name="project_budget"><br><br>
+
+    <label>Estimated Timeline (Months)</label><br>
+    <input type="number" name="timeline"><br><br>
+
+    <label>Complexity Score (1-10)</label><br>
+    <input type="number" name="complexity_score" min="1" max="10"><br><br>
+
+    <label>Total Tasks</label><br>
+    <input type="number" name="total_tasks"><br><br>
+
+    <label>Completed Tasks</label><br>
+    <input type="number" name="completed_tasks"><br><br>
+
+    <label>Overdue Tasks</label><br>
+    <input type="number" name="overdue_tasks"><br><br>
+
+    <label>Estimated Effort Hours</label><br>
+    <input type="number" name="estimated_effort_hours"><br><br>
+
+    <button type="submit">
+        Predict Risk
+    </button>
+
+</form>
+
+</body>
+</html>
