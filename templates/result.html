@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Risk Assessment Result | InfraSync AI</title>
+
+    <style>
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #07111f;
+            color: #e5f3ff;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* =====================================================
+           NAVBAR
+        ===================================================== */
+
+        .navbar {
+            width: 100%;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: #081421;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #38bdf8;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #b8c9d9;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #38bdf8;
+        }
+
+        .nav-links .active {
+            color: #38bdf8;
+        }
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .container {
+            width: 90%;
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 50px 0 70px;
+        }
+
+        .page-title {
+            margin-bottom: 35px;
+        }
+
+        .page-title .small-title {
+            color: #38bdf8;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .page-title h1 {
+            font-size: 38px;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .page-title p {
+            color: #9fb2c4;
+            font-size: 16px;
+        }
+
+        /* =====================================================
+           RESULT CARD
+        ===================================================== */
+
+        .result-card {
+            background: #0c1b2b;
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            border-radius: 18px;
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .project-name {
+            color: #8ea5b9;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .project-name strong {
+            color: #ffffff;
+            font-size: 19px;
+        }
+
+        .risk-box {
+            min-width: 190px;
+            padding: 20px;
+            border-radius: 14px;
+            background: #101f30;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+        }
+
+        .risk-label {
+            color: #8ea5b9;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .risk-value {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .risk-low {
+            color: #22c55e;
+        }
+
+        .risk-medium {
+            color: #facc15;
+        }
+
+        .risk-high {
+            color: #fb923c;
+        }
+
+        .risk-critical {
+            color: #ef4444;
+        }
+
+        /* =====================================================
+           CONFIDENCE
+        ===================================================== */
+
+        .confidence-section {
+            margin-bottom: 35px;
+        }
+
+        .section-heading {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .confidence-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .confidence-top span {
+            color: #9fb2c4;
+            font-size: 14px;
+        }
+
+        .confidence-value {
+            color: #38bdf8;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #16283a;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #38bdf8;
+            border-radius: 20px;
+        }
+
+        /* =====================================================
+           PROBABILITIES
+        ===================================================== */
+
+        .probabilities {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .probability-card {
+            background: #101f30;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 13px;
+            padding: 18px;
+        }
+
+        .probability-card span {
+            display: block;
+            color: #91a6b8;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .probability-card strong {
+            color: #ffffff;
+            font-size: 22px;
+        }
+
+        /* =====================================================
+           PROJECT SUMMARY
+        ===================================================== */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .summary-card {
+            background: #101f30;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 13px;
+            padding: 20px;
+        }
+
+        .summary-card .label {
+            color: #91a6b8;
+            font-size: 13px;
+            margin-bottom: 9px;
+        }
+
+        .summary-card .value {
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           WHY THIS RISK
+        ===================================================== */
+
+        .reason-section {
+            background: #0a1726;
+            border: 1px solid rgba(56, 189, 248, 0.12);
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .reason-section h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .reason-section p {
+            color: #aebfce;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .risk-indicator {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 13px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .indicator-low {
+            background: rgba(34, 197, 94, 0.12);
+            color: #4ade80;
+        }
+
+        .indicator-medium {
+            background: rgba(250, 204, 21, 0.12);
+            color: #fde047;
+        }
+
+        .indicator-high {
+            background: rgba(251, 146, 60, 0.12);
+            color: #fb923c;
+        }
+
+        .indicator-critical {
+            background: rgba(239, 68, 68, 0.12);
+            color: #f87171;
+        }
+
+        /* =====================================================
+           ACTIONS
+        ===================================================== */
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 13px 22px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-primary {
+            background: #38bdf8;
+            color: #06111d;
+        }
+
+        .btn-primary:hover {
+            background: #7dd3fc;
+        }
+
+        .btn-secondary {
+            background: #142538;
+            color: #d6e7f5;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-secondary:hover {
+            background: #1b3045;
+        }
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer {
+            text-align: center;
+            color: #71869a;
+            font-size: 13px;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 900px) {
+
+            .probabilities,
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .risk-box {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .navbar {
+                padding: 0 5%;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .container {
+                width: 92%;
+                padding-top: 35px;
+            }
+
+            .page-title h1 {
+                font-size: 30px;
+            }
+
+            .result-card {
+                padding: 22px;
+            }
+
+            .probabilities,
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
+    <nav class="navbar">
+
+        <a href="/" class="logo">
+            InfraSync AI
+        </a>
+
+        <div class="nav-links">
+
+            <a href="/">
+                Risk Assessment
+            </a>
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="container">
+
+        <div class="page-title">
+
+            <div class="small-title">
+                AI Risk Analysis
+            </div>
+
+            <h1>
+                Project Risk Assessment Result
+            </h1>
+
+            <p>
+                AI-generated risk prediction based on the project information provided.
+            </p>
+
+        </div>
+
+
+        <!-- =================================================
+             MAIN RESULT
+        ================================================== -->
+
+        <section class="result-card">
+
+            <div class="result-header">
+
+                <div>
+
+                    <div class="project-name">
+                        PROJECT
+                    </div>
+
+                    <div class="project-name">
+                        <strong>
+                            {{ result.project_name }}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <!-- RISK LEVEL -->
+
+                {% set risk = result.risk_level|string|lower %}
+
+                <div class="risk-box">
+
+                    <div class="risk-label">
+                        Predicted Risk
+                    </div>
+
+                    <div class="
+                        risk-value
+                        {% if risk == 'low' %}
+                            risk-low
+                        {% elif risk == 'medium' %}
+                            risk-medium
+                        {% elif risk == 'high' %}
+                            risk-high
+                        {% elif risk == 'critical' %}
+                            risk-critical
+                        {% endif %}
+                    ">
+
+                        {{ result.risk_level }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 AI CONFIDENCE
+            ================================================== -->
+
+            <div class="confidence-section">
+
+                <h2 class="section-heading">
+                    AI Confidence
+                </h2>
+
+                <div class="confidence-top">
+
+                    <span>
+                        Model confidence in the predicted risk level
+                    </span>
+
+                    <span class="confidence-value">
+                        {{ result.ai_confidence }}%
+                    </span>
+
+                </div>
+
+                <div class="progress-bar">
+
+                    <div
+                        class="progress-fill"
+                        style="width: {{ result.ai_confidence }}%;"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RISK PROBABILITIES
+            ================================================== -->
+
+            <h2 class="section-heading">
+                Risk Probability
+            </h2>
+
+            <div class="probabilities">
+
+                <div class="probability-card">
+
+                    <span>
+                        Low
+                    </span>
+
+                    <strong>
+                        {{ result.probabilities.get("Low", 0) }}%
+                    </strong>
+
+                </div>
+
+
+                <div class="probability-card">
+
+                    <span>
+                        Medium
+                    </span>
+
+                    <strong>
+                        {{ result.probabilities.get("Medium", 0) }}%
+                    </strong>
+
+                </div>
+
+
+                <div class="probability-card">
+
+                    <span>
+                        High
+                    </span>
+
+                    <strong>
+                        {{ result.probabilities.get("High", 0) }}%
+                    </strong>
+
+                </div>
+
+
+                <div class="probability-card">
+
+                    <span>
+                        Critical
+                    </span>
+
+                    <strong>
+                        {{ result.probabilities.get("Critical", 0) }}%
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 PROJECT SUMMARY
+            ================================================== -->
+
+            <h2 class="section-heading">
+                Project Summary
+            </h2>
+
+            <div class="summary-grid">
+
+                <div class="summary-card">
+
+                    <div class="label">
+                        Completion
+                    </div>
+
+                    <div class="value">
+                        {{ result.completion_percentage }}%
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="label">
+                        Delay
+                    </div>
+
+                    <div class="value">
+                        {{ result.delay_percentage }}%
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="label">
+                        Pending Tasks
+                    </div>
+
+                    <div class="value">
+                        {{ result.pending_tasks }}
+                    </div>
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <div class="label">
+                        Project Progress
+                    </div>
+
+                    <div class="value">
+                        {{ result.project_progress }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 TIMELINE
+            ================================================== -->
+
+            <div class="summary-card" style="margin-bottom: 30px;">
+
+                <div class="label">
+                    Estimated Timeline
+                </div>
+
+                <div class="value">
+                    {{ result.estimated_timeline_months }} Months
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 WHY THIS RISK
+            ================================================== -->
+
+            <div class="reason-section">
+
+                <h2>
+                    Why is the project classified as
+                    {{ result.risk_level }} Risk?
+                </h2>
+
+                <p>
+
+                    The AI model classified this project as
+                    <strong>{{ result.risk_level }}</strong>
+                    based on the combination of the project features
+                    provided to the trained CatBoost model.
+
+                    The prediction considers the project conditions
+                    represented by the model's input features, including
+                    project characteristics, team information, project
+                    management conditions, technology factors,
+                    organizational factors, and workflow progress.
+
+                    The risk probabilities shown above represent how
+                    strongly the trained model supports each possible
+                    risk category.
+
+                </p>
+
+
+                {% if risk == "low" %}
+
+                    <span class="risk-indicator indicator-low">
+                        Low Risk
+                    </span>
+
+                {% elif risk == "medium" %}
+
+                    <span class="risk-indicator indicator-medium">
+                        Medium Risk
+                    </span>
+
+                {% elif risk == "high" %}
+
+                    <span class="risk-indicator indicator-high">
+                        High Risk
+                    </span>
+
+                {% elif risk == "critical" %}
+
+                    <span class="risk-indicator indicator-critical">
+                        Critical Risk
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- =================================================
+                 ACTION BUTTONS
+            ================================================== -->
+
+            <div class="actions">
+
+                <a href="/" class="btn btn-primary">
+                    New Risk Assessment
+                </a>
+
+                <a href="/dashboard" class="btn btn-secondary">
+                    View Dashboard
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer>
+
+        InfraSync AI &nbsp; | &nbsp;
+        AI-Based Predictive Workflow Monitoring System
+
+    </footer>
+
+</body>
+
+</html>
