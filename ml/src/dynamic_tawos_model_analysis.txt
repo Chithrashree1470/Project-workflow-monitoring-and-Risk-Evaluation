@@ -1,0 +1,277 @@
+======================================================================
+TAWOS DYNAMIC CATBOOST MODEL ANALYSIS
+======================================================================
+
+Loading TAWOS dynamic dataset...
+Rows    : 197478
+Columns : 22
+Projects: 39
+Tasks   : 59473
+
+Detected columns:
+['project_id', 'issue_id', 'issue_key', 'snapshot_date', 'snapshot_number', 'issue_type', 'priority', 'status', 'story_points', 'timespent', 'assignee_id', 'sprint_id', 'task_age_days', 'days_until_estimation', 'estimated_duration_days', 'age_to_estimation_ratio', 'timespent_to_estimation_ratio', 'has_assignee', 'has_sprint', 'project_task_count', 'delay_days', 'task_risk_level']
+
+======================================================================
+LOADING MODEL
+======================================================================
+
+Model loaded:
+C:\Users\Admin\Desktop\programming_file\major project\ai-based-workflow-monitoring-system\ml\src\dynamic_tawos_catboost_model.pkl
+
+Model classes:
+['Critical' 'High' 'Medium' 'Low']
+
+Model features: 16
+ ✓ snapshot_number
+ ✓ issue_type
+ ✓ priority
+ ✓ status
+ ✓ story_points
+ ✓ timespent
+ ✓ assignee_id
+ ✓ sprint_id
+ ✓ task_age_days
+ ✓ days_until_estimation
+ ✓ estimated_duration_days
+ ✓ age_to_estimation_ratio
+ ✓ timespent_to_estimation_ratio
+ ✓ has_assignee
+ ✓ has_sprint
+ ✓ project_task_count
+
+Categorical features: ['issue_type', 'priority', 'status']
+
+======================================================================
+RECREATING PROJECT-LEVEL TEST SPLIT
+======================================================================
+Training projects: 31
+Testing projects : 8
+Training snapshots: 181066
+Testing snapshots : 16412
+
+======================================================================
+PROJECT SPLIT LEAKAGE CHECK
+======================================================================
+Projects appearing in both train/test: 0
+✓ No project-level leakage detected.
+
+======================================================================
+TASK-LEVEL LEAKAGE CHECK
+======================================================================
+Tasks appearing in both train/test: 0
+✓ No task-level leakage detected.
+
+======================================================================
+GENERATING PREDICTIONS
+======================================================================
+
+======================================================================
+MODEL PERFORMANCE
+======================================================================
+
+Accuracy    : 94.38%
+Macro F1    : 0.9408
+Weighted F1 : 0.9442
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    Critical       1.00      1.00      1.00      6675
+        High       0.94      0.91      0.92      6012
+      Medium       0.82      0.87      0.85      2901
+         Low       0.99      1.00      0.99       824
+
+    accuracy                           0.94     16412
+   macro avg       0.94      0.95      0.94     16412
+weighted avg       0.94      0.94      0.94     16412
+
+
+======================================================================
+CONFUSION MATRIX
+======================================================================
+                 Predicted Critical  ...  Predicted Low
+Actual Critical                6667  ...              0
+Actual High                       4  ...              0
+Actual Medium                     0  ...             11
+Actual Low                        0  ...            824
+
+[4 rows x 4 columns]
+
+======================================================================
+PREDICTION DISTRIBUTION
+======================================================================
+          Actual  Predicted   Actual %  Predicted %
+Critical    6675       6671  40.671460    40.647087
+High        6012       5837  36.631733    35.565440
+Medium      2901       3069  17.676091    18.699732
+Low          824        835   5.020717     5.087741
+
+======================================================================
+CONFIDENCE ANALYSIS
+======================================================================
+
+Average maximum probability: 94.44%
+Median maximum probability : 99.66%
+Minimum maximum probability: 50.00%
+Maximum maximum probability: 100.00%
+
+Average probability margin: 88.90%
+
+Confidence buckets:
+            predictions  correct   accuracy
+confidence                                 
+<40%                  0        0        NaN
+40-50%                2        1  50.000000
+50-60%              813      433  53.259533
+60-70%              854      526  61.592506
+70-80%              456      293  64.254386
+80-90%              200      159  79.500000
+90-100%           14087    14078  99.936111
+
+======================================================================
+FEATURE IMPORTANCE
+======================================================================
+                      Feature  Importance
+                task_age_days   32.761549
+              snapshot_number   32.533255
+        days_until_estimation   30.986500
+                  assignee_id    0.640075
+                   issue_type    0.607662
+                 story_points    0.567634
+                     priority    0.566962
+                    sprint_id    0.555026
+                       status    0.399923
+           project_task_count    0.185278
+      estimated_duration_days    0.146649
+                    timespent    0.026566
+                 has_assignee    0.013952
+                   has_sprint    0.008970
+      age_to_estimation_ratio    0.000000
+timespent_to_estimation_ratio    0.000000
+
+======================================================================
+SUSPICIOUS TEMPORAL FEATURE ANALYSIS
+======================================================================
+
+Suspicious features found:
+ ✓ snapshot_number
+ ✓ task_age_days
+ ✓ days_until_estimation
+ ✓ estimated_duration_days
+ ✓ age_to_estimation_ratio
+ ✓ timespent_to_estimation_ratio
+
+======================================================================
+FEATURE vs FINAL DELAY CORRELATION
+======================================================================
+                      Feature  Correlation with final delay
+        days_until_estimation                     -0.840024
+                task_age_days                      0.840024
+              snapshot_number                      0.138943
+      estimated_duration_days                     -0.024096
+      age_to_estimation_ratio                           NaN
+timespent_to_estimation_ratio                           NaN
+
+======================================================================
+SINGLE-FEATURE LEAKAGE TEST
+======================================================================
+                      Feature  Accuracy
+                task_age_days 77.735803
+        days_until_estimation 77.711431
+timespent_to_estimation_ratio 40.671460
+      age_to_estimation_ratio 40.671460
+      estimated_duration_days 36.253961
+              snapshot_number 35.583719
+
+======================================================================
+RISK DISTRIBUTION BY SNAPSHOT NUMBER
+======================================================================
+task_risk_level  Critical   High   Low  Medium
+snapshot_number                               
+1                   25.00  25.00  25.0   25.00
+2                   34.99  34.99   0.0   30.02
+3                   41.42  41.42   0.0   17.16
+4                   47.32  47.31   0.0    5.37
+5                   52.75  47.25   0.0    0.00
+
+======================================================================
+RISK DISTRIBUTION BY TASK AGE
+======================================================================
+task_risk_level      Critical   High    Low  Medium
+task_age_days                                      
+(-0.0009826, 0.951]      0.00   0.00  75.29   24.71
+(0.951, 6.185]           0.00  49.42   0.00   50.58
+(6.185, 10.509]          0.00  46.72   0.00   53.28
+(10.509, 17.224]        19.42  43.32   0.00   37.26
+(17.224, 26.191]        14.60  71.58   0.00   13.82
+(26.191, 41.348]        22.64  77.36   0.00    0.00
+(41.348, 68.178]        39.77  60.23   0.00    0.00
+(68.178, 123.117]       80.04  19.96   0.00    0.00
+(123.117, 287.649]     100.00   0.00   0.00    0.00
+(287.649, 4041.365]    100.00   0.00   0.00    0.00
+
+======================================================================
+MOST UNCERTAIN PREDICTIONS
+======================================================================
+ project_id  issue_id                       snapshot_date  snapshot_number  task_age_days  days_until_estimation actual_risk predicted_risk  confidence   margin
+         11     38296    2017-10-18 14:47:36.800000+00:00                4      19.674604             -19.674604      Medium           High   50.001829 0.006916
+         11     39116 2015-02-04 14:17:57.899999999+00:00                2      10.789594             -10.789594      Medium         Medium   49.996967 0.021182
+         11     38938    2015-09-21 20:02:09.700000+00:00                2      10.809267             -10.809267        High         Medium   49.996967 0.021182
+         11     39523 2014-05-24 03:27:35.799999999+00:00                2      11.079535             -11.079535        High           High   50.010646 0.049120
+         11     38135    2018-08-20 16:22:29.100000+00:00                2      10.768115             -10.768115      Medium           High   50.016432 0.063399
+         11     39329    2014-09-30 20:40:19.300000+00:00                4      19.617990             -19.617990      Medium         Medium   50.033573 0.069789
+         11     38107 2018-11-27 16:36:42.399999999+00:00                2      11.021104             -11.021104      Medium         Medium   50.052296 0.135814
+         26    203163    2019-03-13 14:22:07.500000+00:00                3      15.948605             -15.948605        High           High   50.095776 0.197290
+         26    203524    2018-07-30 11:58:33.400000+00:00                2       9.896521              -9.896521      Medium           High   50.122603 0.248098
+         33    476502    2018-06-18 13:40:56.200000+00:00                4      21.742664             -21.742664        High         Medium   50.123635 0.254628
+         11     39381           2014-08-18 18:25:26+00:00                2      10.653021             -10.653021      Medium         Medium   50.170028 0.354630
+         11     39354    2014-08-26 18:14:29.500000+00:00                2      10.713490             -10.713490      Medium         Medium   50.170028 0.354630
+         25    205370    2019-05-30 22:11:46.800000+00:00                2       9.286167              -9.286167        High         Medium   50.185683 0.374542
+         11     38695    2016-09-20 13:30:42.800000+00:00                2      12.580021             -12.580021      Medium           High   50.163762 0.391572
+         25    205366 2019-06-15 01:13:25.299999999+00:00                4      21.609135             -21.609135      Medium           High   50.224715 0.454865
+         11     39071    2015-03-25 08:37:19.500000+00:00                2      12.161094             -12.161094        High         Medium   50.212854 0.468028
+         33    467227    2019-12-08 10:35:29.700000+00:00                2      12.545865             -12.545865      Medium         Medium   50.242566 0.549805
+         26    204013    2017-09-18 08:20:33.400000+00:00                4      19.804854             -19.804854      Medium           High   50.289870 0.583354
+         26    203237 2019-01-09 09:23:11.499999999+00:00                3      18.988397             -18.988397        High           High   50.294968 0.597179
+         11     39268 2014-11-12 14:08:40.699999999+00:00                4      19.816906             -19.816906      Medium           High   50.316460 0.636360
+
+======================================================================
+LEAKAGE DIAGNOSTIC SUMMARY
+======================================================================
+
+Model accuracy: 94.38%
+Macro F1: 0.9408
+Weighted F1: 0.9442
+
+Project overlap: 0
+Task overlap: 0
+
+Correlation with final delay:
+ days_until_estimation               -0.8400
+ task_age_days                       0.8400
+ snapshot_number                     0.1389
+ estimated_duration_days             -0.0241
+ age_to_estimation_ratio             nan
+ timespent_to_estimation_ratio       nan
+
+Single-feature prediction accuracy:
+ task_age_days                       77.74%
+ days_until_estimation               77.71%
+ timespent_to_estimation_ratio       40.67%
+ age_to_estimation_ratio             40.67%
+ estimated_duration_days             36.25%
+ snapshot_number                     35.58%
+
+======================================================================
+INTERPRETATION
+======================================================================
+
+✓ No task-level train/test overlap.
+✓ No project-level train/test overlap.
+
+!!! STRONG LEAKAGE WARNING
+At least one suspicious temporal feature achieves >=70% accuracy by itself:
+  task_age_days : 77.74%
+  days_until_estimation : 77.71%
+
+Do NOT judge the 94% model as valid until the temporal leakage diagnostics are reviewed.

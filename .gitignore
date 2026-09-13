@@ -22,5 +22,4 @@ node_modules/
 .DS_Store
 Thumbs.db
 
-dataset\TAWOS.sql
-catboost_info/
+dataset/TAWOS.sqlcatboost_info/

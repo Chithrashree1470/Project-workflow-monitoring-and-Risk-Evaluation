@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project Risk Prediction</title>
+</head>
+
+<body>
+
+<h1>AI-Based Predictive Workflow Monitoring System</h1>
+
+<h2>Create New Project</h2>
+
+<form action="/predict" method="POST">
+
+    <label>Project Name</label><br>
+    <input type="text" name="project_name" required>
+    <br><br>
+
+
+    <label>Project Type</label><br>
+    <input type="text" name="project_type" required>
+    <br><br>
+
+
+    <label>Team Size</label><br>
+    <input type="number" name="team_size" min="1" required>
+    <br><br>
+
+
+    <label>Project Budget (USD)</label><br>
+    <input type="number" name="project_budget" min="0" step="0.01" required>
+    <br><br>
+
+
+    <label>Estimated Timeline (Months)</label><br>
+    <input type="number" name="timeline" min="1" required>
+    <br><br>
+
+
+    <label>Complexity Score (1-10)</label><br>
+    <input
+        type="number"
+        name="complexity_score"
+        min="1"
+        max="10"
+        step="0.1"
+        required
+    >
+    <br><br>
+
+
+    <label>Total Tasks</label><br>
+    <input
+        type="number"
+        name="total_tasks"
+        min="1"
+        required
+    >
+    <br><br>
+
+
+    <label>Completed Tasks</label><br>
+    <input
+        type="number"
+        name="completed_tasks"
+        min="0"
+        value="0"
+        required
+    >
+    <br><br>
+
+
+    <label>Overdue Tasks</label><br>
+    <input
+        type="number"
+        name="overdue_tasks"
+        min="0"
+        value="0"
+        required
+    >
+    <br><br>
+
+
+    <label>Estimated Effort (Hours)</label><br>
+    <input
+        type="number"
+        name="estimated_effort_hours"
+        min="0"
+        step="0.1"
+        required
+    >
+    <br><br>
+
+
+    <button type="submit">
+        Predict Initial Risk
+    </button>
+
+</form>
+
+</body>
+</html>

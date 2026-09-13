@@ -1,0 +1,109 @@
+column_name,column_number,group,sub_group,storage_type,null_pct,description,derivation_or_source
+issue_key,1,raw,Identity / Classification,object,0,Unique issue identifier (e.g. PROJ-123),Direct from Jira REST API
+issue_id,2,raw,Identity / Classification,int64,0,Internal numeric Jira issue ID,Direct from Jira REST API
+updated,3,raw,Temporal,object,0,"Timestamp of last field update (ISO 8601, UTC)",Direct from Jira REST API
+issue_summary,4,raw,Identity / Classification,object,0,Issue title text (plain text),Direct from Jira REST API
+statuscategorychangedate,5,raw,Temporal,object,19.6,Timestamp of last status-category transition,Direct from Jira REST API
+created,6,raw,Temporal,"datetime64[ns, UTC]",42.6,"Timestamp of issue creation (ISO 8601, UTC)",Direct from Jira REST API
+workratio,7,raw,Effort / Estimation,object,0,Ratio of time logged to original estimate; -1 = no estimate,Direct from Jira REST API; coerce -1 to null before analysis
+resolutiondate,8,raw,Temporal,"datetime64[ns, UTC]",70.8,Timestamp of resolution; null for open issues,Direct from Jira REST API
+resolution_name,9,raw,Lifecycle State,object,17.5,"Resolution label (e.g. Fixed, Won't Fix, Duplicate)",Direct from Jira REST API
+votes,10,raw,Effort / Estimation,float64,0,Number of votes cast on the issue,Direct from Jira REST API
+worklog_total,11,raw,Effort / Estimation,float64,0.9,Total seconds logged via worklogs,Direct from Jira REST API
+issuetype_id,12,raw,Identity / Classification,int64,0,Internal Jira issue-type ID,Direct from Jira REST API
+issuetype_name,13,raw,Identity / Classification,object,0,"Issue type label (Bug, Story, Task, Sub-task, Epic, Improvement)",Direct from Jira REST API
+issuetype_hierarchyLevel,14,raw,Identity / Classification,float64,16.5,"Hierarchy level of the issue type (-1=Sub-task, 0=Issue, 1=Epic)",Direct from Jira REST API
+project_id,15,raw,Identity / Classification,int64,0,Internal numeric Jira project ID,Direct from Jira REST API
+project_key,16,raw,Identity / Classification,object,0,Jira project key (e.g. PROJ),Direct from Jira REST API
+project_name,17,raw,Identity / Classification,object,0,Full Jira project display name,Direct from Jira REST API
+priority_name,18,raw,Identity / Classification,object,13.3,"Priority label (Highest, High, Medium, Low, Lowest)",Direct from Jira REST API
+priority_id,19,raw,Identity / Classification,float64,13.1,Internal numeric Jira priority ID,Direct from Jira REST API
+status_name,20,raw,Lifecycle State,object,0,"Current status label (e.g. Open, In Progress, Done)",Direct from Jira REST API
+status_id,21,raw,Lifecycle State,int64,0,Internal numeric Jira status ID,Direct from Jira REST API
+status_statusCategory_name,22,raw,Lifecycle State,object,0,"Status category (To Do, In Progress, Done)",Direct from Jira REST API
+Attachment Count,23,raw,Effort / Estimation,int64,0,Number of file attachments on the issue,Count of attachment objects in Jira API response
+Subtask Count,24,raw,Relationship,int64,0,Number of direct sub-tasks,Count of subtask links in Jira API response
+Issue Link Count,25,raw,Relationship,int64,0,Total number of issue links (inward + outward),Sum of inward and outward link objects
+Has Epic Link,26,raw,Relationship,int64,0,1 if the issue is associated with an Epic; 0 otherwise,Boolean derived from epic_link custom field
+Worklog Count,27,raw,Effort / Estimation,int64,0,Number of individual worklog entries,Count of worklog objects from /issue/{id}/worklog
+Vote Count,28,raw,Effort / Estimation,int64,0,Number of votes (alias of votes field),Direct from Jira REST API
+Watcher Count,29,raw,Effort / Estimation,int64,0,Number of watchers on the issue,From /issue/{id}/watchers endpoint
+Fix Version Count,30,raw,Relationship,int64,0,Number of fix versions associated with the issue,Count of fixVersions array
+Label Count,31,raw,Custom / Configuration,int64,0,Number of labels applied to the issue,Count of labels array
+Assignee Account ID,32,raw,Actor,object,33.9,Pseudonymous sequential token representing the assignee,Pseudonymised; original Atlassian account ID replaced before release
+Assignee Time Zone,33,raw,Actor,object,25.1,Time zone recorded in the assignee's Jira profile,Direct from Jira user object
+Cycle Time (hours),34,raw,Effort / Estimation,float64,17.4,Elapsed hours from issue creation to resolution; null for open issues,(resolutiondate - created) / 3600; negative values set to null
+Transition Count,35,raw,Lifecycle State,int64,0,Number of status transitions recorded in the issue changelog,Count of status-change events from /issue/{id}/changelog
+Reassignment Count,36,raw,Actor,int64,0,Number of assignee changes recorded in the changelog,Count of assignee-change events from /issue/{id}/changelog
+Total Time Logged (hours),37,raw,Effort / Estimation,float64,0,Sum of all worklog durations in hours,worklog_total / 3600
+Component Count,38,raw,Custom / Configuration,int64,0,Number of components associated with the issue,Count of components array
+Assignee Count,39,raw,Actor,int64,0,Number of distinct assignees across the issue's history,Count of distinct assignee values in changelog
+Total Days,40,raw,Temporal,float64,17.4,Calendar days from creation to last update,(updated - created).days
+Sprint Count,41,raw,Sprint Metadata,int64,0,Number of sprints the issue has been included in,Count of sprint membership records
+Updated By Count,42,raw,Actor,int64,0,Number of distinct users who updated the issue,Count of distinct author IDs in changelog
+sprint_id,43,raw,Sprint Metadata,float64,63.3,ID of the most recent sprint the issue belongs to,From sprint custom field; null if no sprint
+sprint_name,44,raw,Sprint Metadata,object,63.3,Name of the most recent sprint,From sprint custom field
+sprint_state,45,raw,Sprint Metadata,object,63.3,"State of the most recent sprint (active, closed, future)",From sprint custom field
+story_points,46,raw,Effort / Estimation,float64,66.5,Story point estimate; null if not estimated,From project-specific customfield (e.g. customfield_10016); 66.5% null
+severity_id,47,raw,Custom / Configuration,float64,97.9,Internal ID of severity custom field; null if not configured,From severity custom field; 97.9% null
+severity_value,48,raw,Custom / Configuration,object,97.9,"Severity label (e.g. Critical, Major); null if not configured",From severity custom field; 97.9% null
+rank,49,raw,Identity / Classification,object,0,Lexicographic rank string used for backlog ordering,From Jira rank custom field
+Priority,50,raw,Identity / Classification,object,37.4,Numeric encoding of priority_name for modelling (1=Lowest … 5=Highest),Mapped from priority_name
+Priority Changes,51,raw,Actor,int64,0,Number of times the priority field was changed,Count of priority-change events in changelog
+Fix Versions,52,raw,Relationship,int64,0,Comma-separated list of fix version names,Joined from fixVersions array
+Affect Versions,53,raw,Relationship,int64,0,Comma-separated list of affected version names,Joined from affectsVersions array
+Reopen Count,54,raw,Lifecycle State,int64,0,Number of times the issue was re-opened after resolution,Count of reopening events in changelog
+Number of Inward Links,55,raw,Relationship,int64,0,"Number of inward issue links (e.g. ""is blocked by"")",Count of inward link objects
+Number of Outward Links,56,raw,Relationship,int64,0,"Number of outward issue links (e.g. ""blocks"")",Count of outward link objects
+Blocking Issues,57,raw,Relationship,int64,0,Number of issues this issue blocks,"Count of outward ""blocks"" links"
+Blocked By Issues,58,raw,Relationship,int64,0,Number of issues blocking this issue,"Count of inward ""is blocked by"" links"
+Completion Time (hours),59,raw,Effort / Estimation,float64,17.4,NOTE: In v1.0 identical to Cycle Time (hours) due to derivation error; corrected in v2.0,Intended: (first_done_transition - first_inprogress_transition) / 3600
+summary_length,60,derived,Text-Derived,int64,0,Character count of the issue_summary field,len(issue_summary)
+has_technical_terms,61,derived,Text-Derived,bool,0,Populated in v2.1 using technical_lexicon.csv (500 terms across 11 categories: core_cs/data/networking/security/devops/testing/architecture/frontend/bugs/maintenance/cloud/ml/integration/performance); 1 if issue_summary contains a whole-word match against any lexicon term (case-insensitive),Binary flag; 1 if summary contains a term from the 500-term technical lexicon (see technical_lexicon.csv)
+total_relationships,62,derived,Complexity / Risk,int64,0,Total count of all issue relationships,Number of Inward Links + Number of Outward Links
+dependency_complexity,63,derived,Complexity / Risk,int64,0,Weighted dependency burden,"(Blocking Issues * 2 + Blocked By Issues * 1.5 + total_relationships) / max(1, Issue Link Count)"
+is_highly_connected,64,derived,Complexity / Risk,int64,0,1 if Issue Link Count >= 75th percentile within project,Binary; threshold computed per project_key
+collaboration_intensity,65,derived,Collaboration / Social,int64,0,Social activity density,"(comment_count + Reassignment Count + Updated By Count) / max(1, issue_age_days)"
+development_activity,66,derived,Collaboration / Social,int64,0,Volume of development events,Worklog Count + Transition Count + Attachment Count
+cycle_time_category,67,derived,Lifecycle / Timing,object,17.4,Ordinal bin of Cycle Time: Fast/Medium/Slow/Very Slow,Quartile-based within project; null for open issues
+is_long_running,68,derived,Lifecycle / Timing,bool,0,1 if Cycle Time (hours) > 75th percentile within project,Binary; null for open issues
+is_high_priority,69,derived,Effort / Business Value,bool,0,"1 if priority_name in {Highest, High}",Binary flag
+is_bug,70,derived,Effort / Business Value,bool,0,1 if issuetype_name == Bug,Binary flag
+complexity_score,71,derived,Complexity / Risk,float64,0,Composite complexity index (0–1 normalised),Weighted sum: Transition Count*0.2 + Reassignment Count*0.15 + Reopen Count*0.25 + dependency_complexity*0.2 + collaboration_intensity*0.2
+work_sessions,72,derived,Collaboration / Social,int64,0,Estimated number of distinct work sessions,Worklog Count (proxy for discrete effort intervals)
+comment_count,73,derived,Collaboration / Social,int64,0,Number of comments on the issue,Count of comment objects from /issue/{id}/comment
+updated_by_count,74,derived,Collaboration / Social,int64,0,Alias of Updated By Count for compatibility,Same as Updated By Count
+communication_overhead,75,derived,Collaboration / Social,int64,0,Comment density relative to lifecycle,"comment_count / max(1, issue_age_days)"
+collaboration_ratio,76,derived,Collaboration / Social,float64,18,Ratio of collaborators to total time,"Updated By Count / max(1, Total Days)"
+effort_per_story_point,77,derived,Effort / Business Value,float64,71.4,Cycle time per story point; null if either is missing,Cycle Time (hours) / story_points
+team_size_indicator,78,derived,Collaboration / Social,int64,0,Proxy for team size from distinct actor count,"max(Assignee Count, Updated By Count)"
+handoff_complexity,79,derived,Complexity / Risk,int64,0,Effort cost of ownership transfers,Reassignment Count * log1p(Transition Count)
+process_overhead,80,derived,Process Quality / State,int64,0,Overhead beyond direct development effort,Transition Count + Reassignment Count + Reopen Count
+rework_indicator,81,derived,Process Quality / State,bool,0,Signal of rework or defect escape,Reopen Count * 2 + (1 if has_rework else 0)
+scope_change_indicator,82,derived,Process Quality / State,int64,0,Signal of scope instability,Priority Changes + Fix Version Count
+has_rework,83,derived,Process Quality / State,bool,0,1 if Reopen Count > 0,Binary flag
+effort_category_hours,84,derived,Lifecycle / Timing,object,0,Ordinal label for Total Time Logged: Low/Medium/High/Very High,Quartile-based within project
+effort_predictor_z,85,derived,Effort / Business Value,float64,0,Z-score of effort_predictor_score within project,(effort_predictor_score - project_mean) / project_std
+effort_risk_z,86,derived,Complexity / Risk,float64,0,Z-score of effort_risk_score within project,(effort_risk_score - project_mean) / project_std
+effort_risk_raw,87,derived,Complexity / Risk,float64,0,Un-normalised effort risk magnitude,complexity_score * dependency_complexity * (1 + Reopen Count)
+effort_risk_category,88,derived,Complexity / Risk,object,0,Ordinal risk tier: Low/Medium/High/Critical,Quartile-based on effort_risk_score within project
+effort_predictor_score,89,derived,Effort / Business Value,float64,0,Composite effort prediction signal (0–1),Weighted sum: story_points*0.3 + Cycle Time*0.25 + complexity_score*0.2 + collaboration_intensity*0.15 + process_overhead*0.1 (all normalised within project)
+effort_risk_score,90,derived,Complexity / Risk,float64,0,Composite effort risk signal (0–1),Weighted sum: complexity_score*0.3 + dependency_complexity*0.25 + Reopen Count*0.2 + handoff_complexity*0.15 + scope_change_indicator*0.1 (normalised within project)
+stakeholder_interest,91,derived,Collaboration / Social,float64,0,Breadth of stakeholder engagement,Vote Count + Watcher Count + comment_count
+sprint_velocity_points,92,derived,Sprint Metadata,float64,63.3,Story points completed in the issue's sprint,Aggregate of story_points for Done issues in same sprint_id
+sprint_throughput,93,derived,Sprint Metadata,float64,63.3,Issue count completed in the issue's sprint,Count of resolved issues in same sprint_id
+assignee_avg_velocity,94,derived,Collaboration / Social,float64,42.8,Historical mean story points resolved per sprint for the assignee,Rolling mean across prior sprints for same Assignee Account ID
+priority_score,95,derived,Effort / Business Value,float64,0,Numeric priority weight (1=Lowest … 5=Highest),Same as Priority column
+business_value_score,96,derived,Effort / Business Value,float64,0,Composite business value signal (0–1),Weighted sum: priority_score*0.4 + stakeholder_interest*0.3 + is_customer_facing*0.2 + Fix Version Count*0.1 (normalised within project)
+is_customer_facing,97,derived,Effort / Business Value,int64,0,1 if issue type or labels suggest user-visible impact,"Binary; 1 if issuetype_name in {Story, Improvement} or label contains ""customer"""
+technical_debt_score,98,derived,Complexity / Risk,float64,0,Signal of technical debt contribution,"(Reopen Count + process_overhead) / max(1, story_points) if story_points else process_overhead"
+is_maintenance_work,99,derived,Process Quality / State,int64,0,"1 if issuetype_name in {Bug, Improvement} or labels contain ""maintenance""",Binary flag
+quality_concern,100,derived,Process Quality / State,int64,0,"1 if Reopen Count > 0 or resolution_name in {Won't Fix, Duplicate}",Binary flag
+has_external_dependency,101,derived,Complexity / Risk,int64,0,1 if Blocked By Issues > 0 or labels reference external systems,Binary flag
+mentions_external,102,derived,Text-Derived,int64,0,1 if issue_summary references known external system keywords,Binary; keyword list in data_dictionary.csv supplementary notes
+dependency_risk,103,derived,Complexity / Risk,float64,0,Risk magnitude from external and internal dependencies,(Blocked By Issues * 2 + has_external_dependency) * dependency_complexity
+coordination_complexity,104,derived,Collaboration / Social,float64,0,Cross-team coordination burden,team_size_indicator * handoff_complexity
+change_volatility,105,derived,Process Quality / State,int64,0,Rate of field changes over issue lifetime,"(Priority Changes + Transition Count + Reassignment Count) / max(1, Total Days)"
+effort_efficiency,106,derived,Effort / Business Value,float64,66.5,Story points delivered per hour of logged effort,"story_points / max(1, Total Time Logged (hours)); null if either missing"
+issue_age_days,107,derived,Lifecycle / Timing,float64,42.6,Days from creation to extraction date,(extraction_date - created).days
+is_stale,108,derived,Process Quality / State,int64,0,1 if issue is open and issue_age_days > 180,Binary; 0 for resolved issues

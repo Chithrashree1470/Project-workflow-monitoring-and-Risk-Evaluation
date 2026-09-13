@@ -1,0 +1,17 @@
+Feature,Importance
+task_age_days,32.76154853588435
+snapshot_number,32.533254586944565
+days_until_estimation,30.986500359975263
+assignee_id,0.6400753271893773
+issue_type,0.6076622674182734
+story_points,0.567633657155507
+priority,0.5669615088170269
+sprint_id,0.5550258977030219
+status,0.39992310776491297
+project_task_count,0.1852781185345347
+estimated_duration_days,0.1466488206080144
+timespent,0.02656624117307931
+has_assignee,0.013951963451233717
+has_sprint,0.008969607380825181
+age_to_estimation_ratio,0.0
+timespent_to_estimation_ratio,0.0

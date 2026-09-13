@@ -1,0 +1,223 @@
+======================================================================
+DYNAMIC CATBOOST MODEL ANALYSIS
+======================================================================
+
+Loading dataset...
+Rows    : 28843
+Columns : 20
+Projects: 105
+
+Loading model...
+Model loaded:
+C:\Users\Admin\Desktop\programming_file\major project\ai-based-workflow-monitoring-system\ml\src\dynamic_catboost_model.pkl
+
+Model classes:
+['Critical' 'High' 'Low' 'Medium']
+
+======================================================================
+RECREATING PROJECT-LEVEL TEST SPLIT
+======================================================================
+Training projects: 84
+Testing projects : 21
+Testing snapshots: 6296
+
+======================================================================
+GENERATING PREDICTIONS
+======================================================================
+
+Accuracy:
+39.39%
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    Critical       0.30      0.19      0.23      1535
+        High       0.32      0.44      0.37      1550
+         Low       0.55      0.58      0.57      1876
+      Medium       0.33      0.31      0.32      1335
+
+    accuracy                           0.39      6296
+   macro avg       0.38      0.38      0.37      6296
+weighted avg       0.39      0.39      0.39      6296
+
+
+======================================================================
+CONFUSION MATRIX
+======================================================================
+                 Predicted Critical  ...  Predicted Medium
+Actual Critical                 288  ...               243
+Actual High                     273  ...               338
+Actual Low                      219  ...               269
+Actual Medium                   166  ...               418
+
+[4 rows x 4 columns]
+
+======================================================================
+PREDICTION DISTRIBUTION
+======================================================================
+          Actual  Predicted   Actual %  Predicted %
+Critical    1535        946  24.380559    15.025413
+High        1550       2104  24.618806    33.418043
+Low         1876       1978  29.796696    31.416773
+Medium      1335       1268  21.203939    20.139771
+
+======================================================================
+CONFIDENCE ANALYSIS
+======================================================================
+
+Average maximum probability: 45.17%
+Median maximum probability : 40.68%
+Minimum maximum probability: 27.13%
+Maximum maximum probability: 97.75%
+
+Average probability margin: 20.11%
+
+Confidence buckets:
+            predictions  correct   accuracy
+confidence                                 
+<40%               2991      971  32.464059
+40-50%             1608      485  30.161692
+50-60%              926      483  52.159827
+60-70%              284      169  59.507042
+70-80%              228      174  76.315789
+80-90%              151      106  70.198675
+90-100%             108       92  85.185185
+
+======================================================================
+CONFIDENCE BY ACTUAL CLASS
+======================================================================
+          count       mean     median        min        max
+actual                                                     
+Critical   1535  43.212154  39.781657  27.588805  93.609445
+High       1550  41.125210  38.643161  28.195317  91.002697
+Low        1876  51.603224  45.174972  27.912497  97.746636
+Medium     1335  43.091591  40.803409  27.133723  90.140925
+
+======================================================================
+CLASS-SPECIFIC ANALYSIS
+======================================================================
+
+Critical:
+ Total actual snapshots : 1535
+ Correct predictions     : 288
+ Class accuracy          : 18.76%
+ Predicted as:
+   Critical     288 (18.76%)
+   High         610 (39.74%)
+   Low          394 (25.67%)
+   Medium       243 (15.83%)
+
+High:
+ Total actual snapshots : 1550
+ Correct predictions     : 680
+ Class accuracy          : 43.87%
+ Predicted as:
+   Critical     273 (17.61%)
+   High         680 (43.87%)
+   Low          259 (16.71%)
+   Medium       338 (21.81%)
+
+Low:
+ Total actual snapshots : 1876
+ Correct predictions     : 1094
+ Class accuracy          : 58.32%
+ Predicted as:
+   Critical     219 (11.67%)
+   High         294 (15.67%)
+   Low         1094 (58.32%)
+   Medium       269 (14.34%)
+
+Medium:
+ Total actual snapshots : 1335
+ Correct predictions     : 418
+ Class accuracy          : 31.31%
+ Predicted as:
+   Critical     166 (12.43%)
+   High         520 (38.95%)
+   Low          231 (17.30%)
+   Medium       418 (31.31%)
+
+======================================================================
+HIGH / MEDIUM / CRITICAL CONFUSION
+======================================================================
+
+Actual Critical:
+  → Critical  :   288 (18.76%)
+  → High      :   610 (39.74%)
+  → Medium    :   243 (15.83%)
+
+Actual High:
+  → Critical  :   273 (17.61%)
+  → High      :   680 (43.87%)
+  → Medium    :   338 (21.81%)
+
+Actual Medium:
+  → Critical  :   166 (12.43%)
+  → High      :   520 (38.95%)
+  → Medium    :   418 (31.31%)
+
+======================================================================
+MOST UNCERTAIN PREDICTIONS
+======================================================================
+ project_id             snapshot_date actual_risk predicted_risk  confidence   margin
+      10143 2020-11-04 16:08:10+00:00         Low       Critical   31.121173 0.000696
+      10144 2020-02-13 07:27:20+00:00         Low         Medium   31.747592 0.020852
+      10144 2020-02-20 07:27:20+00:00         Low         Medium   31.747592 0.020852
+      10144 2020-02-27 07:27:20+00:00         Low         Medium   31.747592 0.020852
+      10144 2020-02-06 07:27:20+00:00         Low         Medium   31.747592 0.020852
+      10017 2022-02-23 16:54:29+00:00        High       Critical   29.939453 0.023569
+      10144 2019-04-18 07:27:20+00:00    Critical           High   34.637327 0.029379
+      13310 2018-09-13 03:39:00+00:00      Medium         Medium   27.256793 0.047342
+      13310 2022-10-06 03:39:00+00:00        High       Critical   29.063582 0.054312
+      13310 2022-09-29 03:39:00+00:00        High       Critical   29.063582 0.054312
+      10630 2017-05-15 05:22:09+00:00        High           High   30.355365 0.059700
+      10630 2017-05-22 05:22:09+00:00      Medium           High   30.355365 0.059700
+      10037 2021-10-05 13:18:05+00:00         Low         Medium   35.287206 0.067609
+      10037 2021-10-12 13:18:05+00:00         Low         Medium   35.287206 0.067609
+      10143 2019-03-06 16:08:10+00:00      Medium           High   37.762583 0.070100
+      10152 2023-08-17 15:18:28+00:00         Low            Low   33.353478 0.081727
+      10152 2023-08-10 15:18:28+00:00         Low            Low   33.353478 0.081727
+      10017 2020-09-23 16:54:29+00:00    Critical           High   32.323680 0.085359
+      13310 2023-07-13 03:39:00+00:00    Critical       Critical   29.179115 0.087097
+      13310 2018-02-01 03:39:00+00:00        High           High   29.689310 0.090921
+
+======================================================================
+FEATURE IMPORTANCE
+======================================================================
+                 Feature  Importance
+        project_age_days   16.962229
+             story_count   11.896389
+   completion_percentage    9.645327
+               bug_count    7.217441
+         completed_tasks    6.866745
+          assignee_count    6.641494
+        transition_count    6.115940
+      reassignment_count    5.866970
+            reopen_count    5.755736
+     critical_task_count    5.143025
+high_priority_task_count    5.056845
+        updated_by_count    4.958434
+           pending_tasks    4.285377
+             total_tasks    3.588048
+
+======================================================================
+LOW-IMPORTANCE FEATURES
+======================================================================
+Empty DataFrame
+Columns: [Feature, Importance]
+Index: []
+
+======================================================================
+ANALYSIS SUMMARY
+======================================================================
+
+Test accuracy: 39.39%
+
+Average confidence: 45.17%
+Average confidence margin: 20.11%
+
+The next model change should be based on the class-confusion and confidence results above.
+
+======================================================================
+ANALYSIS COMPLETE
+======================================================================
