@@ -1,5 +1,26 @@
+# Python
 venv/
 __pycache__/
 *.pyc
-catboost_info/
+
+# Node
+node_modules/
+
+# Environment
 .env
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Python model
+*.pkl
+
+# OS files
+.DS_Store
+Thumbs.db
+
+dataset\TAWOS.sql
+catboost_info/
