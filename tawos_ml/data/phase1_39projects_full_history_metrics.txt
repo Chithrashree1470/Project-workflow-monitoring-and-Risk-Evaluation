@@ -1,0 +1,49 @@
+PHASE 1 - 39 PROJECTS - FULL HISTORY
+============================================================
+
+Dataset rows: 1104708
+Training rows: 659901
+Testing rows: 444807
+
+Training projects (31): [1, 2, 3, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 30, 32, 33, 35, 42, 43, 44]
+Testing projects (8): [4, 11, 12, 24, 29, 31, 34, 36]
+
+Accuracy: 0.6940
+Macro F1: 0.6661
+Weighted F1: 0.6959
+
+Classification Report:
+              precision    recall  f1-score   support
+
+    Critical     0.8240    0.7840    0.8035    181356
+        High     0.7077    0.5381    0.6113     80695
+         Low     0.4961    0.8210    0.6184     67057
+      Medium     0.6808    0.5879    0.6310    115699
+
+    accuracy                         0.6940    444807
+   macro avg     0.6771    0.6827    0.6661    444807
+weighted avg     0.7162    0.6940    0.6959    444807
+
+Confusion Matrix:
+[[142178  12337  15156  11685]
+ [ 14488  43421   9011  13775]
+ [  5562      8  55053   6434]
+ [ 10325   5590  31759  68025]]
+
+Feature Importance:
+                 feature  importance
+           task_age_days   61.690697
+                assignee   12.567148
+                  sprint    6.226000
+                  status    5.286335
+              issue_type    5.223069
+                priority    3.486764
+     changes_last_7_days    1.459399
+            story_points    1.439403
+     status_change_count    0.956158
+   assignee_change_count    0.567427
+    story_points_missing    0.555639
+               timespent    0.231364
+story_point_change_count    0.183832
+   priority_change_count    0.085204
+   estimate_change_count    0.041562
