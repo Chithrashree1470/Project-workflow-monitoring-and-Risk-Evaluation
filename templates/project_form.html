@@ -4,12 +4,9 @@
 <head>
 
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>InfraSync AI | Risk Assessment</title>
-
 
 <style>
 
@@ -19,384 +16,283 @@
     padding: 0;
 }
 
-
 body {
-
     font-family: Arial, sans-serif;
-
     background: #07111f;
-
     color: #e5e7eb;
-
     min-height: 100vh;
 }
 
-
-/* ==========================================================
-   NAVBAR
-========================================================== */
-
 .navbar {
-
     height: 70px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     padding: 0 7%;
-
     border-bottom: 1px solid #1e293b;
 }
 
-
 .logo {
-
     color: #38bdf8;
-
     font-size: 22px;
-
     font-weight: bold;
 }
 
-
 .nav-links {
-
     display: flex;
-
     gap: 25px;
 }
 
-
 .nav-links a {
-
     color: #cbd5e1;
-
     text-decoration: none;
 }
 
-
 .nav-links a:hover {
-
     color: #38bdf8;
 }
 
-
-/* ==========================================================
-   CONTAINER
-========================================================== */
-
 .container {
-
     width: 90%;
-
-    max-width: 1100px;
-
+    max-width: 1200px;
     margin: 40px auto 70px;
 }
 
-
 h1 {
-
     font-size: 32px;
-
     margin-bottom: 10px;
 }
 
-
 .subtitle {
-
     color: #94a3b8;
-
     margin-bottom: 30px;
 }
 
-
-/* ==========================================================
-   CARD
-========================================================== */
-
 .form-card {
-
     background: #0b1728;
-
     border: 1px solid #1e293b;
-
     border-radius: 18px;
-
     padding: 30px;
 }
 
+.section {
+    margin-bottom: 40px;
+}
 
 .section-title {
-
     color: #38bdf8;
-
     font-size: 20px;
-
     margin-bottom: 22px;
-
     padding-bottom: 10px;
-
     border-bottom: 1px solid #1e293b;
 }
 
-
-.section {
-
-    margin-bottom: 35px;
+.info-note {
+    background: #081827;
+    border: 1px solid rgba(56,189,248,.15);
+    color: #94a3b8;
+    padding: 14px 16px;
+    border-radius: 10px;
+    line-height: 1.6;
+    font-size: 13px;
+    margin-bottom: 22px;
 }
 
-
-/* ==========================================================
-   GRID
-========================================================== */
-
 .form-grid {
-
     display: grid;
-
-    grid-template-columns:
-        repeat(2, 1fr);
-
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
 }
 
-
-.form-group {
-
-    display: flex;
-
-    flex-direction: column;
-}
-
-
-.form-group.full {
-
+.full {
     grid-column: 1 / -1;
 }
 
-
-/* ==========================================================
-   LABEL
-========================================================== */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
 
 label {
-
     margin-bottom: 8px;
-
     color: #cbd5e1;
-
     font-size: 14px;
-
     font-weight: 600;
 }
 
-
-/* ==========================================================
-   INPUTS
-========================================================== */
-
 input,
-select {
-
+select,
+textarea {
     width: 100%;
-
     padding: 13px 14px;
-
     background: #07111f;
-
     color: #e5e7eb;
-
     border: 1px solid #334155;
-
     border-radius: 9px;
-
     outline: none;
-
     font-size: 14px;
 }
 
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
 
 input:focus,
-select:focus {
-
+select:focus,
+textarea:focus {
     border-color: #38bdf8;
 }
 
-
-input::placeholder {
-
+input::placeholder,
+textarea::placeholder {
     color: #64748b;
 }
 
-
-/* ==========================================================
-   REMOVE NUMBER SPINNER
-========================================================== */
-
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-
-    -webkit-appearance: none;
-
-    margin: 0;
-}
-
-
-input[type="number"] {
-
-    -moz-appearance: textfield;
-}
-
-
-/* ==========================================================
-   READONLY FIELDS
-========================================================== */
-
-input[readonly] {
-
-    background: #101d30;
-
-    color: #38bdf8;
-
-    font-weight: bold;
-}
-
-
-/* ==========================================================
-   OTHER BOX
-========================================================== */
-
-.other-box {
-
-    display: none;
-
-    margin-top: 10px;
-}
-
-
-/* ==========================================================
-   SUMMARY
-========================================================== */
-
-.summary {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 15px;
-
-    margin-top: 25px;
-}
-
-
-.summary-box {
-
-    background: #07111f;
-
+.table-wrapper {
+    overflow-x: auto;
     border: 1px solid #1e293b;
-
-    border-radius: 10px;
-
-    padding: 15px;
+    border-radius: 12px;
 }
 
-
-.summary-box span {
-
-    display: block;
-
-    color: #94a3b8;
-
-    font-size: 12px;
-
-    margin-bottom: 7px;
+table {
+    width: 100%;
+    min-width: 1100px;
+    border-collapse: collapse;
 }
 
+th,
+td {
+    padding: 11px;
+    border-bottom: 1px solid #1e293b;
+}
 
-.summary-box strong {
-
+th {
+    background: #091625;
     color: #38bdf8;
-
-    font-size: 17px;
+    font-size: 12px;
+    text-align: left;
 }
 
-
-/* ==========================================================
-   BUTTON
-========================================================== */
-
-.submit-area {
-
-    text-align: center;
-
-    margin-top: 30px;
+td {
+    background: #0a1625;
 }
 
+td input,
+td select {
+    min-width: 130px;
+    padding: 10px;
+}
 
 button {
-
-    padding: 14px 40px;
-
-    border: none;
-
-    border-radius: 9px;
-
-    background: #38bdf8;
-
-    color: #07111f;
-
-    font-size: 15px;
-
-    font-weight: bold;
-
     cursor: pointer;
 }
 
+.remove-btn {
+    background: #172538;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    padding: 9px 12px;
+    border-radius: 7px;
+}
 
-button:hover {
+.remove-btn:hover {
+    background: #26364a;
+}
 
+.add-btn {
+    margin-top: 15px;
+    background: #142538;
+    color: #d6e7f5;
+    border: 1px solid #334155;
+    padding: 11px 18px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.add-btn:hover {
+    background: #1b3045;
+}
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.summary-box {
+    background: #07111f;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.summary-box span {
+    display: block;
+    color: #94a3b8;
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.summary-box strong {
+    color: #38bdf8;
+    font-size: 17px;
+}
+
+.submit-area {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.submit-btn {
+    padding: 14px 40px;
+    background: #38bdf8;
+    color: #07111f;
+    border: none;
+    border-radius: 9px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.submit-btn:hover {
     background: #7dd3fc;
 }
 
+.calculated {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 10px;
+    background: #081827;
+    border: 1px solid rgba(56,189,248,.15);
+    color: #94a3b8;
+    line-height: 1.8;
+}
 
-/* ==========================================================
-   MOBILE
-========================================================== */
+.calculated strong {
+    color: #e5e7eb;
+}
 
 @media (max-width: 800px) {
 
     .form-grid {
-
         grid-template-columns: 1fr;
     }
 
-
     .summary {
-
-        grid-template-columns:
-            1fr 1fr;
-    }
-
-
-    .navbar {
-
-        padding: 0 5%;
+        grid-template-columns: 1fr 1fr;
     }
 
 }
 
-
 @media (max-width: 500px) {
 
     .summary {
-
         grid-template-columns: 1fr;
+    }
+
+    .form-card {
+        padding: 20px;
     }
 
 }
@@ -405,20 +301,13 @@ button:hover {
 
 </head>
 
-
 <body>
-
-
-<!-- ========================================================
-     NAVBAR
-======================================================== -->
 
 <nav class="navbar">
 
     <div class="logo">
         InfraSync AI
     </div>
-
 
     <div class="nav-links">
 
@@ -435,36 +324,30 @@ button:hover {
 </nav>
 
 
-<!-- ========================================================
-     MAIN
-======================================================== -->
-
 <div class="container">
-
 
     <h1>
         AI Risk Assessment
     </h1>
 
-
     <p class="subtitle">
-        Enter the project details to generate a project risk prediction.
+        Project risk assessment based on project information,
+        actual team composition, manager experience and task information.
     </p>
 
 
     <div class="form-card">
 
-
         <form
-            id="riskForm"
             action="/predict"
             method="POST"
+            enctype="multipart/form-data"
         >
 
 
-            <!-- =================================================
-                 PROJECT INFORMATION
-            ================================================== -->
+            <!-- ================================================= -->
+            <!-- PROJECT INFORMATION -->
+            <!-- ================================================= -->
 
             <div class="section">
 
@@ -472,21 +355,22 @@ button:hover {
                     Project Information
                 </h2>
 
+                <div class="info-note">
+                    Enter the information available when the project
+                    is being created. Team experience is calculated
+                    automatically from the employees assigned below.
+                </div>
 
                 <div class="form-grid">
 
+                    <div class="form-group full">
 
-                    <!-- Project Name -->
-
-                    <div class="form-group">
-
-                        <label for="Project_Name">
+                        <label>
                             Project Name
                         </label>
 
                         <input
                             type="text"
-                            id="Project_Name"
                             name="Project_Name"
                             required
                             placeholder="Enter project name"
@@ -495,527 +379,96 @@ button:hover {
                     </div>
 
 
-                    <!-- Project Type -->
-
                     <div class="form-group">
 
-                        <label for="Project_Type">
+                        <label>
                             Project Type
-                        </label>
-
-                        <select
-                            id="Project_Type"
-                            name="Project_Type"
-                            required
-                        >
-
-                            <option value="">
-                                Select Project Type
-                            </option>
-
-                            <option value="Construction">
-                                Construction
-                            </option>
-
-                            <option value="Healthcare">
-                                Healthcare
-                            </option>
-
-                            <option value="IT">
-                                IT
-                            </option>
-
-                            <option value="Manufacturing">
-                                Manufacturing
-                            </option>
-
-                            <option value="Marketing">
-                                Marketing
-                            </option>
-
-                            <option value="R&D">
-                                R&D
-                            </option>
-
-                            <option value="Others">
-                                Other
-                            </option>
-
-                        </select>
-
-
-                        <div
-                            class="other-box"
-                            id="projectTypeOtherBox"
-                        >
-
-                            <input
-                                type="text"
-                                id="Project_Type_Other"
-                                name="Project_Type_Other"
-                                placeholder="Enter project type"
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- Start Date -->
-
-                    <div class="form-group">
-
-                        <label for="Start_Date">
-                            Start Date
-                        </label>
-
-                        <input
-                            type="date"
-                            id="Start_Date"
-                            name="Start_Date"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- End Date -->
-
-                    <div class="form-group">
-
-                        <label for="End_Date">
-                            End Date
-                        </label>
-
-                        <input
-                            type="date"
-                            id="End_Date"
-                            name="End_Date"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Timeline -->
-
-                    <div class="form-group">
-
-                        <label for="Estimated_Timeline_Display">
-                            Timeline
                         </label>
 
                         <input
                             type="text"
-                            id="Estimated_Timeline_Display"
-                            readonly
-                            placeholder="0 months"
+                            name="Project_Type"
+                            placeholder="e.g. ERP, Web Application, Banking"
                         >
 
                     </div>
 
 
-                    <!-- Team Size -->
-
                     <div class="form-group">
 
-                        <label for="Team_Size">
-                            Team Size
-                        </label>
-
-                        <input
-                            type="number"
-                            id="Team_Size"
-                            name="Team_Size"
-                            min="0"
-                            placeholder="Enter team size"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Budget -->
-
-                    <div class="form-group">
-
-                        <label for="Project_Budget_USD">
+                        <label>
                             Project Budget (USD)
                         </label>
 
                         <input
                             type="number"
-                            id="Project_Budget_USD"
                             name="Project_Budget_USD"
                             min="0"
                             step="0.01"
-                            placeholder="Enter project budget"
                             required
                         >
 
                     </div>
 
 
-                    <!-- Stakeholders -->
-
                     <div class="form-group">
 
-                        <label for="Stakeholder_Count">
-                            Stakeholder Count
+                        <label>
+                            Start Date
                         </label>
 
                         <input
-                            type="number"
-                            id="Stakeholder_Count"
-                            name="Stakeholder_Count"
-                            min="0"
-                            placeholder="Enter stakeholder count"
+                            type="date"
+                            name="Start_Date"
+                            id="Start_Date"
                             required
                         >
 
                     </div>
 
 
-                    <!-- Methodology -->
-
                     <div class="form-group">
 
-                        <label for="Methodology_Used">
-                            Methodology
+                        <label>
+                            End Date
                         </label>
 
-                        <select
-                            id="Methodology_Used"
-                            name="Methodology_Used"
+                        <input
+                            type="date"
+                            name="End_Date"
+                            id="End_Date"
                             required
                         >
-
-                            <option value="">
-                                Select Methodology
-                            </option>
-
-                            <option value="Agile">
-                                Agile
-                            </option>
-
-                            <option value="Hybrid">
-                                Hybrid
-                            </option>
-
-                            <option value="Kanban">
-                                Kanban
-                            </option>
-
-                            <option value="Scrum">
-                                Scrum
-                            </option>
-
-                            <option value="Waterfall">
-                                Waterfall
-                            </option>
-
-                            <option value="Others">
-                                Other
-                            </option>
-
-                        </select>
-
-
-                        <div
-                            class="other-box"
-                            id="methodologyOtherBox"
-                        >
-
-                            <input
-                                type="text"
-                                id="Methodology_Used_Other"
-                                name="Methodology_Used_Other"
-                                placeholder="Enter methodology"
-                            >
-
-                        </div>
 
                     </div>
 
 
-                    <!-- Complexity -->
-
                     <div class="form-group">
 
-                        <label for="Complexity_Score">
-                            Complexity Score (1–10)
+                        <label>
+                            Timeline
                         </label>
 
                         <input
                             type="text"
-                            id="Complexity_Score"
-                            name="Complexity_Score"
+                            id="Timeline"
                             readonly
                             placeholder="Calculated automatically"
                         >
 
                     </div>
 
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 TEAM & MANAGEMENT
-            ================================================== -->
-
-            <div class="section">
-
-                <h2 class="section-title">
-                    Team & Management
-                </h2>
-
-
-                <div class="form-grid">
-
-
-                    <!-- Team Experience -->
 
                     <div class="form-group">
 
-                        <label for="Team_Experience_Level">
-                            Team Experience Level
-                        </label>
-
-                        <select
-                            id="Team_Experience_Level"
-                            name="Team_Experience_Level"
-                            required
-                        >
-
-                            <option value="">
-                                Select
-                            </option>
-
-                            <option value="Junior">
-                                Junior
-                            </option>
-
-                            <option value="Mixed">
-                                Mixed
-                            </option>
-
-                            <option value="Senior">
-                                Senior
-                            </option>
-
-                            <option value="Expert">
-                                Expert
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- PM Experience -->
-
-                    <div class="form-group">
-
-                        <label for="Project_Manager_Experience">
-                            Project Manager Experience
-                        </label>
-
-                        <select
-                            id="Project_Manager_Experience"
-                            name="Project_Manager_Experience"
-                            required
-                        >
-
-                            <option value="">
-                                Select
-                            </option>
-
-                            <option value="Junior PM">
-                                Junior PM
-                            </option>
-
-                            <option value="Mid-level PM">
-                                Mid-level PM
-                            </option>
-
-                            <option value="Senior PM">
-                                Senior PM
-                            </option>
-
-                            <option value="Certified PM">
-                                Certified PM
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Project Phase -->
-
-                    <div class="form-group">
-
-                        <label for="Project_Phase">
+                        <label>
                             Project Phase
                         </label>
 
-                        <select
-                            id="Project_Phase"
-                            name="Project_Phase"
-                            required
-                        >
-
-                            <option value="">
-                                Select
-                            </option>
-
-                            <option value="Initiation">
-                                Initiation
-                            </option>
-
-                            <option value="Planning">
-                                Planning
-                            </option>
-
-                            <option value="Execution">
-                                Execution
-                            </option>
-
-                            <option value="Monitoring">
-                                Monitoring
-                            </option>
-
-                            <option value="Closure">
-                                Closure
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Requirement Stability -->
-
-                    <div class="form-group">
-
-                        <label for="Requirement_Stability">
-                            Requirement Stability
-                        </label>
-
-                        <select
-                            id="Requirement_Stability"
-                            name="Requirement_Stability"
-                            required
-                        >
-
-                            <option value="">
-                                Select
-                            </option>
-
-                            <option value="Stable">
-                                Stable
-                            </option>
-
-                            <option value="Moderate">
-                                Moderate
-                            </option>
-
-                            <option value="Volatile">
-                                Volatile
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Technology Familiarity -->
-
-                    <div class="form-group">
-
-                        <label for="Technology_Familiarity">
-                            Technology Familiarity
-                        </label>
-
-                        <select
-                            id="Technology_Familiarity"
-                            name="Technology_Familiarity"
-                            required
-                        >
-
-                            <option value="">
-                                Select
-                            </option>
-
-                            <option value="New">
-                                New
-                            </option>
-
-                            <option value="Familiar">
-                                Familiar
-                            </option>
-
-                            <option value="Expert">
-                                Expert
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Resource Availability -->
-
-                    <div class="form-group">
-
-                        <label for="Resource_Availability">
-                            Resource Availability
-                        </label>
-
-                        <select
-                            id="Resource_Availability"
-                            name="Resource_Availability"
-                            required
-                        >
-
-                            <option value="">
-                                Select
-                            </option>
-
-                            <option value="Low">
-                                Low
-                            </option>
-
-                            <option value="Medium">
-                                Medium
-                            </option>
-
-                            <option value="High">
-                                High
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Change Requests -->
-
-                    <div class="form-group">
-
-                        <label for="Change_Request_Frequency">
-                            Change Request Frequency
-                        </label>
-
                         <input
-                            type="number"
-                            id="Change_Request_Frequency"
-                            name="Change_Request_Frequency"
-                            min="0"
-                            placeholder="Enter number of changes"
-                            required
+                            type="text"
+                            value="Initiation"
+                            readonly
                         >
 
                     </div>
@@ -1025,199 +478,409 @@ button:hover {
             </div>
 
 
-            <!-- =================================================
-                 TASK & WORKFLOW
-            ================================================== -->
+            <!-- ================================================= -->
+            <!-- MANAGER RESUME -->
+            <!-- ================================================= -->
 
             <div class="section">
 
                 <h2 class="section-title">
-                    Task & Workflow Information
+                    Project Manager Information
                 </h2>
 
+                <div class="info-note">
 
-                <div class="form-grid">
-
-
-                    <!-- Total Tasks -->
-
-                    <div class="form-group">
-
-                        <label for="Total_Tasks">
-                            Total Tasks
-                        </label>
-
-                        <input
-                            type="number"
-                            id="Total_Tasks"
-                            name="Total_Tasks"
-                            min="0"
-                            placeholder="Enter total tasks"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Completed Tasks -->
-
-                    <div class="form-group">
-
-                        <label for="Completed_Tasks">
-                            Completed Tasks
-                        </label>
-
-                        <input
-                            type="number"
-                            id="Completed_Tasks"
-                            name="Completed_Tasks"
-                            min="0"
-                            placeholder="Enter completed tasks"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Overdue Tasks -->
-
-                    <div class="form-group">
-
-                        <label for="Overdue_Tasks">
-                            Overdue Tasks
-                        </label>
-
-                        <input
-                            type="number"
-                            id="Overdue_Tasks"
-                            name="Overdue_Tasks"
-                            min="0"
-                            placeholder="Enter overdue tasks"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Estimated Effort -->
-
-                    <div class="form-group">
-
-                        <label for="Estimated_Effort_Days">
-                            Estimated Effort (Days)
-                        </label>
-
-                        <input
-                            type="number"
-                            id="Estimated_Effort_Days"
-                            name="Estimated_Effort_Days"
-                            min="0"
-                            step="0.01"
-                            placeholder="Enter estimated effort"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Actual Effort -->
-
-                    <div class="form-group">
-
-                        <label for="Actual_Effort_Days">
-                            Actual Effort (Days)
-                        </label>
-
-                        <input
-                            type="number"
-                            id="Actual_Effort_Days"
-                            name="Actual_Effort_Days"
-                            min="0"
-                            step="0.01"
-                            placeholder="Enter actual effort"
-                            required
-                        >
-
-                    </div>
+                    Upload the project manager's resume.
+                    The system will extract relevant experience
+                    information and determine the project manager
+                    experience category automatically.
 
                 </div>
 
+                <div class="form-group">
 
-                <!-- =================================================
-                     LIVE SUMMARY
-                ================================================== -->
+                    <label>
+                        Project Manager Resume
+                    </label>
 
-                <div class="summary">
+                    <input
+                        type="file"
+                        name="Manager_Resume"
+                        id="Manager_Resume"
+                        accept=".pdf,.docx,.txt"
+                    >
 
+                    <small id="resumeStatus" style="margin-top:8px;color:#94a3b8;">
+                        Upload a PDF, DOCX or TXT resume.
+                    </small>
 
-                    <div class="summary-box">
+                </div>
 
-                        <span>
-                            Pending Tasks
-                        </span>
+                <div class="form-group">
 
-                        <strong id="Pending_Tasks">
-                            0
-                        </strong>
+                    <label>
+                        Project Manager Experience
+                    </label>
 
-                    </div>
-
-
-                    <div class="summary-box">
-
-                        <span>
-                            Completion
-                        </span>
-
-                        <strong id="Completion_Percentage">
-                            0.00%
-                        </strong>
-
-                    </div>
-
-
-                    <div class="summary-box">
-
-                        <span>
-                            Delay
-                        </span>
-
-                        <strong id="Delay_Percentage">
-                            0.00%
-                        </strong>
-
-                    </div>
-
-
-                    <div class="summary-box">
-
-                        <span>
-                            Project Progress
-                        </span>
-
-                        <strong id="Project_Progress">
-                            Not Started
-                        </strong>
-
-                    </div>
+                    <input
+                        type="text"
+                        id="managerExperience"
+                        value="Will be calculated from resume"
+                        readonly
+                    >
 
                 </div>
 
             </div>
 
 
-            <!-- =================================================
-                 SUBMIT
-            ================================================== -->
+            <!-- ================================================= -->
+            <!-- TEAM MEMBERS -->
+            <!-- ================================================= -->
 
-            <div class="submit-area">
+            <div class="section">
 
-                <button type="submit">
-                    Generate Risk Assessment
+                <h2 class="section-title">
+                    Team Members
+                </h2>
+
+                <div class="info-note">
+
+                    Add the employees who will work on this project.
+                    Team experience is calculated automatically from
+                    the experience level and years of experience of
+                    all employees.
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Employee ID
+                                </th>
+
+                                <th>
+                                    Employee Name
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Role
+                                </th>
+
+                                <th>
+                                    Department
+                                </th>
+
+                                <th>
+                                    Experience
+                                </th>
+
+                                <th>
+                                    Years
+                                </th>
+
+                                <th>
+                                    Skills
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="teamBody"></tbody>
+
+                    </table>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="add-btn"
+                    onclick="addTeamMember()"
+                >
+                    + Add Team Member
+                </button>
+
+
+                <div class="calculated">
+
+                    <strong>
+                        Calculated Team Experience:
+                    </strong>
+
+                    <span id="teamExperience">
+                        No team members
+                    </span>
+
+                    <br>
+
+                    <strong>
+                        Team Size:
+                    </strong>
+
+                    <span id="teamCount">
+                        0
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- CLIENTS -->
+            <!-- ================================================= -->
+
+            <div class="section">
+
+                <h2 class="section-title">
+                    Clients / Stakeholders
+                </h2>
+
+                <div class="info-note">
+
+                    Add the clients, organizations or stakeholder
+                    representatives connected with this project.
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Client ID
+                                </th>
+
+                                <th>
+                                    Name
+                                </th>
+
+                                <th>
+                                    Organization
+                                </th>
+
+                                <th>
+                                    Role
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="clientBody"></tbody>
+
+                    </table>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="add-btn"
+                    onclick="addClient()"
+                >
+                    + Add Client
                 </button>
 
             </div>
 
+
+            <!-- ================================================= -->
+            <!-- TASKS -->
+            <!-- ================================================= -->
+
+            <div class="section">
+
+                <h2 class="section-title">
+                    Task Assignment
+                </h2>
+
+                <div class="info-note">
+
+                    Assign tasks to the employee IDs entered above.
+                    Reusing the same employee ID across tasks counts
+                    that employee only once.
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Task
+                                </th>
+
+                                <th>
+                                    Assigned Employee ID
+                                </th>
+
+                                <th>
+                                    Stakeholder ID
+                                </th>
+
+                                <th>
+                                    Estimated Days
+                                </th>
+
+                                <th>
+                                    Actual Days
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="taskBody"></tbody>
+
+                    </table>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="add-btn"
+                    onclick="addTask()"
+                >
+                    + Add Task
+                </button>
+
+
+                <div class="summary">
+
+                    <div class="summary-box">
+                        <span>Team Size</span>
+                        <strong id="teamSize">0</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Stakeholders</span>
+                        <strong id="stakeholderCount">0</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Total Tasks</span>
+                        <strong id="totalTasks">0</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Completed</span>
+                        <strong id="completedTasks">0</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Pending</span>
+                        <strong id="pendingTasks">0</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Overdue</span>
+                        <strong id="overdueTasks">0</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Estimated Effort</span>
+                        <strong id="estimatedEffort">0 hrs</strong>
+                    </div>
+
+                    <div class="summary-box">
+                        <span>Actual Effort</span>
+                        <strong id="actualEffort">0 hrs</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="calculated">
+
+                    <strong>
+                        Complexity:
+                    </strong>
+
+                    <span id="complexity">
+                        Calculated after clicking Submit Project Data
+                    </span>
+
+                    <br>
+
+                    <strong>
+                        Completion:
+                    </strong>
+
+                    <span id="completion">
+                        0.00%
+                    </span>
+
+                    <br>
+
+                    <strong>
+                        Delay:
+                    </strong>
+
+                    <span id="delay">
+                        0.00%
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- SUBMIT -->
+            <!-- ================================================= -->
+
+            <div class="submit-area">
+
+                <button
+                    type="submit"
+                    class="submit-btn"
+                >
+                    Submit Project Data &amp; Generate Risk Assessment
+                </button>
+
+            </div>
 
         </form>
 
@@ -1226,186 +889,252 @@ button:hover {
 </div>
 
 
-<!-- ==========================================================
-     JAVASCRIPT
-========================================================== -->
-
 <script>
 
-
-// ==========================================================
-// PROJECT TYPE - OTHER
-// ==========================================================
-
-const projectType =
-    document.getElementById(
-        "Project_Type"
-    );
+let teamNumber = 0;
+let clientNumber = 0;
+let taskNumber = 0;
 
 
-const projectTypeOtherBox =
-    document.getElementById(
-        "projectTypeOtherBox"
-    );
+/* ============================================================
+   MASTER DATA LOOKUPS
+============================================================ */
 
+function clearEmployeeFields(row) {
+    row.querySelector('[name="Employee_Name"]').value = "";
+    row.querySelector('[name="Employee_Email"]').value = "";
+    row.querySelector('[name="Employee_Role"]').value = "";
+    row.querySelector('[name="Employee_Department"]').value = "";
+    row.querySelector('[name="Employee_Experience"]').value = "";
+    row.querySelector('[name="Employee_Years"]').value = "";
+    row.querySelector('[name="Employee_Skills"]').value = "";
+}
 
-const projectTypeOther =
-    document.getElementById(
-        "Project_Type_Other"
-    );
+async function lookupEmployee(row) {
+    const idInput = row.querySelector('[name="Employee_ID"]');
+    const employeeId = idInput.value.trim();
 
+    if (!employeeId) {
+        clearEmployeeFields(row);
+        updateTeam();
+        return;
+    }
 
-projectType.addEventListener(
-    "change",
-    function () {
+    try {
+        idInput.style.borderColor = "#38bdf8";
 
-        if (
-            this.value === "Others"
-        ) {
+        const response = await fetch(
+            "/api/employee/" + encodeURIComponent(employeeId)
+        );
 
-            projectTypeOtherBox.style.display =
-                "block";
+        const data = await response.json();
 
-            projectTypeOther.required =
-                true;
-
-        } else {
-
-            projectTypeOtherBox.style.display =
-                "none";
-
-            projectTypeOther.required =
-                false;
-
-            projectTypeOther.value =
-                "";
+        if (!response.ok || !data.success) {
+            clearEmployeeFields(row);
+            idInput.style.borderColor = "#ef4444";
+            idInput.title = data.message || "Employee ID not found.";
+            updateTeam();
+            return;
         }
 
-        calculateComplexity();
+        const employee = data.employee;
+
+        row.querySelector('[name="Employee_Name"]').value =
+            employee.employee_name || "";
+
+        row.querySelector('[name="Employee_Email"]').value =
+            employee.email || "";
+
+        row.querySelector('[name="Employee_Role"]').value =
+            employee.role || "";
+
+        row.querySelector('[name="Employee_Department"]').value =
+            employee.department || "";
+
+        row.querySelector('[name="Employee_Experience"]').value =
+            employee.experience_level || "";
+
+        row.querySelector('[name="Employee_Years"]').value =
+            employee.years_experience ?? "";
+
+        row.querySelector('[name="Employee_Skills"]').value =
+            employee.skills || "";
+
+        idInput.style.borderColor = "#22c55e";
+        idInput.title = "Employee found.";
+
+        updateTeam();
+
+    } catch (error) {
+        clearEmployeeFields(row);
+        idInput.style.borderColor = "#ef4444";
+        idInput.title = "Unable to look up employee.";
+        updateTeam();
     }
-);
+}
 
 
-// ==========================================================
-// METHODOLOGY - OTHER
-// ==========================================================
+function clearClientFields(row) {
+    row.querySelector('[name="Client_Name"]').value = "";
+    row.querySelector('[name="Client_Organization"]').value = "";
+    row.querySelector('[name="Client_Role"]').value = "";
+    row.querySelector('[name="Client_Email"]').value = "";
+}
 
-const methodology =
-    document.getElementById(
-        "Methodology_Used"
-    );
+async function lookupClient(row) {
+    const idInput = row.querySelector('[name="Client_ID"]');
+    const clientId = idInput.value.trim();
 
+    if (!clientId) {
+        clearClientFields(row);
+        updateSummary();
+        return;
+    }
 
-const methodologyOtherBox =
-    document.getElementById(
-        "methodologyOtherBox"
-    );
+    try {
+        idInput.style.borderColor = "#38bdf8";
 
+        const response = await fetch(
+            "/api/client/" + encodeURIComponent(clientId)
+        );
 
-const methodologyOther =
-    document.getElementById(
-        "Methodology_Used_Other"
-    );
+        const data = await response.json();
 
-
-methodology.addEventListener(
-    "change",
-    function () {
-
-        if (
-            this.value === "Others"
-        ) {
-
-            methodologyOtherBox.style.display =
-                "block";
-
-            methodologyOther.required =
-                true;
-
-        } else {
-
-            methodologyOtherBox.style.display =
-                "none";
-
-            methodologyOther.required =
-                false;
-
-            methodologyOther.value =
-                "";
+        if (!response.ok || !data.success) {
+            clearClientFields(row);
+            idInput.style.borderColor = "#ef4444";
+            idInput.title = data.message || "Client ID not found.";
+            updateSummary();
+            return;
         }
 
-        calculateComplexity();
+        const client = data.client;
+
+        row.querySelector('[name="Client_Name"]').value =
+            client.client_name || "";
+
+        row.querySelector('[name="Client_Organization"]').value =
+            client.organization || "";
+
+        row.querySelector('[name="Client_Role"]').value =
+            client.role || "";
+
+        row.querySelector('[name="Client_Email"]').value =
+            client.email || "";
+
+        idInput.style.borderColor = "#22c55e";
+        idInput.title = "Client found.";
+
+        updateSummary();
+
+    } catch (error) {
+        clearClientFields(row);
+        idInput.style.borderColor = "#ef4444";
+        idInput.title = "Unable to look up client.";
+        updateSummary();
     }
-);
+}
 
 
-// ==========================================================
-// DATE -> TIMELINE
-// ==========================================================
+async function analyzeManagerResume() {
+    const input = document.getElementById("Manager_Resume");
+    const output = document.getElementById("managerExperience");
+    const status = document.getElementById("resumeStatus");
 
-const startDate =
-    document.getElementById(
-        "Start_Date"
+    if (!input.files.length) {
+        output.value = "Will be calculated from resume";
+        status.textContent = "Upload a PDF, DOCX or TXT resume.";
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("Manager_Resume", input.files[0]);
+
+    output.value = "Analyzing resume...";
+    status.textContent = "Extracting project-management experience...";
+
+    try {
+        const response = await fetch(
+            "/api/manager-experience",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            output.value = "Unable to determine";
+            status.textContent =
+                data.message || "Resume analysis failed.";
+            return;
+        }
+
+        output.value = data.experience;
+        status.textContent =
+            "Experience category extracted automatically from the resume.";
+
+    } catch (error) {
+        output.value = "Unable to determine";
+        status.textContent = "Unable to analyze the resume.";
+    }
+}
+
+document
+    .getElementById("Manager_Resume")
+    .addEventListener(
+        "change",
+        analyzeManagerResume
     );
 
 
-const endDate =
-    document.getElementById(
-        "End_Date"
-    );
-
-
-const timelineDisplay =
-    document.getElementById(
-        "Estimated_Timeline_Display"
-    );
-
+/* ============================================================
+   TIMELINE
+============================================================ */
 
 function updateTimeline() {
 
-    if (
-        !startDate.value ||
-        !endDate.value
-    ) {
-
-        timelineDisplay.value =
-            "0 months";
-
-        calculateComplexity();
-
-        return;
-    }
-
-
     const start =
-        new Date(
-            startDate.value
-        );
-
+        document.getElementById(
+            "Start_Date"
+        ).value;
 
     const end =
-        new Date(
-            endDate.value
+        document.getElementById(
+            "End_Date"
+        ).value;
+
+    const display =
+        document.getElementById(
+            "Timeline"
         );
 
+    if (!start || !end) {
 
-    if (end < start) {
-
-        timelineDisplay.value =
-            "Invalid dates";
-
-        calculateComplexity();
+        display.value = "";
 
         return;
     }
 
+    const startDate =
+        new Date(start);
 
-    const milliseconds =
-        end - start;
+    const endDate =
+        new Date(end);
 
+    if (endDate < startDate) {
+
+        display.value = "";
+
+        return;
+    }
 
     const days =
-        milliseconds /
+        (
+            endDate - startDate
+        )
+        /
         (
             1000 *
             60 *
@@ -1413,898 +1142,672 @@ function updateTimeline() {
             24
         );
 
-
     const months =
-        days / 30.4375;
+        days / 30.44;
 
-
-    timelineDisplay.value =
-        months.toFixed(2) +
-        " months";
-
-
-    calculateComplexity();
+    display.value =
+        months.toFixed(2)
+        + " months";
 }
 
 
-startDate.addEventListener(
-    "change",
-    updateTimeline
-);
+document
+    .getElementById("Start_Date")
+    .addEventListener(
+        "change",
+        updateTimeline
+    );
 
-
-endDate.addEventListener(
-    "change",
-    updateTimeline
-);
-
-
-// ==========================================================
-// TASK CALCULATIONS
-// ==========================================================
-
-const totalTasks =
-    document.getElementById(
-        "Total_Tasks"
+document
+    .getElementById("End_Date")
+    .addEventListener(
+        "change",
+        updateTimeline
     );
 
 
-const completedTasks =
-    document.getElementById(
-        "Completed_Tasks"
-    );
+/* ============================================================
+   TEAM
+============================================================ */
 
+function addTeamMember() {
 
-const overdueTasks =
-    document.getElementById(
-        "Overdue_Tasks"
-    );
+    teamNumber++;
 
-
-const pendingTasks =
-    document.getElementById(
-        "Pending_Tasks"
-    );
-
-
-const completionPercentage =
-    document.getElementById(
-        "Completion_Percentage"
-    );
-
-
-const delayPercentage =
-    document.getElementById(
-        "Delay_Percentage"
-    );
-
-
-const projectProgress =
-    document.getElementById(
-        "Project_Progress"
-    );
-
-
-function updateTaskValues() {
-
-    const total =
-        Number(
-            totalTasks.value
-        ) || 0;
-
-
-    const completed =
-        Number(
-            completedTasks.value
-        ) || 0;
-
-
-    const overdue =
-        Number(
-            overdueTasks.value
-        ) || 0;
-
-
-    const pending =
-        Math.max(
-            0,
-            total - completed
+    const row =
+        document.createElement(
+            "tr"
         );
 
+    row.innerHTML = `
 
-    pendingTasks.textContent =
-        pending;
+        <td>
+            <input
+                name="Employee_ID"
+                placeholder="EMP-001"
+                required
+            >
+        </td>
 
+        <td>
+            <input
+                name="Employee_Name"
+                placeholder="Auto-filled"
+                readonly
+            >
+        </td>
 
-    let completion = 0;
+        <td>
+            <input
+                name="Employee_Email"
+                type="email"
+                placeholder="Auto-filled"
+                readonly
+            >
+        </td>
 
+        <td>
+            <input
+                name="Employee_Role"
+                placeholder="Auto-filled"
+                readonly
+            >
+        </td>
 
-    if (total > 0) {
+        <td>
+            <input
+                name="Employee_Department"
+                placeholder="Auto-filled"
+                readonly
+            >
+        </td>
 
-        completion =
-            (
-                completed /
-                total
-            ) * 100;
-    }
+        <td>
 
+            <input
+                name="Employee_Experience"
+                placeholder="Auto-filled"
+                readonly
+            >
 
-    completion =
-        Math.min(
-            Math.max(
-                completion,
-                0
-            ),
-            100
+        </td>
+
+        <td>
+            <input
+                name="Employee_Years"
+                type="number"
+                min="0"
+                step="0.1"
+                placeholder="Auto-filled"
+                readonly
+            >
+        </td>
+
+        <td>
+            <input
+                name="Employee_Skills"
+                placeholder="Auto-filled"
+                readonly
+            >
+        </td>
+
+        <td>
+
+            <button
+                type="button"
+                class="remove-btn"
+                onclick="this.closest('tr').remove(); updateTeam();"
+            >
+                Remove
+            </button>
+
+        </td>
+
+    `;
+
+    document
+        .getElementById("teamBody")
+        .appendChild(row);
+
+    row
+        .querySelector('[name="Employee_ID"]')
+        .addEventListener(
+            "blur",
+            () => lookupEmployee(row)
         );
 
-
-    completionPercentage.textContent =
-        completion.toFixed(2) +
-        "%";
-
-
-    let delay = 0;
-
-
-    if (total > 0) {
-
-        delay =
-            (
-                overdue /
-                total
-            ) * 100;
-    }
-
-
-    delay =
-        Math.min(
-            Math.max(
-                delay,
-                0
-            ),
-            100
+    row
+        .querySelector('[name="Employee_ID"]')
+        .addEventListener(
+            "change",
+            () => lookupEmployee(row)
         );
 
+    row
+        .querySelectorAll("input,select")
+        .forEach(
+            element => {
 
-    delayPercentage.textContent =
-        delay.toFixed(2) +
-        "%";
+                element.addEventListener(
+                    "input",
+                    updateTeam
+                );
 
+                element.addEventListener(
+                    "change",
+                    updateTeam
+                );
 
-    if (completion <= 33) {
+            }
+        );
 
-        projectProgress.textContent =
-            "Not Started";
-
-    }
-
-    else if (
-        completion > 66
-    ) {
-
-        projectProgress.textContent =
-            "Completed";
-
-    }
-
-    else {
-
-        projectProgress.textContent =
-            "In Progress";
-    }
-
-
-    calculateComplexity();
+    updateTeam();
 }
 
 
-// ==========================================================
-// AUTOMATIC COMPLEXITY
-// ==========================================================
+function updateTeam() {
 
-const complexityScore =
-    document.getElementById(
-        "Complexity_Score"
-    );
+    const rows =
+        document
+        .getElementById("teamBody")
+        .querySelectorAll("tr");
 
+    const validRows =
+        Array.from(rows).filter(row => {
+            const id =
+                row.querySelector('[name="Employee_ID"]').value.trim();
 
-function calculateComplexity() {
+            const name =
+                row.querySelector('[name="Employee_Name"]').value.trim();
 
-    if (!complexityScore) {
+            return id !== "" && name !== "";
+        });
+
+    document
+        .getElementById("teamCount")
+        .textContent =
+        validRows.length;
+
+    document
+        .getElementById("teamSize")
+        .textContent =
+        validRows.length;
+
+    if (!validRows.length) {
+
+        document
+            .getElementById("teamExperience")
+            .textContent =
+            "No team members";
 
         return;
     }
 
+    let total = 0;
 
-    // ======================================================
-    // PROJECT TYPE
-    // ======================================================
+    let count = 0;
 
-    const projectTypeValue =
-        projectType.value;
+    validRows.forEach(row => {
 
+        const level =
+            row.querySelector(
+                '[name="Employee_Experience"]'
+            ).value;
 
-    const projectTypeScores = {
+        const years =
+            Number(
+                row.querySelector(
+                    '[name="Employee_Years"]'
+                ).value
+            ) || 0;
 
-        "Construction": 0.75,
-        "Healthcare": 0.70,
-        "IT": 0.60,
-        "Manufacturing": 0.70,
-        "Marketing": 0.35,
-        "R&D": 0.85
-    };
+        if (years > 0) {
 
+            if (years < 1)
+                total += 0;
 
-    let typeScore =
-        projectTypeScores[
-            projectTypeValue
-        ] || 0.55;
+            else if (years < 3)
+                total += 1;
 
+            else if (years < 7)
+                total += 2;
 
-    if (
-        projectTypeValue === "Others"
-    ) {
+            else
+                total += 3;
 
-        typeScore = 0.60;
-    }
+        } else {
 
+            const mapping = {
 
-    // ======================================================
-    // METHODOLOGY
-    // ======================================================
+                Intern: 0,
+                Junior: 1,
+                Mid: 2,
+                Senior: 3
 
-    const methodologyValue =
-        methodology.value;
+            };
 
+            total +=
+                mapping[level] ?? 1;
 
-    const methodologyScores = {
+        }
 
-        "Agile": 0.55,
-        "Hybrid": 0.65,
-        "Kanban": 0.45,
-        "Scrum": 0.55,
-        "Waterfall": 0.40
-    };
+        count++;
 
+    });
 
-    let methodologyScore =
-        methodologyScores[
-            methodologyValue
-        ] || 0.55;
+    const average =
+        total / count;
 
+    let result;
 
-    if (
-        methodologyValue === "Others"
-    ) {
+    if (average < 0.75)
+        result = "Junior";
 
-        methodologyScore = 0.55;
-    }
+    else if (average < 1.75)
+        result = "Mixed";
 
+    else if (average < 2.5)
+        result = "Senior";
 
-    // ======================================================
-    // TEAM SIZE
-    // ======================================================
+    else
+        result = "Expert";
 
-    const teamSize =
-        Number(
-            document.getElementById(
-                "Team_Size"
-            ).value
-        ) || 0;
-
-
-    const teamScore =
-        Math.min(
-            teamSize / 40,
-            1
-        );
-
-
-    // ======================================================
-    // BUDGET
-    // ======================================================
-
-    const budget =
-        Number(
-            document.getElementById(
-                "Project_Budget_USD"
-            ).value
-        ) || 0;
-
-
-    const budgetScore =
-        Math.min(
-            budget / 250000,
-            1
-        );
-
-
-    // ======================================================
-    // TIMELINE
-    // ======================================================
-
-    const timelineText =
-        timelineDisplay.value;
-
-
-    const timeline =
-        parseFloat(
-            timelineText
-        ) || 0;
-
-
-    const timelineScore =
-        Math.min(
-            timeline / 12,
-            1
-        );
-
-
-    // ======================================================
-    // STAKEHOLDERS
-    // ======================================================
-
-    const stakeholders =
-        Number(
-            document.getElementById(
-                "Stakeholder_Count"
-            ).value
-        ) || 0;
-
-
-    const stakeholderScore =
-        Math.min(
-            stakeholders / 40,
-            1
-        );
-
-
-    // ======================================================
-    // TEAM EXPERIENCE
-    // ======================================================
-
-    const teamExperience =
-        document.getElementById(
-            "Team_Experience_Level"
-        ).value;
-
-
-    const teamExperienceScores = {
-
-        "Junior": 0.90,
-        "Mixed": 0.65,
-        "Senior": 0.35,
-        "Expert": 0.20
-    };
-
-
-    const teamExperienceScore =
-        teamExperienceScores[
-            teamExperience
-        ] || 0.55;
-
-
-    // ======================================================
-    // PM EXPERIENCE
-    // ======================================================
-
-    const pmExperience =
-        document.getElementById(
-            "Project_Manager_Experience"
-        ).value;
-
-
-    const pmScores = {
-
-        "Junior PM": 0.90,
-        "Mid-level PM": 0.60,
-        "Senior PM": 0.30,
-        "Certified PM": 0.20
-    };
-
-
-    const pmScore =
-        pmScores[
-            pmExperience
-        ] || 0.55;
-
-
-    // ======================================================
-    // PROJECT PHASE
-    // ======================================================
-
-    const phase =
-        document.getElementById(
-            "Project_Phase"
-        ).value;
-
-
-    const phaseScores = {
-
-        "Initiation": 0.35,
-        "Planning": 0.55,
-        "Execution": 0.80,
-        "Monitoring": 0.70,
-        "Closure": 0.30
-    };
-
-
-    const phaseScore =
-        phaseScores[
-            phase
-        ] || 0.55;
-
-
-    // ======================================================
-    // REQUIREMENT STABILITY
-    // ======================================================
-
-    const requirement =
-        document.getElementById(
-            "Requirement_Stability"
-        ).value;
-
-
-    const requirementScores = {
-
-        "Stable": 0.20,
-        "Moderate": 0.55,
-        "Volatile": 0.90
-    };
-
-
-    const requirementScore =
-        requirementScores[
-            requirement
-        ] || 0.55;
-
-
-    // ======================================================
-    // TECHNOLOGY
-    // ======================================================
-
-    const technology =
-        document.getElementById(
-            "Technology_Familiarity"
-        ).value;
-
-
-    const technologyScores = {
-
-        "New": 0.90,
-        "Familiar": 0.50,
-        "Expert": 0.20
-    };
-
-
-    const technologyScore =
-        technologyScores[
-            technology
-        ] || 0.55;
-
-
-    // ======================================================
-    // RESOURCE AVAILABILITY
-    // ======================================================
-
-    const resource =
-        document.getElementById(
-            "Resource_Availability"
-        ).value;
-
-
-    const resourceScores = {
-
-        "Low": 0.90,
-        "Medium": 0.55,
-        "High": 0.20
-    };
-
-
-    const resourceScore =
-        resourceScores[
-            resource
-        ] || 0.55;
-
-
-    // ======================================================
-    // CHANGE REQUESTS
-    // ======================================================
-
-    const changeRequests =
-        Number(
-            document.getElementById(
-                "Change_Request_Frequency"
-            ).value
-        ) || 0;
-
-
-    const changeScore =
-        Math.min(
-            changeRequests / 20,
-            1
-        );
-
-
-    // ======================================================
-    // TASKS
-    // ======================================================
-
-    const total =
-        Number(
-            totalTasks.value
-        ) || 0;
-
-
-    const completed =
-        Number(
-            completedTasks.value
-        ) || 0;
-
-
-    const overdue =
-        Number(
-            overdueTasks.value
-        ) || 0;
-
-
-    const taskScore =
-        Math.min(
-            total / 200,
-            1
-        );
-
-
-    let overdueScore = 0;
-
-
-    if (total > 0) {
-
-        overdueScore =
-            Math.min(
-                overdue / total,
-                1
-            );
-    }
-
-
-    let completionFactor = 1;
-
-
-    if (total > 0) {
-
-        completionFactor =
-            1 -
-            Math.min(
-                completed / total,
-                1
-            );
-    }
-
-
-    // ======================================================
-    // ESTIMATED EFFORT
-    // ======================================================
-
-    const estimatedEffort =
-        Number(
-            document.getElementById(
-                "Estimated_Effort_Days"
-            ).value
-        ) || 0;
-
-
-    const estimatedEffortScore =
-        Math.min(
-            estimatedEffort / 1000,
-            1
-        );
-
-
-    // ======================================================
-    // ACTUAL EFFORT
-    // ======================================================
-
-    const actualEffort =
-        Number(
-            document.getElementById(
-                "Actual_Effort_Days"
-            ).value
-        ) || 0;
-
-
-    let actualEffortScore = 0.5;
-
-
-    if (
-        actualEffort > 0 &&
-        estimatedEffort > 0
-    ) {
-
-        const ratio =
-            actualEffort /
-            estimatedEffort;
-
-
-        actualEffortScore =
-            Math.min(
-                ratio / 2,
-                1
-            );
-
-    }
-
-    else if (
-        actualEffort > 0
-    ) {
-
-        actualEffortScore =
-            Math.min(
-                actualEffort / 1000,
-                1
-            );
-    }
-
-
-    // ======================================================
-    // WEIGHTED SCORE
-    // ======================================================
-
-    const weightedScore =
-
-          typeScore * 0.06
-
-        + methodologyScore * 0.04
-
-        + teamScore * 0.06
-
-        + budgetScore * 0.06
-
-        + timelineScore * 0.08
-
-        + stakeholderScore * 0.05
-
-        + teamExperienceScore * 0.05
-
-        + pmScore * 0.05
-
-        + phaseScore * 0.04
-
-        + requirementScore * 0.08
-
-        + changeScore * 0.08
-
-        + technologyScore * 0.08
-
-        + resourceScore * 0.08
-
-        + taskScore * 0.05
-
-        + overdueScore * 0.04
-
-        + completionFactor * 0.03
-
-        + estimatedEffortScore * 0.04
-
-        + actualEffortScore * 0.03;
-
-
-    // ======================================================
-    // FINAL SCORE 1-10
-    // ======================================================
-
-    let score =
-        Math.round(
-            1 +
-            (
-                weightedScore *
-                9
-            )
-        );
-
-
-    score =
-        Math.max(
-            1,
-            Math.min(
-                10,
-                score
-            )
-        );
-
-
-    complexityScore.value =
-        score;
+    document
+        .getElementById("teamExperience")
+        .textContent =
+        result;
 }
 
 
-// ==========================================================
-// INPUT EVENT LISTENERS FOR COMPLEXITY
-// ==========================================================
+/* ============================================================
+   CLIENT
+============================================================ */
 
-const complexityFields = [
+function addClient() {
 
-    "Team_Size",
+    clientNumber++;
 
-    "Project_Budget_USD",
+    const row =
+        document.createElement(
+            "tr"
+        );
 
-    "Stakeholder_Count",
+    row.innerHTML = `
 
-    "Team_Experience_Level",
+        <td>
+            <input
+                name="Client_ID"
+                placeholder="CLIENT-001"
+                required
+            >
+        </td>
 
-    "Project_Manager_Experience",
+        <td>
+            <input
+                name="Client_Name"
+                placeholder="Auto-filled"
+                readonly
+            >
+        </td>
 
-    "Project_Phase",
+        <td>
+            <input
+                name="Client_Organization"
+                placeholder="Auto-filled"
+                readonly
+            >
+        </td>
 
-    "Requirement_Stability",
+        <td>
+            <input
+                name="Client_Role"
+                placeholder="Auto-filled"
+                readonly
+            >
+        </td>
 
-    "Technology_Familiarity",
+        <td>
+            <input
+                name="Client_Email"
+                type="email"
+                placeholder="Auto-filled"
+                readonly
+            >
+        </td>
 
-    "Resource_Availability",
+        <td>
 
-    "Change_Request_Frequency",
+            <button
+                type="button"
+                class="remove-btn"
+                onclick="this.closest('tr').remove(); updateSummary();"
+            >
+                Remove
+            </button>
 
-    "Total_Tasks",
+        </td>
 
-    "Completed_Tasks",
+    `;
 
-    "Overdue_Tasks",
+    document
+        .getElementById("clientBody")
+        .appendChild(row);
 
-    "Estimated_Effort_Days",
+    row
+        .querySelector('[name="Client_ID"]')
+        .addEventListener(
+            "blur",
+            () => lookupClient(row)
+        );
 
-    "Actual_Effort_Days"
-];
+    row
+        .querySelector('[name="Client_ID"]')
+        .addEventListener(
+            "change",
+            () => lookupClient(row)
+        );
 
-
-complexityFields.forEach(
-    function (id) {
-
-        const element =
-            document.getElementById(
-                id
-            );
-
-
-        if (element) {
-
-            element.addEventListener(
-                "input",
-                calculateComplexity
-            );
-
-
-            element.addEventListener(
-                "change",
-                calculateComplexity
-            );
-        }
-
-    }
-);
-
-
-// ==========================================================
-// TASK EVENTS
-// ==========================================================
-
-totalTasks.addEventListener(
-    "input",
-    updateTaskValues
-);
-
-
-completedTasks.addEventListener(
-    "input",
-    updateTaskValues
-);
-
-
-overdueTasks.addEventListener(
-    "input",
-    updateTaskValues
-);
-
-
-// ==========================================================
-// FORM VALIDATION
-// ==========================================================
-
-document
-    .getElementById(
-        "riskForm"
-    )
-    .addEventListener(
-        "submit",
-        function (event) {
+    updateSummary();
+}
 
 
-            const total =
-                Number(
-                    totalTasks.value
-                ) || 0;
+/* ============================================================
+   TASK
+============================================================ */
 
+function addTask() {
 
-            const completed =
-                Number(
-                    completedTasks.value
-                ) || 0;
+    taskNumber++;
 
+    const row =
+        document.createElement(
+            "tr"
+        );
 
-            const overdue =
-                Number(
-                    overdueTasks.value
-                ) || 0;
+    row.innerHTML = `
 
+        <td>
 
-            if (
-                completed > total
-            ) {
+            <input
+                name="Task_Name"
+                placeholder="Task name"
+            >
 
-                event.preventDefault();
+        </td>
 
+        <td>
 
-                alert(
-                    "Completed Tasks cannot be greater than Total Tasks."
+            <input
+                name="Task_Assignee_ID"
+                placeholder="EMP-001"
+            >
+
+        </td>
+
+        <td>
+
+            <input
+                name="Task_Stakeholder_ID"
+                placeholder="CLIENT-001"
+            >
+
+        </td>
+
+        <td>
+
+            <input
+                name="Task_Estimated_Days"
+                type="number"
+                min="0"
+                step="0.01"
+                value="0"
+            >
+
+        </td>
+
+        <td>
+
+            <input
+                name="Task_Actual_Days"
+                type="number"
+                min="0"
+                step="0.01"
+                value="0"
+            >
+
+        </td>
+
+        <td>
+
+            <select name="Task_Status">
+
+                <option value="Pending">
+                    Pending
+                </option>
+
+                <option value="In Progress">
+                    In Progress
+                </option>
+
+                <option value="Completed">
+                    Completed
+                </option>
+
+                <option value="Overdue">
+                    Overdue
+                </option>
+
+            </select>
+
+        </td>
+
+        <td>
+
+            <button
+                type="button"
+                class="remove-btn"
+                onclick="this.closest('tr').remove(); updateSummary();"
+            >
+                Remove
+            </button>
+
+        </td>
+
+    `;
+
+    document
+        .getElementById("taskBody")
+        .appendChild(row);
+
+    row
+        .querySelectorAll("input,select")
+        .forEach(
+            element => {
+
+                element.addEventListener(
+                    "input",
+                    updateSummary
                 );
 
-
-                return;
-            }
-
-
-            if (
-                overdue > total
-            ) {
-
-                event.preventDefault();
-
-
-                alert(
-                    "Overdue Tasks cannot be greater than Total Tasks."
+                element.addEventListener(
+                    "change",
+                    updateSummary
                 );
 
-
-                return;
             }
+        );
+
+    updateSummary();
+}
 
 
-            if (
-                endDate.value <
-                startDate.value
-            ) {
+/* ============================================================
+   SUMMARY
+============================================================ */
 
-                event.preventDefault();
+function updateSummary() {
+
+    const teamRows =
+        document
+        .getElementById("teamBody")
+        .querySelectorAll("tr");
+
+    const clientRows =
+        document
+        .getElementById("clientBody")
+        .querySelectorAll("tr");
+
+    const taskRows =
+        document
+        .getElementById("taskBody")
+        .querySelectorAll("tr");
+
+    let completed = 0;
+    let overdue = 0;
+
+    let estimated = 0;
+    let actual = 0;
+
+    const validTaskRows =
+        Array.from(taskRows).filter(row => {
+            const taskName =
+                row.querySelector('[name="Task_Name"]').value.trim();
+            return taskName !== "";
+        });
+
+    const validClientRows =
+        Array.from(clientRows).filter(row => {
+            const id =
+                row.querySelector('[name="Client_ID"]').value.trim();
+
+            const name =
+                row.querySelector('[name="Client_Name"]').value.trim();
+
+            return id !== "" && name !== "";
+        });
+
+    validTaskRows.forEach(row => {
+
+        const status =
+            row.querySelector(
+                '[name="Task_Status"]'
+            ).value;
+
+        if (status === "Completed")
+            completed++;
+
+        if (status === "Overdue")
+            overdue++;
+
+        estimated +=
+            Number(
+                row.querySelector(
+                    '[name="Task_Estimated_Days"]'
+                ).value
+            ) || 0;
+
+        actual +=
+            Number(
+                row.querySelector(
+                    '[name="Task_Actual_Days"]'
+                ).value
+            ) || 0;
+
+    });
+
+    const total =
+        validTaskRows.length;
+
+    const pending =
+        Math.max(
+            total - completed,
+            0
+        );
+
+    const completion =
+        total
+            ? completed / total * 100
+            : 0;
+
+    const delay =
+        total
+            ? overdue / total * 100
+            : 0;
+
+    document
+        .getElementById("teamSize")
+        .textContent =
+        Array.from(teamRows).filter(row => {
+            const id =
+                row.querySelector('[name="Employee_ID"]').value.trim();
+
+            const name =
+                row.querySelector('[name="Employee_Name"]').value.trim();
+
+            return id !== "" && name !== "";
+        }).length;
+
+    document
+        .getElementById("stakeholderCount")
+        .textContent =
+        validClientRows.length;
+
+    document
+        .getElementById("totalTasks")
+        .textContent =
+        total;
+
+    document
+        .getElementById("completedTasks")
+        .textContent =
+        completed;
+
+    document
+        .getElementById("pendingTasks")
+        .textContent =
+        pending;
+
+    document
+        .getElementById("overdueTasks")
+        .textContent =
+        overdue;
+
+    document
+        .getElementById("estimatedEffort")
+        .textContent =
+        estimated === 0
+            ? "0 hrs"
+            : (estimated * 8).toFixed(2) + " hrs";
+
+    document
+        .getElementById("actualEffort")
+        .textContent =
+        actual === 0
+            ? "0 hrs"
+            : (actual * 8).toFixed(2) + " hrs";
+
+    document
+        .getElementById("completion")
+        .textContent =
+        completion.toFixed(2)
+        + "%";
+
+    document
+        .getElementById("delay")
+        .textContent =
+        delay.toFixed(2)
+        + "%";
+}
 
 
-                alert(
-                    "End Date cannot be before Start Date."
-                );
+/* ============================================================
+   INITIAL STATE
+============================================================ */
 
-
-                return;
-            }
-
-
-            // Make sure complexity is calculated
-            // immediately before submission.
-
-            calculateComplexity();
-
-        }
-    );
-
-
-// ==========================================================
-// INITIAL CALCULATION
-// ==========================================================
-
-updateTaskValues();
-
-calculateComplexity();
+updateTeam();
+updateSummary();
 
 </script>
-
 
 </body>
 
