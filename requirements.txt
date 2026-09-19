@@ -1,0 +1,11 @@
+Flask
+python-dotenv
+supabase
+catboost
+pandas
+numpy
+scikit-learn
+joblib
+pypdf
+python-docx
+shap>=0.45,<0.51

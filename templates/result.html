@@ -235,6 +235,231 @@ td {
     border: 1px solid rgba(255,255,255,.08);
 }
 
+
+.xai-section,
+.recommendation-section {
+    background: #0b1a2a;
+    border: 1px solid rgba(56,189,248,.13);
+    border-radius: 16px;
+    padding: 26px;
+    margin-bottom: 30px;
+}
+
+.xai-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 22px;
+}
+
+.xai-kicker {
+    color: #38bdf8;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.xai-subtitle {
+    color: #91a6b8;
+    line-height: 1.6;
+    max-width: 850px;
+    font-size: 14px;
+}
+
+.confidence-box {
+    min-width: 150px;
+    background: #101f30;
+    border: 1px solid rgba(56,189,248,.15);
+    border-radius: 12px;
+    padding: 14px 18px;
+    text-align: center;
+}
+
+.confidence-box span {
+    display: block;
+    color: #91a6b8;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.confidence-box strong {
+    color: #38bdf8;
+    font-size: 24px;
+}
+
+.factor-list {
+    display: grid;
+    gap: 10px;
+}
+
+.factor-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 15px 17px;
+    border-radius: 11px;
+    background: #101f30;
+    border-left: 4px solid #64748b;
+}
+
+.factor-risk { border-left-color: #fb923c; }
+.factor-safe { border-left-color: #22c55e; }
+
+.factor-name {
+    color: #f8fafc;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.factor-value {
+    color: #91a6b8;
+    font-size: 13px;
+}
+
+.factor-impact {
+    text-align: right;
+    min-width: 130px;
+}
+
+.impact-label {
+    display: block;
+    color: #cbd5e1;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.factor-risk .factor-impact strong { color: #fb923c; }
+.factor-safe .factor-impact strong { color: #22c55e; }
+
+.sub-heading {
+    color: #dbeafe;
+    font-size: 15px;
+    margin: 25px 0 10px;
+}
+
+.protective-list {
+    display: grid;
+    gap: 8px;
+}
+
+.protective-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 15px;
+    align-items: center;
+    padding: 11px 14px;
+    background: #0f2233;
+    border-radius: 9px;
+    color: #cbd5e1;
+}
+
+.protective-item small { color: #91a6b8; }
+.protective-item strong { color: #22c55e; }
+
+.problem-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.problem-card {
+    display: flex;
+    gap: 15px;
+    background: #101f30;
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 13px;
+    padding: 18px;
+}
+
+.problem-number {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #17304a;
+    color: #38bdf8;
+    font-weight: 800;
+}
+
+.problem-content { flex: 1; }
+
+.problem-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
+.problem-title-row h3 {
+    color: #f8fafc;
+    font-size: 17px;
+}
+
+.shap-badge {
+    color: #fb923c;
+    background: rgba(251,146,60,.09);
+    border: 1px solid rgba(251,146,60,.2);
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.problem-label,
+.suggestion-label {
+    color: #38bdf8;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 8px;
+    margin-bottom: 5px;
+}
+
+.problem-content p {
+    color: #cbd5e1;
+    line-height: 1.55;
+    font-size: 14px;
+}
+
+.problem-content .suggestion-text {
+    color: #dbeafe;
+    background: #0c2436;
+    border-left: 3px solid #38bdf8;
+    padding: 10px 12px;
+    border-radius: 6px;
+}
+
+.no-problems,
+.empty-xai {
+    margin-top: 15px;
+    padding: 16px;
+    background: #101f30;
+    border-radius: 10px;
+    color: #94a3b8;
+}
+
+.no-problems strong { color: #e2e8f0; }
+
+@media(max-width:700px) {
+    .xai-header,
+    .factor-card,
+    .problem-title-row { flex-direction: column; align-items: flex-start; }
+    .confidence-box { width: 100%; }
+    .factor-impact { text-align: left; }
+    .protective-item { grid-template-columns: 1fr; gap: 5px; }
+}
+
 @media(max-width:900px) {
 
     .grid {
@@ -531,6 +756,106 @@ td {
                     {{ "%.2f"|format(result.actual_effort_hours|default(0, true)|float) }} hrs
                 </div>
             </div>
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- XAI RISK EXPLANATION -->
+        <!-- ===================================================== -->
+
+        <div class="xai-section">
+
+            <div class="xai-header">
+                <div>
+                    <div class="xai-kicker">Explainable AI</div>
+                    <h2 class="section-heading" style="margin-bottom:7px;">
+                        Why was this risk predicted?
+                    </h2>
+                    <p class="xai-subtitle">
+                        SHAP explains which project factors pushed the model toward the predicted risk.
+                        Positive contributions increase the predicted risk; negative contributions reduce it.
+                    </p>
+                </div>
+                <div class="confidence-box">
+                    <span>Model Confidence</span>
+                    <strong>{{ result.risk_confidence|default(0, true) }}%</strong>
+                </div>
+            </div>
+
+            {% if result.xai and result.xai.top_factors %}
+            <div class="factor-list">
+                {% for factor in result.xai.top_factors %}
+                <div class="factor-card {% if factor.shap_value > 0 %}factor-risk{% else %}factor-safe{% endif %}">
+                    <div class="factor-main">
+                        <div class="factor-name">{{ factor.factor }}</div>
+                        <div class="factor-value">Value: {{ factor.value }}</div>
+                    </div>
+                    <div class="factor-impact">
+                        <span class="impact-label">{{ factor.impact }}</span>
+                        <strong>{{ "%.4f"|format(factor.shap_value) }}</strong>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-xai">No SHAP factors were available for this prediction.</p>
+            {% endif %}
+
+            {% if result.xai and result.xai.protective_factors %}
+            <h3 class="sub-heading">Factors reducing risk</h3>
+            <div class="protective-list">
+                {% for factor in result.xai.protective_factors %}
+                <div class="protective-item">
+                    <span>{{ factor.factor }}</span>
+                    <small>{{ factor.value }}</small>
+                    <strong>{{ "%.4f"|format(factor.shap_value) }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- PROBLEMS + SUGGESTIONS -->
+        <!-- ===================================================== -->
+
+        <div class="recommendation-section">
+
+            <div class="xai-kicker">Actionable Decision Support</div>
+            <h2 class="section-heading" style="margin-bottom:7px;">
+                Identified Problems &amp; Suggested Actions
+            </h2>
+            <p class="xai-subtitle">
+                The following suggestions translate important risk factors into practical actions for the project manager.
+                They are recommendations for review, not automatic decisions.
+            </p>
+
+            {% if result.xai and result.xai.problems %}
+            <div class="problem-list">
+                {% for item in result.xai.problems %}
+                <div class="problem-card">
+                    <div class="problem-number">{{ loop.index }}</div>
+                    <div class="problem-content">
+                        <div class="problem-title-row">
+                            <h3>{{ item.factor }}</h3>
+                            <span class="shap-badge">SHAP {{ "%.4f"|format(item.shap_value|float) }}</span>
+                        </div>
+                        <div class="problem-label">Problem identified</div>
+                        <p>{{ item.problem }}</p>
+                        <div class="suggestion-label">Suggested action</div>
+                        <p class="suggestion-text">{{ item.suggestion }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-problems">
+                <strong>No specific corrective problem was detected.</strong>
+                <p>Continue monitoring the project and review the explanatory factors above.</p>
+            </div>
+            {% endif %}
 
         </div>
 

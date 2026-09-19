@@ -21,6 +21,8 @@ from dotenv import load_dotenv
 from supabase import create_client
 from catboost import Pool
 
+from explainable_ai import explain_prediction
+
 
 # ============================================================
 # ENVIRONMENT
@@ -1858,6 +1860,20 @@ def predict():
         )
 
         # ====================================================
+        # EXPLAINABLE AI + ACTIONABLE RECOMMENDATIONS
+        # ====================================================
+
+        xai_result = explain_prediction(
+            model,
+            input_df,
+            predicted_risk,
+            top_n=8
+        )
+
+        print("XAI CONFIDENCE:", xai_result["confidence"])
+        print("XAI PROBLEMS:", len(xai_result["problems"]))
+
+        # ====================================================
         # SAVE
         # ====================================================
 
@@ -2017,6 +2033,12 @@ def predict():
                 task_summary[
                     "project_progress"
                 ],
+
+            "risk_confidence":
+                xai_result["confidence"],
+
+            "xai":
+                xai_result,
 
             "team_members":
                 team_members,
