@@ -183,20 +183,6 @@ def create_history(
     )
 
 
-def trigger_task_risk_prediction(task):
-    """
-    Placeholder for dynamic task-risk prediction.
-
-    The actual ML prediction remains inside task_risk.py.
-    The frontend can call /api/task-risk/predict after
-    successful task creation/update.
-    """
-
-    return {
-        "project_id": task.get("project_id"),
-        "issue_id": task.get("task_id")
-    }
-
 
 # ============================================================
 # CREATE TASK
@@ -576,17 +562,9 @@ def delete_task(task_id):
 
         task = existing_response.data[0]
 
-        # ----------------------------------------------------
-        # Delete current task risk prediction
-        # ----------------------------------------------------
-
-        (
-            supabase
-            .table("task_risk_prediction")
-            .delete()
-            .eq("issue_id", task_id)
-            .execute()
-        )
+        # Task-risk records are owned by task_risk.py.
+        # Do not query that table here because its issue_id is an
+        # integer model identifier, while Tasks.task_id is a UUID.
 
         # ----------------------------------------------------
         # Delete task
