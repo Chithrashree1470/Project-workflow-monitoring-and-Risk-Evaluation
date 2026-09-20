@@ -65,10 +65,9 @@ def explain_prediction(model, feature_row, predicted_risk, top_n=8):
         if item["shap_value"] > 0:
             item = dict(item)
             item["problem"] = (
-                f"{item["factor"]} contributed positively to the predicted risk."
-            )
+                f"{item['factor']} contributed positively to the predicted risk."            )
             item["suggestion"] = (
-                f"Review {item["factor"]} and consider appropriate corrective action."
+                f"Review {item['factor']} and consider appropriate corrective action."
             )
             problems.append(item)
 

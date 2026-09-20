@@ -12,6 +12,8 @@ from backend.master_data import master_data_bp
 from backend.manager import manager_bp
 
 load_dotenv()
+print("SUPABASE_URL:", os.getenv("SUPABASE_URL"))
+print("SUPABASE_KEY exists:", bool(os.getenv("SUPABASE_KEY")))
 
 app = Flask(__name__)
 app.secret_key = os.getenv(
