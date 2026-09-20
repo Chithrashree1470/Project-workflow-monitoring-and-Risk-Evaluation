@@ -145,17 +145,16 @@ def get_project_risk_level(score):
 # ============================================================
 
 def calculate_project_dynamic_risk(project_id):
-
     """
-    Calculate the current project risk using the latest
-    prediction for every task in the project.
+    Calculate the current dynamic project risk from the latest
+    task-level predictions.
 
-    Also compares the current project risk against the
-    previous project risk stored in project_dynamic_risk.
+    Initial project risk is used only as a baseline.
+    It is NOT included in the task-risk average.
     """
 
     # --------------------------------------------------------
-    # GET CURRENT TASK PREDICTIONS
+    # 1. Get current task-level predictions
     # --------------------------------------------------------
 
     response = (
@@ -174,63 +173,100 @@ def calculate_project_dynamic_risk(project_id):
     predictions = response.data or []
 
     if not predictions:
-
         return None
 
-
-    df = pd.DataFrame(
-        predictions
-    )
-
-
     # --------------------------------------------------------
-    # BASIC COUNTS
+    # 2. Convert predictions to a DataFrame
     # --------------------------------------------------------
 
-    total_tasks = len(df)
-
-    high_task_count = int(
-        (
-            df["risk_label"]
-            .isin(["High", "Critical"])
-        )
-        .sum()
-    )
-
-    critical_task_count = int(
-        (
-            df["risk_label"]
-            == "Critical"
-        )
-        .sum()
-    )
-
-
-    # --------------------------------------------------------
-    # CURRENT PROJECT RISK
-    # --------------------------------------------------------
+    df = pd.DataFrame(predictions)
 
     current_score = float(
         df["risk_score"].mean()
     )
 
-    current_level = (
-        get_project_risk_level(
-            current_score
-        )
+    total_task_count = len(df)
+
+    high_task_count = int(
+        (df["risk_label"] == "High").sum()
     )
 
+    critical_task_count = int(
+        (df["risk_label"] == "Critical").sum()
+    )
 
     # --------------------------------------------------------
-    # GET PREVIOUS PROJECT RISK
+    # 3. Determine current project risk level
+    # --------------------------------------------------------
+
+    current_level = get_project_risk_level(
+        current_score
+    )
+
+    # --------------------------------------------------------
+    # 4. Get initial project risk baseline
+    # --------------------------------------------------------
+
+    project_response = (
+        supabase
+        .table("projects")
+        .select("predicted_risk")
+        .eq(
+            "id",
+            project_id
+        )
+        .limit(1)
+        .execute()
+    )
+
+    project_data = project_response.data or []
+
+    baseline_risk_level = "Low"
+
+    if project_data:
+        raw_baseline = project_data[0].get(
+            "predicted_risk"
+        )
+
+        if raw_baseline is not None:
+            baseline_risk_level = str(
+                raw_baseline
+            ).strip()
+
+            # Handle database value such as:
+            # ['Low']
+            if baseline_risk_level.startswith("["):
+                baseline_risk_level = (
+                    baseline_risk_level
+                    .replace("[", "")
+                    .replace("]", "")
+                    .replace("'", "")
+                    .replace('"', "")
+                    .strip()
+                )
+
+    # Convert baseline label to numeric score
+    baseline_score = RISK_VALUES.get(
+        baseline_risk_level,
+        0.0
+    )
+
+    # --------------------------------------------------------
+    # 5. Calculate deviation from initial baseline
+    # --------------------------------------------------------
+
+    baseline_risk_change = (
+        current_score - baseline_score
+    )
+
+    # --------------------------------------------------------
+    # 6. Get previous dynamic project risk
     # --------------------------------------------------------
 
     previous_response = (
         supabase
         .table("project_dynamic_risk")
-        .select(
-            "risk_score"
-        )
+        .select("risk_score")
         .eq(
             "project_id",
             project_id
@@ -239,86 +275,59 @@ def calculate_project_dynamic_risk(project_id):
         .execute()
     )
 
-    previous_data = (
-        previous_response.data or []
-    )
+    previous_data = previous_response.data or []
 
-    previous_score = None
+    # --------------------------------------------------------
+    # 7. Calculate recent dynamic trend
+    # --------------------------------------------------------
 
-    if previous_data:
+    if not previous_data:
+        risk_trend = "Stable"
+        risk_change = 0.0
 
+    else:
         previous_score = float(
             previous_data[0]["risk_score"]
         )
 
-
-    # --------------------------------------------------------
-    # TREND
-    # --------------------------------------------------------
-
-    if previous_score is None:
-
-        trend = "Stable"
-
-        risk_change = 0.0
-
-    else:
-
         risk_change = (
-            current_score
-            - previous_score
+            current_score - previous_score
         )
 
         if risk_change > 0.05:
-
-            trend = "Worsening"
+            risk_trend = "Worsening"
 
         elif risk_change < -0.05:
-
-            trend = "Improving"
+            risk_trend = "Improving"
 
         else:
-
-            trend = "Stable"
-
+            risk_trend = "Stable"
 
     # --------------------------------------------------------
-    # BUILD RECORD
+    # 8. Build project risk record
     # --------------------------------------------------------
 
     project_record = {
+        "project_id": project_id,
+        "risk_score": current_score,
+        "risk_level": current_level,
 
-        "project_id":
-            project_id,
+        "total_task_count": total_task_count,
+        "high_task_count": high_task_count,
+        "critical_task_count": critical_task_count,
 
-        "risk_score":
-            current_score,
+        "risk_trend": risk_trend,
+        "risk_change": risk_change,
 
-        "risk_level":
-            current_level,
+        "baseline_risk_score": baseline_score,
+        "baseline_risk_level": baseline_risk_level,
+        "baseline_risk_change": baseline_risk_change,
 
-        "total_task_count":
-            total_tasks,
-
-        "high_task_count":
-            high_task_count,
-
-        "critical_task_count":
-            critical_task_count,
-
-        "risk_trend":
-            trend,
-
-        "risk_change":
-            risk_change,
-
-        "model_version":
-            MODEL_VERSION
+        "model_version": MODEL_VERSION
     }
 
-
     # --------------------------------------------------------
-    # UPDATE PROJECT DYNAMIC RISK
+    # 9. Update current project dynamic risk
     # --------------------------------------------------------
 
     (
@@ -335,19 +344,20 @@ def calculate_project_dynamic_risk(project_id):
     (
         supabase
         .table("project_dynamic_risk")
-        .insert({
-            "project_id": project_id,
-            "risk_score": current_score,
-            "risk_level": current_level,
-            "total_task_count": total_tasks,
-            "high_task_count": high_task_count,
-            "critical_task_count": critical_task_count,
-            "risk_trend": trend,
-            "risk_change": risk_change
-        })
+        .insert(project_record)
         .execute()
     )
 
+    # --------------------------------------------------------
+    # 10. Append to project risk history
+    # --------------------------------------------------------
+
+    (
+        supabase
+        .table("project_dynamic_risk_history")
+        .insert(project_record)
+        .execute()
+    )
 
     return project_record
 
