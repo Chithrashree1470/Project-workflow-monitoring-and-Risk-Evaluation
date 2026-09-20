@@ -5,6 +5,7 @@ from pathlib import Path
 from flask import Blueprint, jsonify, request
 from dotenv import load_dotenv
 from supabase import create_client
+from .task_risk import predict_task_risk_internal
 
 
 # ============================================================
@@ -60,7 +61,9 @@ TASK_FIELDS = [
     "start_date",
     "deadline",
     "completed_at",
-    "status"
+    "status",
+    "story_points",
+    "sprint"
 ]
 
 ALLOWED_STATUSES = [
@@ -182,7 +185,55 @@ def create_history(
         .execute()
     )
 
+def trigger_task_risk_prediction(task):
+    """
+    Trigger the task-risk prediction using the current task data.
+    """
 
+    task_id = task["task_id"]
+
+    prediction_data = {
+        "project_id": task["project_id"],
+        "issue_id": task_id,
+
+        "issue_type": task.get("task_type"),
+        "priority": task.get("priority"),
+        "status": task.get("status"),
+
+        "story_points": task.get("story_points"),
+        "story_points_missing": (
+            1 if task.get("story_points") is None else 0
+        ),
+
+        "timespent": task.get("actual_hours") or 0,
+
+        "assignee": task.get("assigned_to"),
+        "sprint": task.get("sprint"),
+
+        # Initial values.
+        # These will be calculated properly from TaskHistory
+        # once the task has changes.
+        "task_age_days": 0,
+        "status_change_count": 0,
+        "priority_change_count": 0,
+        "assignee_change_count": 0,
+        "story_point_change_count": 0,
+        "estimate_change_count": 0,
+        "changes_last_7_days": 0
+    }
+
+    response = (
+        supabase
+        .table("task_risk_prediction")
+        .select("issue_id")
+        .eq("issue_id", task_id)
+        .limit(1)
+        .execute()
+    )
+
+    # The prediction endpoint itself handles the actual model
+    # prediction. This helper only prepares the data.
+    return prediction_data
 
 # ============================================================
 # CREATE TASK
@@ -257,9 +308,51 @@ def create_task():
             remarks="Task created"
         )
 
+        # ----------------------------------------------------
+        # AUTOMATIC INITIAL TASK-RISK PREDICTION
+        # ----------------------------------------------------
+
+        prediction_data = {
+            "project_id": task["project_id"],
+            "issue_id": task["task_id"],
+
+            "issue_type": task.get("task_type"),
+            "priority": task.get("priority"),
+            "status": task.get("status"),
+
+            "story_points": task.get("story_points"),
+
+            "story_points_missing": (
+                1
+                if task.get("story_points") is None
+                else 0
+            ),
+
+            "timespent": (
+                task.get("actual_hours") or 0
+            ),
+
+            "assignee": task.get("assigned_to"),
+            "sprint": task.get("sprint"),
+
+            "task_age_days": 0,
+
+            "status_change_count": 0,
+            "priority_change_count": 0,
+            "assignee_change_count": 0,
+            "story_point_change_count": 0,
+            "estimate_change_count": 0,
+            "changes_last_7_days": 0
+        }
+
+        risk_result = predict_task_risk_internal(
+            prediction_data
+        )
+
         return jsonify({
             "message": "Task created successfully.",
-            "task": task
+            "task": task,
+            "risk": risk_result
         }), 201
 
     except ValueError as e:

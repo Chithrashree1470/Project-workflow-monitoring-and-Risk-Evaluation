@@ -381,9 +381,272 @@ def health():
 
     })
 
+# ============================================================
+# INTERNAL TASK RISK PREDICTION
+# ============================================================
+
+def predict_task_risk_internal(data):
+    """
+    Reusable task-risk prediction function.
+
+    Can be called by:
+        - POST /api/task-risk/predict
+        - tasks.py when a task is created or updated
+    """
+
+    if not data:
+        raise ValueError(
+            "Request body is required."
+        )
+
+    # --------------------------------------------------------
+    # REQUIRED IDS
+    # --------------------------------------------------------
+
+    if "project_id" not in data:
+        raise ValueError(
+            "project_id is required."
+        )
+
+    if "issue_id" not in data:
+        raise ValueError(
+            "issue_id is required."
+        )
+
+    project_id = int(
+        data["project_id"]
+    )
+
+    issue_id = int(
+        data["issue_id"]
+    )
+
+    # --------------------------------------------------------
+    # BUILD MODEL INPUT
+    # --------------------------------------------------------
+
+    row = {}
+
+    for feature in FEATURES:
+
+        value = data.get(
+            feature
+        )
+
+        if feature in CATEGORICAL:
+
+            if (
+                value is None
+                or value == ""
+            ):
+                value = "Unknown"
+
+            value = str(value)
+
+        else:
+
+            if value is None:
+
+                if (
+                    feature
+                    == "story_points_missing"
+                ):
+                    value = 1
+
+                else:
+                    value = 0
+
+        row[feature] = value
+
+    X = pd.DataFrame(
+        [row],
+        columns=FEATURES
+    )
+
+    # --------------------------------------------------------
+    # MODEL PREDICTION
+    # --------------------------------------------------------
+
+    probabilities = (
+        model
+        .predict_proba(X)[0]
+    )
+
+    predicted_class = (
+        model
+        .predict(X)[0][0]
+    )
+
+    # --------------------------------------------------------
+    # PROBABILITY MAP
+    # --------------------------------------------------------
+
+    class_names = list(
+        model.classes_
+    )
+
+    probability_map = {
+
+        class_names[i]:
+            float(probabilities[i])
+
+        for i in range(
+            len(class_names)
+        )
+    }
+
+    # --------------------------------------------------------
+    # CONTINUOUS RISK SCORE
+    # --------------------------------------------------------
+
+    risk_score = sum(
+
+        probability_map.get(
+            label,
+            0
+        )
+        * score
+
+        for label, score
+        in RISK_VALUES.items()
+
+    )
+
+    # ========================================================
+    # CURRENT TASK RISK RECORD
+    # ========================================================
+
+    record = {
+
+        "project_id":
+            project_id,
+
+        "issue_id":
+            issue_id,
+
+        "risk_label":
+            predicted_class,
+
+        "risk_score":
+            float(risk_score),
+
+        "low_probability":
+            probability_map.get(
+                "Low",
+                0
+            ),
+
+        "medium_probability":
+            probability_map.get(
+                "Medium",
+                0
+            ),
+
+        "high_probability":
+            probability_map.get(
+                "High",
+                0
+            ),
+
+        "critical_probability":
+            probability_map.get(
+                "Critical",
+                0
+            ),
+
+        "model_version":
+            MODEL_VERSION
+    }
+
+    # ========================================================
+    # UPDATE CURRENT TASK PREDICTION
+    # ========================================================
+
+    (
+        supabase
+        .table(
+            "task_risk_prediction"
+        )
+        .delete()
+        .eq(
+            "issue_id",
+            issue_id
+        )
+        .execute()
+    )
+
+    (
+        supabase
+        .table(
+            "task_risk_prediction"
+        )
+        .insert(
+            record
+        )
+        .execute()
+    )
+
+    # ========================================================
+    # APPEND TASK RISK HISTORY
+    # ========================================================
+
+    (
+        supabase
+        .table(
+            "task_risk_history"
+        )
+        .insert(
+            record
+        )
+        .execute()
+    )
+
+    # ========================================================
+    # UPDATE PROJECT DYNAMIC RISK
+    # ========================================================
+
+    project_risk = (
+        calculate_project_dynamic_risk(
+            project_id
+        )
+    )
+
+    # ========================================================
+    # RETURN RESULT
+    # ========================================================
+
+    return {
+
+        "project_id":
+            project_id,
+
+        "issue_id":
+            issue_id,
+
+        "risk_label":
+            predicted_class,
+
+        "risk_score":
+            round(
+                float(
+                    risk_score
+                ),
+                4
+            ),
+
+        "probabilities":
+            probability_map,
+
+        "model_version":
+            MODEL_VERSION,
+
+        "project_risk":
+            project_risk
+    }
+
 
 # ============================================================
-# PREDICT TASK RISK
+# PREDICT TASK RISK API
 # ============================================================
 
 @task_risk_bp.route(
@@ -396,286 +659,22 @@ def predict_task_risk():
 
         data = request.get_json()
 
-        if not data:
-
-            return jsonify({
-                "error":
-                    "Request body is required."
-            }), 400
-
-
-        # ----------------------------------------------------
-        # REQUIRED IDS
-        # ----------------------------------------------------
-
-        if "project_id" not in data:
-
-            return jsonify({
-                "error":
-                    "project_id is required."
-            }), 400
-
-
-        if "issue_id" not in data:
-
-            return jsonify({
-                "error":
-                    "issue_id is required."
-            }), 400
-
-
-        project_id = int(
-            data["project_id"]
+        result = predict_task_risk_internal(
+            data
         )
 
-        issue_id = int(
-            data["issue_id"]
-        )
+        return jsonify(
+            result
+        ), 200
 
-
-        # ----------------------------------------------------
-        # BUILD MODEL INPUT
-        # ----------------------------------------------------
-
-        row = {}
-
-        for feature in FEATURES:
-
-            value = data.get(
-                feature
-            )
-
-            if feature in CATEGORICAL:
-
-                if (
-                    value is None
-                    or value == ""
-                ):
-
-                    value = "Unknown"
-
-                value = str(value)
-
-            else:
-
-                if value is None:
-
-                    if (
-                        feature
-                        == "story_points_missing"
-                    ):
-
-                        value = 1
-
-                    else:
-
-                        value = 0
-
-            row[feature] = value
-
-
-        X = pd.DataFrame(
-            [row],
-            columns=FEATURES
-        )
-
-
-        # ----------------------------------------------------
-        # MODEL PREDICTION
-        # ----------------------------------------------------
-
-        probabilities = (
-            model
-            .predict_proba(X)[0]
-        )
-
-        predicted_class = (
-            model
-            .predict(X)[0][0]
-        )
-
-
-        # ----------------------------------------------------
-        # PROBABILITY MAP
-        # ----------------------------------------------------
-
-        class_names = list(
-            model.classes_
-        )
-
-        probability_map = {
-
-            class_names[i]:
-                float(probabilities[i])
-
-            for i in range(
-                len(class_names)
-            )
-        }
-
-
-        # ----------------------------------------------------
-        # CONTINUOUS RISK SCORE
-        # ----------------------------------------------------
-
-        risk_score = sum(
-
-            probability_map.get(
-                label,
-                0
-            )
-            * score
-
-            for label, score
-            in RISK_VALUES.items()
-
-        )
-
-
-        # ====================================================
-        # CURRENT PREDICTION RECORD
-        # ====================================================
-
-        record = {
-
-            "project_id":
-                project_id,
-
-            "issue_id":
-                issue_id,
-
-            "risk_label":
-                predicted_class,
-
-            "risk_score":
-                float(risk_score),
-
-            "low_probability":
-                probability_map.get(
-                    "Low",
-                    0
-                ),
-
-            "medium_probability":
-                probability_map.get(
-                    "Medium",
-                    0
-                ),
-
-            "high_probability":
-                probability_map.get(
-                    "High",
-                    0
-                ),
-
-            "critical_probability":
-                probability_map.get(
-                    "Critical",
-                    0
-                ),
-
-            "model_version":
-                MODEL_VERSION
-        }
-
-
-        # ====================================================
-        # UPDATE CURRENT PREDICTION
-        # ====================================================
-
-        (
-            supabase
-            .table(
-                "task_risk_prediction"
-            )
-            .delete()
-            .eq(
-                "issue_id",
-                issue_id
-            )
-            .execute()
-        )
-
-
-        (
-            supabase
-            .table(
-                "task_risk_prediction"
-            )
-            .insert(
-                record
-            )
-            .execute()
-        )
-
-
-        # ====================================================
-        # APPEND TO HISTORY
-        # ====================================================
-
-        (
-            supabase
-            .table(
-                "task_risk_history"
-            )
-            .insert(
-                record
-            )
-            .execute()
-        )
-
-
-        # ====================================================
-        # UPDATE PROJECT RISK
-        # ====================================================
-
-        project_risk = (
-            calculate_project_dynamic_risk(
-                project_id
-            )
-        )
-
-
-        # ====================================================
-        # RESPONSE
-        # ====================================================
+    except ValueError as e:
 
         return jsonify({
-
-            "project_id":
-                project_id,
-
-            "issue_id":
-                issue_id,
-
-            "risk_label":
-                predicted_class,
-
-            "risk_score":
-                round(
-                    float(
-                        risk_score
-                    ),
-                    4
-                ),
-
-            "probabilities":
-                probability_map,
-
-            "model_version":
-                MODEL_VERSION,
-
-            "project_risk":
-                project_risk
-
-        })
-
+            "error": str(e)
+        }), 400
 
     except Exception as e:
 
         return jsonify({
-
-            "error":
-                str(e)
-
+            "error": str(e)
         }), 500
