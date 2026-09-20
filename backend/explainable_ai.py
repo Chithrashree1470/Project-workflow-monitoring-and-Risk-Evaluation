@@ -1,9 +1,12 @@
+
+import numpy as np
 import pandas as pd
 from catboost import Pool
 
 
 def explain_prediction(model, feature_row, predicted_risk, top_n=8):
     """Generate SHAP explanations in the structure expected by result.html."""
+
     if not isinstance(feature_row, pd.DataFrame):
         feature_row = pd.DataFrame([feature_row])
 
@@ -12,7 +15,8 @@ def explain_prediction(model, feature_row, predicted_risk, top_n=8):
 
     categorical_indices = set(model.get_cat_feature_indices())
     categorical_features = [
-        i for i in range(len(feature_names))
+        i
+        for i in range(len(feature_names))
         if i in categorical_indices
     ]
 
@@ -21,10 +25,50 @@ def explain_prediction(model, feature_row, predicted_risk, top_n=8):
         cat_features=categorical_features
     )
 
-    shap_values = model.get_feature_importance(
+    shap_result = model.get_feature_importance(
         pool,
         type="ShapValues"
-    )[0][:-1]
+    )
+
+    # CatBoost returns:
+    #   Binary/regression: (samples, features + 1)
+    #   Multiclass:        (classes, samples, features + 1)
+    #
+    # We only have one input row, so select that row while
+    # preserving the feature contributions.
+
+    shap_array = np.asarray(shap_result)
+
+    if shap_array.ndim == 2:
+        # Shape: (samples, features + 1)
+        shap_values = shap_array[0, :-1]
+
+    elif shap_array.ndim == 3:
+        # Shape: (classes, samples, features + 1)
+        #
+        # Select the class corresponding to the predicted class
+        # when possible.
+        class_index = 0
+
+        try:
+            if hasattr(model, "classes_"):
+                classes = list(model.classes_)
+
+                if predicted_risk in classes:
+                    class_index = classes.index(predicted_risk)
+                elif str(predicted_risk) in [str(c) for c in classes]:
+                    class_index = [
+                        str(c) for c in classes
+                    ].index(str(predicted_risk))
+        except Exception:
+            class_index = 0
+
+        shap_values = shap_array[class_index, 0, :-1]
+
+    else:
+        raise ValueError(
+            f"Unexpected SHAP output shape: {shap_array.shape}"
+        )
 
     explanations = []
 
@@ -33,7 +77,8 @@ def explain_prediction(model, feature_row, predicted_risk, top_n=8):
         feature_row.iloc[0].values,
         shap_values
     ):
-        shap_value = float(shap_value)
+        # Convert NumPy scalar safely to Python float.
+        shap_value = float(np.asarray(shap_value).item())
 
         explanations.append({
             "factor": feature.replace("_", " "),
@@ -61,24 +106,33 @@ def explain_prediction(model, feature_row, predicted_risk, top_n=8):
     ]
 
     problems = []
+
     for item in top_factors:
         if item["shap_value"] > 0:
             item = dict(item)
+
             item["problem"] = (
-                f"{item['factor']} contributed positively to the predicted risk."            )
-            item["suggestion"] = (
-                f"Review {item['factor']} and consider appropriate corrective action."
+                f"{item['factor']} contributed positively "
+                f"to the predicted risk."
             )
+
+            item["suggestion"] = (
+                f"Review {item['factor']} and consider "
+                f"appropriate corrective action."
+            )
+
             problems.append(item)
 
     try:
-        probabilities = model.predict_proba(
-            feature_row
+        probabilities = np.asarray(
+            model.predict_proba(feature_row)
         )[0]
+
         confidence = round(
-            float(max(probabilities)) * 100,
+            float(np.max(probabilities)) * 100,
             2
         )
+
     except Exception:
         confidence = 0.0
 
@@ -90,3 +144,4 @@ def explain_prediction(model, feature_row, predicted_risk, top_n=8):
         "problems": problems,
         "explanations": explanations
     }
+

@@ -35,12 +35,13 @@ def predict():
             result=result_data
         )
 
-    except Exception as error:
-        print()
-        print("Prediction error:", error)
+    except Exception as e:
+        import traceback
+        print("Prediction error:", e)
+        traceback.print_exc()
 
         return (
-            "Prediction error: " + str(error),
+            "Prediction error: " + str(e),
             400
         )
 

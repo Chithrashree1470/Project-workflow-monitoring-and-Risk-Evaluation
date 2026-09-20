@@ -44,6 +44,7 @@ def get_client_by_id(client_id):
     )
 
     data = response.data or []
+    return data[0] if data else None
 
 
 master_data_bp = Blueprint("master_data", __name__)
