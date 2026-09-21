@@ -365,8 +365,7 @@ td {
 
                         <a
                             class="project-link"
-                            href="{{ url_for('project_details', project_id=project.get('id')) }}"
-                        >
+href="{{ url_for('project_details.project_details', project_id=project.get('id')) }}"                        >
                             {{ project.get("project_name", "-") }}
                         </a>
 
@@ -473,8 +472,7 @@ td {
 
                         <a
                             class="details-link"
-                            href="{{ url_for('project_details', project_id=project.get('id')) }}"
-                        >
+href="{{ url_for('project_details.project_details', project_id=project.get('id')) }}"                        >
                             View Details
                         </a>
 

@@ -146,15 +146,18 @@ def get_project_risk_level(score):
 
 def calculate_project_dynamic_risk(project_id):
     """
-    Calculate the current dynamic project risk from the latest
-    task-level predictions.
+    Calculate current project risk using:
+        1. Mean task risk
+        2. Maximum task risk
+        3. High/Critical task ratio
+        4. Unfinished task pressure
 
     Initial project risk is used only as a baseline.
-    It is NOT included in the task-risk average.
+    It is NOT included in the current project risk calculation.
     """
 
     # --------------------------------------------------------
-    # 1. Get current task-level predictions
+    # 1. GET CURRENT TASK PREDICTIONS
     # --------------------------------------------------------
 
     response = (
@@ -175,17 +178,21 @@ def calculate_project_dynamic_risk(project_id):
     if not predictions:
         return None
 
-    # --------------------------------------------------------
-    # 2. Convert predictions to a DataFrame
-    # --------------------------------------------------------
-
     df = pd.DataFrame(predictions)
 
-    current_score = float(
+    total_task_count = len(df)
+
+    # --------------------------------------------------------
+    # 2. BASIC RISK VALUES
+    # --------------------------------------------------------
+
+    mean_task_risk = float(
         df["risk_score"].mean()
     )
 
-    total_task_count = len(df)
+    maximum_task_risk = float(
+        df["risk_score"].max()
+    )
 
     high_task_count = int(
         (df["risk_label"] == "High").sum()
@@ -195,8 +202,100 @@ def calculate_project_dynamic_risk(project_id):
         (df["risk_label"] == "Critical").sum()
     )
 
+    high_critical_count = (
+        high_task_count
+        + critical_task_count
+    )
+
+    high_critical_ratio = (
+        high_critical_count
+        / total_task_count
+    )
+
     # --------------------------------------------------------
-    # 3. Determine current project risk level
+    # 3. GET CURRENT TASK STATUSES
+    # --------------------------------------------------------
+
+    task_response = (
+        supabase
+        .table("Tasks")
+        .select("task_id, status")
+        .eq(
+            "project_id",
+            project_id
+        )
+        .execute()
+    )
+
+    tasks = task_response.data or []
+    unfinished_statuses = {
+        "TODO",
+        "IN_PROGRESS"
+    }
+
+    unfinished_task_count = sum(
+        1
+        for task in tasks
+        if str(
+            task.get("status", "")
+        ).upper() in unfinished_statuses
+    )
+
+    # --------------------------------------------------------
+    # 4. COUNT UNFINISHED TASKS
+    # --------------------------------------------------------
+
+    unfinished_statuses = {
+        "TODO",
+        "IN_PROGRESS"
+    }
+
+    unfinished_task_count = sum(
+        1
+        for task in tasks
+        if str(
+            task.get("status", "")
+        ).upper()
+        in unfinished_statuses
+    )
+
+    # --------------------------------------------------------
+    # 5. CALCULATE UNFINISHED TASK PRESSURE
+    # --------------------------------------------------------
+
+    unfinished_task_pressure = (
+        unfinished_task_count
+        / (
+            unfinished_task_count
+            + 5.0
+        )
+    )
+
+    # --------------------------------------------------------
+    # 6. HYBRID PROJECT RISK
+    # --------------------------------------------------------
+
+    current_score = (
+        (0.40 * mean_task_risk)
+        +
+        (0.25 * maximum_task_risk)
+        +
+        (0.15 * high_critical_ratio)
+        +
+        (0.20 * unfinished_task_pressure)
+    )
+
+    # Keep score between 0 and 1
+    current_score = max(
+        0.0,
+        min(
+            1.0,
+            float(current_score)
+        )
+    )
+
+    # --------------------------------------------------------
+    # 7. DETERMINE PROJECT RISK LEVEL
     # --------------------------------------------------------
 
     current_level = get_project_risk_level(
@@ -204,7 +303,7 @@ def calculate_project_dynamic_risk(project_id):
     )
 
     # --------------------------------------------------------
-    # 4. Get initial project risk baseline
+    # 8. GET INITIAL PROJECT RISK BASELINE
     # --------------------------------------------------------
 
     project_response = (
@@ -224,18 +323,22 @@ def calculate_project_dynamic_risk(project_id):
     baseline_risk_level = "Low"
 
     if project_data:
+
         raw_baseline = project_data[0].get(
             "predicted_risk"
         )
 
         if raw_baseline is not None:
+
             baseline_risk_level = str(
                 raw_baseline
             ).strip()
 
-            # Handle database value such as:
+            # Handle values such as:
             # ['Low']
+
             if baseline_risk_level.startswith("["):
+
                 baseline_risk_level = (
                     baseline_risk_level
                     .replace("[", "")
@@ -245,22 +348,22 @@ def calculate_project_dynamic_risk(project_id):
                     .strip()
                 )
 
-    # Convert baseline label to numeric score
     baseline_score = RISK_VALUES.get(
         baseline_risk_level,
         0.0
     )
 
     # --------------------------------------------------------
-    # 5. Calculate deviation from initial baseline
+    # 9. BASELINE RISK CHANGE
     # --------------------------------------------------------
 
     baseline_risk_change = (
-        current_score - baseline_score
+        current_score
+        - baseline_score
     )
 
     # --------------------------------------------------------
-    # 6. Get previous dynamic project risk
+    # 10. GET PREVIOUS PROJECT RISK
     # --------------------------------------------------------
 
     previous_response = (
@@ -275,59 +378,90 @@ def calculate_project_dynamic_risk(project_id):
         .execute()
     )
 
-    previous_data = previous_response.data or []
+    previous_data = (
+        previous_response.data or []
+    )
 
     # --------------------------------------------------------
-    # 7. Calculate recent dynamic trend
+    # 11. CALCULATE RISK TREND
     # --------------------------------------------------------
 
     if not previous_data:
+
         risk_trend = "Stable"
         risk_change = 0.0
 
     else:
+
         previous_score = float(
             previous_data[0]["risk_score"]
         )
 
         risk_change = (
-            current_score - previous_score
+            current_score
+            - previous_score
         )
 
         if risk_change > 0.05:
+
             risk_trend = "Worsening"
 
         elif risk_change < -0.05:
+
             risk_trend = "Improving"
 
         else:
+
             risk_trend = "Stable"
 
     # --------------------------------------------------------
-    # 8. Build project risk record
+    # 12. BUILD PROJECT RECORD
     # --------------------------------------------------------
 
     project_record = {
-        "project_id": project_id,
-        "risk_score": current_score,
-        "risk_level": current_level,
 
-        "total_task_count": total_task_count,
-        "high_task_count": high_task_count,
-        "critical_task_count": critical_task_count,
+        "project_id":
+            project_id,
 
-        "risk_trend": risk_trend,
-        "risk_change": risk_change,
+        "risk_score":
+            current_score,
 
-        "baseline_risk_score": baseline_score,
-        "baseline_risk_level": baseline_risk_level,
-        "baseline_risk_change": baseline_risk_change,
+        "risk_level":
+            current_level,
 
-        "model_version": MODEL_VERSION
+        "total_task_count":
+            total_task_count,
+
+        "high_task_count":
+            high_task_count,
+
+        "critical_task_count":
+            critical_task_count,
+
+        "risk_trend":
+            risk_trend,
+
+        "risk_change":
+            risk_change,
+
+        "baseline_risk_score":
+            baseline_score,
+
+        "baseline_risk_level":
+            baseline_risk_level,
+
+        "baseline_risk_change":
+            baseline_risk_change,
+
+        "unfinished_task_count":
+            unfinished_task_count,
+
+        "model_version":
+            MODEL_VERSION
     }
 
     # --------------------------------------------------------
-    # 9. Update current project dynamic risk
+    # 13. UPDATE CURRENT PROJECT RISK
     # --------------------------------------------------------
 
     (
@@ -349,7 +483,7 @@ def calculate_project_dynamic_risk(project_id):
     )
 
     # --------------------------------------------------------
-    # 10. Append to project risk history
+    # 14. SAVE PROJECT RISK HISTORY
     # --------------------------------------------------------
 
     (
