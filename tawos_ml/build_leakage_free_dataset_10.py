@@ -48,6 +48,126 @@ def clean_string(value):
 
     return value
 
+# ============================================================
+# STATUS MAPPING
+# ============================================================
+
+STATUS_MAPPING = {
+    # --------------------------------------------------------
+    # TO DO
+    # --------------------------------------------------------
+    "to do": "To Do",
+    "open": "To Do",
+    "backlog": "To Do",
+    "short term backlog": "To Do",
+    "long term backlog": "To Do",
+    "needs scheduling": "To Do",
+    "awaiting development": "To Do",
+    "ready for development": "To Do",
+    "new": "To Do",
+    "define": "To Do",
+    "future consideration": "To Do",
+    "proposed": "To Do",
+    "under consideration": "To Do",
+    "untriaged": "To Do",
+    "not being considered": "To Do",
+
+    # --------------------------------------------------------
+    # IN PROGRESS
+    # --------------------------------------------------------
+    "in progress": "In Progress",
+    "development in progress": "In Progress",
+    "investigating": "In Progress",
+    "debugging": "In Progress",
+    "gathering impact": "In Progress",
+    "gathering interest": "In Progress",
+    "in qe test": "In Progress",
+    "testing in progress": "In Progress",
+    "problem during testing": "In Progress",
+    "blocked": "In Progress",
+    "reopened": "In Progress",
+    "returned": "In Progress",
+    "awaiting merge": "In Progress",
+    "needs merge": "In Progress",
+    "integration review in progress": "In Progress",
+    "waiting for integration review": "In Progress",
+    "documentation": "In Progress",
+    "waiting for user input": "In Progress",
+
+    # --------------------------------------------------------
+    # IN REVIEW
+    # --------------------------------------------------------
+    "in review": "In Review",
+    "in code review": "In Review",
+    "in cr review": "In Review",
+    "peer review in progress": "In Review",
+    "waiting for peer review": "In Review",
+    "awaiting quality review": "In Review",
+    "technical review": "In Review",
+    "reviewing": "In Review",
+    "reviewed": "In Review",
+
+    # --------------------------------------------------------
+    # CLOSED
+    # --------------------------------------------------------
+    "closed": "Closed",
+    "resolved": "Closed",
+    "resolved": "Closed",
+    "done": "Closed",
+    "verified": "Closed",
+    "tested": "Closed",
+    "awaiting release": "Closed",
+    "waiting for release": "Closed",
+    "needs verification": "Closed",
+    "unverified": "Closed",
+    "invalid": "Closed",
+    "won't fix": "Closed",
+}
+
+
+def map_status(value):
+    """
+    Convert raw historical status into one of the
+    four status values used by the application/training model.
+    """
+
+    value = clean_string(value)
+
+    if not value:
+        return "To Do"
+
+    normalized = value.strip().lower()
+
+    if normalized in STATUS_MAPPING:
+        return STATUS_MAPPING[normalized]
+
+    # Fallback for unforeseen status values
+    if "review" in normalized:
+        return "In Review"
+
+    if any(word in normalized for word in [
+        "closed",
+        "resolved",
+        "done",
+        "verified",
+        "tested",
+        "release"
+    ]):
+        return "Closed"
+
+    if any(word in normalized for word in [
+        "progress",
+        "testing",
+        "test",
+        "investigat",
+        "debug",
+        "blocked",
+        "merge",
+        "integration"
+    ]):
+        return "In Progress"
+
+    return "To Do"
 
 def clean_number(value):
 
@@ -433,7 +553,7 @@ for issue_id, issue in issue_lookup.items():
             ),
 
         "status":
-            clean_string(
+            map_status(
                 issue.get("Status")
             ),
 
@@ -520,8 +640,8 @@ for issue_id, issue in issue_lookup.items():
 
         if field == "status":
 
-            state["status"] = get_change_value(
-                row_dict
+            state["status"] = map_status(
+                get_change_value(row_dict)
             )
 
         elif field == "priority":
