@@ -31,7 +31,9 @@ app.register_blueprint(task_risk_bp)
 
 if __name__ == "__main__":
     from backend.services.project_risk import MODEL_PATH, MODEL_FEATURES
-
+    print("\nREGISTERED ROUTES:")
+    for rule in app.url_map.iter_rules():
+        print(rule, "->", rule.endpoint, rule.methods)
     print("=" * 60)
     print("INFRA SYNC AI")
     print("AI-BASED PREDICTIVE WORKFLOW MONITORING")

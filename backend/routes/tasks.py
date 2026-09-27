@@ -67,9 +67,10 @@ TASK_FIELDS = [
 ]
 
 ALLOWED_STATUSES = [
-    "TODO",
+    "TO_DO",
     "IN_PROGRESS",
-    "DONE"
+    "IN_REVIEW",
+    "CLOSED"
 ]
 
 ALLOWED_PRIORITIES = [
@@ -506,18 +507,16 @@ def update_task(task_id):
         # ----------------------------------------------------
 
         if (
-            new_status == "DONE"
-            and previous_status != "DONE"
+            new_status == "CLOSED"
+            and previous_status != "CLOSED"
             and "completed_at" not in update_data
         ):
-
             update_data["completed_at"] = utc_now()
 
         elif (
-            new_status != "DONE"
-            and previous_status == "DONE"
+            new_status != "CLOSED"
+            and previous_status == "CLOSED"
         ):
-
             update_data["completed_at"] = None
 
         # ----------------------------------------------------
@@ -549,19 +548,16 @@ def update_task(task_id):
             and previous_status != new_status
         ):
 
-            if new_status == "DONE":
-
+            if new_status == "CLOSED":
                 change_type = "TASK_COMPLETED"
 
             elif (
-                previous_status == "DONE"
-                and new_status != "DONE"
+                previous_status == "CLOSED"
+                and new_status != "CLOSED"
             ):
-
                 change_type = "TASK_REOPENED"
 
             else:
-
                 change_type = "STATUS_CHANGE"
 
             if updated_by:
