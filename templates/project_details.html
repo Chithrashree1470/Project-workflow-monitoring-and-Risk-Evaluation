@@ -2,2284 +2,2409 @@
 <html lang="en">
 
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Project Details | InfraSync AI</title>
-
-<style>
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: #07111f;
-    color: #e5f3ff;
-    min-height: 100vh;
-}
-
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-
-/* =========================================================
-   NAVBAR
-========================================================= */
-
-.navbar {
-
-    width: 100%;
-    height: 72px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 7%;
-
-    background: #081421;
-
-    border-bottom:
-        1px solid
-        rgba(255,255,255,0.08);
-}
-
-.logo {
-
-    color: #38bdf8;
-
-    font-size: 23px;
-
-    font-weight: 700;
-}
-
-.nav-links {
-
-    display: flex;
-
-    gap: 28px;
-}
-
-.nav-links a {
-
-    color: #b8c9d9;
-
-    font-size: 14px;
-}
-
-.nav-links a:hover {
-
-    color: #38bdf8;
-}
-
-
-/* =========================================================
-   CONTAINER
-========================================================= */
-
-.container {
-
-    width: 90%;
-
-    max-width: 1150px;
-
-    margin: 0 auto;
-
-    padding: 45px 0 70px;
-}
-
-
-/* =========================================================
-   BACK BUTTON
-========================================================= */
-
-.back-btn {
-
-    display: inline-block;
-
-    margin-bottom: 25px;
-
-    padding: 10px 17px;
-
-    background: #142538;
-
-    border:
-        1px solid
-        rgba(255,255,255,0.08);
-
-    border-radius: 8px;
-
-    color: #d6e7f5;
-
-    font-size: 13px;
-}
-
-.back-btn:hover {
-
-    background: #1b3045;
-
-    color: #38bdf8;
-}
-
-
-/* =========================================================
-   TITLE
-========================================================= */
-
-.page-title {
-
-    margin-bottom: 30px;
-}
-
-.page-title h1 {
-
-    font-size: 34px;
-
-    color: white;
-
-    margin-bottom: 8px;
-}
-
-.page-title p {
-
-    color: #8fa5b8;
-
-    font-size: 14px;
-}
-
-
-/* =========================================================
-   RISK CARD
-========================================================= */
-
-.risk-card {
-
-    background: #0c1b2b;
-
-    border:
-        1px solid
-        rgba(56,189,248,0.15);
-
-    border-radius: 16px;
-
-    padding: 25px;
-
-    margin-bottom: 25px;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-}
-
-.risk-label {
-
-    color: #8ea5b9;
-
-    font-size: 12px;
-
-    text-transform: uppercase;
-
-    letter-spacing: 1.5px;
-
-    margin-bottom: 8px;
-}
-
-.risk-value {
-
-    font-size: 30px;
-
-    font-weight: 800;
-}
-
-
-/* =========================================================
-   RISK COLORS
-========================================================= */
-
-.risk-low {
-
-    color: #22c55e;
-}
-
-.risk-medium {
-
-    color: #facc15;
-}
-
-.risk-high {
-
-    color: #fb923c;
-}
-
-.risk-critical {
-
-    color: #ef4444;
-}
-
-
-/* =========================================================
-   SECTION
-========================================================= */
-
-.section {
-
-    background: #0c1b2b;
-
-    border:
-        1px solid
-        rgba(255,255,255,0.07);
-
-    border-radius: 16px;
-
-    padding: 28px;
-
-    margin-bottom: 25px;
-}
-
-.section h2 {
-
-    color: #38bdf8;
-
-    font-size: 20px;
-
-    margin-bottom: 22px;
-}
-
-
-/* =========================================================
-   SUMMARY GRID
-========================================================= */
-
-.summary-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 15px;
-}
-
-.summary-card {
-
-    background: #101f30;
-
-    border:
-        1px solid
-        rgba(255,255,255,0.06);
-
-    border-radius: 12px;
-
-    padding: 18px;
-}
-
-.summary-label {
-
-    color: #91a6b8;
-
-    font-size: 13px;
-
-    margin-bottom: 9px;
-}
-
-.summary-value {
-
-    color: white;
-
-    font-size: 20px;
-
-    font-weight: 700;
-}
-
-
-/* =========================================================
-   TASK TABLE
-========================================================= */
-
-.table-wrapper {
-
-    overflow-x: auto;
-}
-
-.task-table {
-
-    width: 100%;
-
-    border-collapse: collapse;
-
-    min-width: 700px;
-}
-
-.task-table th {
-
-    background: #091625;
-
-    color: #38bdf8;
-
-    font-size: 12px;
-
-    text-align: left;
-
-    padding: 13px;
-
-    border-bottom:
-        1px solid
-        #1e293b;
-}
-
-.task-table td {
-
-    background: #0a1625;
-
-    color: #dbe7f0;
-
-    font-size: 13px;
-
-    padding: 13px;
-
-    border-bottom:
-        1px solid
-        #1e293b;
-}
-
-
-/* =========================================================
-   EMPTY TASK MESSAGE
-========================================================= */
-
-.empty-message {
-
-    color: #8ea5b9;
-
-    font-size: 14px;
-
-    padding: 5px 0;
-}
-
-/* =========================================================
-   TASK CRUD
-========================================================= */
-
-.task-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.task-header h2 {
-    margin-bottom: 0;
-}
-
-.add-task-btn {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 8px;
-    background: #38bdf8;
-    color: #07111f;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.add-task-btn:hover {
-    background: #7dd3fc;
-}
-
-.task-action-btn {
-    padding: 7px 11px;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    cursor: pointer;
-    margin-right: 5px;
-}
-
-.edit-btn {
-    background: #2563eb;
-    color: white;
-}
-
-.delete-btn {
-    background: #dc2626;
-    color: white;
-}
-
-.save-btn {
-    background: #16a34a;
-    color: white;
-}
-
-.cancel-btn {
-    background: #64748b;
-    color: white;
-}
-
-/* Task modal */
-/* =========================================================
-   TASK MODAL
-========================================================= */
-
-.task-modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-
-    background: rgba(0, 0, 0, 0.7);
-
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
-}
-
-.task-modal-content {
-    position: relative;
-
-    width: 100%;
-    max-width: 850px;
-    max-height: 90vh;
-
-    overflow-y: auto;
-
-    background: #0c1b2b;
-    border: 1px solid rgba(56, 189, 248, 0.2);
-    border-radius: 16px;
-
-    padding: 28px;
-
-    box-sizing: border-box;
-}
-
-/* Header */
-
-.task-modal-header {
-    width: 100%;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    margin-bottom: 25px;
-}
-
-.task-modal-header h3 {
-    color: #38bdf8;
-    font-size: 22px;
-    margin: 0;
-}
-
-.close-modal {
-    background: transparent;
-    border: none;
-
-    color: #94a3b8;
-    font-size: 28px;
-
-    cursor: pointer;
-
-    line-height: 1;
-}
-
-.close-modal:hover {
-    color: white;
-}
-
-/* =========================================================
-   TASK FORM
-========================================================= */
-
-#taskForm {
-    width: 100%;
-    display: block;
-}
-
-.task-form-grid {
-    width: 100%;
-
-    display: grid;
-
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-
-    gap: 16px;
-}
-
-.task-form-group {
-    width: 100%;
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 7px;
-
-    min-width: 0;
-}
-
-.task-form-group.full {
-    grid-column: 1 / -1;
-}
-
-.task-form-group label {
-    color: #91a6b8;
-    font-size: 12px;
-}
-
-.task-form-group input,
-.task-form-group textarea,
-.task-form-group select {
-    width: 100%;
-    max-width: 100%;
-
-    padding: 10px 12px;
-
-    background: #091625;
-    border: 1px solid #26384b;
-    border-radius: 7px;
-
-    color: #e5f3ff;
-
-    outline: none;
-
-    box-sizing: border-box;
-}
-
-.task-form-group textarea {
-    min-height: 90px;
-    resize: vertical;
-}
-
-.task-form-group input:focus,
-.task-form-group textarea:focus,
-.task-form-group select:focus {
-    border-color: #38bdf8;
-}
-
-/* =========================================================
-   FORM ERROR
-========================================================= */
-
-.task-form-error {
-    width: 100%;
-    box-sizing: border-box;
-
-    background: rgba(239, 68, 68, 0.12);
-    color: #f87171;
-
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 8px;
-
-    padding: 10px 12px;
-
-    margin: 0 0 18px 0;
-
-    font-size: 13px;
-    line-height: 1.4;
-}
-
-/* =========================================================
-   FORM ACTIONS
-========================================================= */
-
-.task-modal-actions {
-    width: 100%;
-
-    display: flex;
-    justify-content: flex-end;
-
-    gap: 10px;
-
-    margin-top: 25px;
-}
-
-.task-form-submit {
-    padding: 10px 20px;
-
-    border: none;
-    border-radius: 8px;
-
-    background: #38bdf8;
-    color: #07111f;
-
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.task-form-cancel {
-    padding: 10px 20px;
-
-    border: none;
-    border-radius: 8px;
-
-    background: #334155;
-    color: white;
-
-    cursor: pointer;
-}
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 700px) {
-
-    .task-modal {
-        padding: 12px;
-    }
-
-    .task-modal-content {
-        width: 100%;
-        max-width: 100%;
-
-        padding: 20px;
-    }
-
-    .task-form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .task-form-group.full {
-        grid-column: auto;
-    }
-}
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
-footer {
-
-    text-align: center;
-
-    color: #71869a;
-
-    font-size: 13px;
-
-    padding: 20px;
-
-    border-top:
-        1px solid
-        rgba(255,255,255,0.06);
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 900px) {
-
-    .summary-grid {
-
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-}
-
-@media (max-width: 600px) {
-
-    .navbar {
-
-        padding: 0 5%;
-    }
-
-    .nav-links {
-
-        gap: 15px;
-    }
-
-    .container {
-
-        width: 94%;
-    }
-
-    .summary-grid {
-
-        grid-template-columns: 1fr;
-    }
-
-    .risk-card {
-
-        flex-direction: column;
-
-        align-items: flex-start;
-
-        gap: 15px;
-    }
-
-}
-
-.task-form-error {
-    background: #fee2e2;
-    color: #b91c1c;
-    border: 1px solid #fca5a5;
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin: 12px 0;
-    font-size: 14px;
-    line-height: 1.4;
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Project Details | InfraSync AI</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #07111f;
+            color: #e5f3ff;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        .navbar {
+            width: 100%;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            background: #081421;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .logo {
+            color: #38bdf8;
+            font-size: 23px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+        }
+
+        .nav-links a {
+            color: #b8c9d9;
+            font-size: 14px;
+        }
+
+        .nav-links a:hover {
+            color: #38bdf8;
+        }
+
+        /* =========================
+           MAIN CONTAINER
+        ========================= */
+
+        .container {
+            width: 90%;
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 45px 0 70px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 25px;
+            padding: 10px 17px;
+            background: #142538;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            color: #d6e7f5;
+            font-size: 13px;
+        }
+
+        .back-btn:hover {
+            background: #1b3045;
+            color: #38bdf8;
+        }
+
+        .page-title {
+            margin-bottom: 30px;
+        }
+
+        .page-title h1 {
+            font-size: 34px;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: #8fa5b8;
+            font-size: 14px;
+        }
+
+        /* =========================
+           CARDS
+        ========================= */
+
+        .risk-card {
+            background: #0c1b2b;
+            border: 1px solid rgba(56,189,248,0.15);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .risk-label {
+            color: #8ea5b9;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .risk-value {
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .risk-low {
+            color: #22c55e;
+        }
+
+        .risk-medium {
+            color: #facc15;
+        }
+
+        .risk-high {
+            color: #fb923c;
+        }
+
+        .risk-critical {
+            color: #ef4444;
+        }
+
+        .section {
+            background: #0c1b2b;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 25px;
+        }
+
+        .section h2 {
+            color: #38bdf8;
+            font-size: 20px;
+            margin-bottom: 22px;
+        }
+
+        /* =========================
+           SUMMARY
+        ========================= */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .summary-card {
+            background: #101f30;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .summary-label {
+            color: #91a6b8;
+            font-size: 13px;
+            margin-bottom: 9px;
+        }
+
+        .summary-value {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        /* =========================
+           TASK TABLE
+        ========================= */
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .task-header h2 {
+            margin-bottom: 0;
+        }
+
+        .add-task-btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #38bdf8;
+            color: #07111f;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .add-task-btn:hover {
+            background: #7dd3fc;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        .task-table th {
+            background: #091625;
+            color: #38bdf8;
+            font-size: 12px;
+            text-align: left;
+            padding: 13px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .task-table td {
+            background: #0a1625;
+            color: #dbe7f0;
+            font-size: 13px;
+            padding: 13px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .task-loading {
+            color: #8ea5b9;
+            text-align: center;
+            padding: 20px !important;
+        }
+
+        .task-message {
+            display: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .task-success {
+            display: block;
+            background: rgba(34,197,94,0.12);
+            border: 1px solid rgba(34,197,94,0.3);
+            color: #4ade80;
+        }
+
+        .task-error {
+            display: block;
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #f87171;
+        }
+
+        .task-action-btn {
+            padding: 7px 11px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .edit-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* =========================
+           TASK MODAL
+        ========================= */
+
+        .task-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+
+            width: 100%;
+            height: 100%;
+
+            background: rgba(0, 0, 0, 0.75);
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+        }
+
+        /*
+         * IMPORTANT:
+         * The entire form is INSIDE this container.
+         */
+        .task-modal-content {
+            position: relative;
+
+            width: 100%;
+            max-width: 850px;
+
+            max-height: calc(100vh - 40px);
+
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            background: #0c1b2b;
+
+            border: 1px solid rgba(56,189,248,0.25);
+            border-radius: 16px;
+
+            padding: 28px;
+
+            box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+        }
+
+        .task-modal-header {
+            width: 100%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 20px;
+        }
+
+        .task-modal-header h2 {
+            color: #38bdf8;
+            font-size: 22px;
+            margin: 0;
+        }
+
+        .close-modal {
+            background: transparent;
+            border: none;
+
+            color: #94a3b8;
+
+            font-size: 30px;
+            line-height: 1;
+
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: white;
+        }
+
+        /* =========================
+           FORM ERROR
+        ========================= */
+
+        .task-form-error {
+            display: none;
+
+            width: 100%;
+
+            background: rgba(239,68,68,0.12);
+            color: #f87171;
+
+            border: 1px solid rgba(239,68,68,0.35);
+            border-radius: 8px;
+
+            padding: 11px 13px;
+
+            margin-bottom: 18px;
+
+            font-size: 13px;
+            line-height: 1.5;
+
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        /* =========================
+           FORM
+        ========================= */
+
+        #taskForm {
+            width: 100%;
+            display: block;
+        }
+
+        .task-form-grid {
+            width: 100%;
+
+            display: grid;
+
+            grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+
+            gap: 16px;
+        }
+
+        .task-form-group {
+            width: 100%;
+            min-width: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 7px;
+        }
+
+        .task-form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .task-form-group label {
+            color: #91a6b8;
+            font-size: 12px;
+        }
+
+        .task-form-group input,
+        .task-form-group textarea,
+        .task-form-group select {
+            width: 100%;
+            max-width: 100%;
+
+            padding: 10px 12px;
+
+            background: #091625;
+
+            border: 1px solid #26384b;
+            border-radius: 7px;
+
+            color: #e5f3ff;
+
+            outline: none;
+
+            font-family: inherit;
+            font-size: 14px;
+
+            box-sizing: border-box;
+        }
+
+        .task-form-group input,
+        .task-form-group select {
+            height: 42px;
+        }
+
+        .task-form-group textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .task-form-group input:focus,
+        .task-form-group textarea:focus,
+        .task-form-group select:focus {
+            border-color: #38bdf8;
+        }
+
+        .task-form-group input::placeholder,
+        .task-form-group textarea::placeholder {
+            color: #64748b;
+        }
+
+        /* =========================
+           FORM BUTTONS
+        ========================= */
+
+        .task-modal-actions {
+            width: 100%;
+
+            display: flex;
+            justify-content: flex-end;
+
+            gap: 10px;
+
+            margin-top: 25px;
+
+            padding-top: 18px;
+
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .task-form-submit,
+        .task-form-cancel {
+            padding: 10px 20px;
+
+            border: none;
+            border-radius: 8px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+        }
+
+        .task-form-submit {
+            background: #38bdf8;
+            color: #07111f;
+        }
+
+        .task-form-submit:hover {
+            background: #7dd3fc;
+        }
+
+        .task-form-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .task-form-cancel {
+            background: #334155;
+            color: white;
+        }
+
+        .task-form-cancel:hover {
+            background: #475569;
+        }
+
+        /* =========================
+           TEAM / STAKEHOLDERS
+        ========================= */
+
+        .empty-message {
+            color: #8ea5b9;
+            font-size: 14px;
+            padding: 5px 0;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            text-align: center;
+            color: #71869a;
+            font-size: 13px;
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 900px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .task-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .task-form-group.full {
+                grid-column: auto;
+            }
+
+            .task-modal {
+                padding: 12px;
+            }
+
+            .task-modal-content {
+                max-height: calc(100vh - 24px);
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 0 5%;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .container {
+                width: 94%;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .task-header {
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
 </head>
-
 
 <body>
 
+    <!-- =========================
+         NAVBAR
+    ========================= -->
 
-<!-- =========================================================
-     NAVBAR
-========================================================= -->
+    <nav class="navbar">
 
-<nav class="navbar">
-
-    <a href="/" class="logo">
-        InfraSync AI
-    </a>
-
-    <div class="nav-links">
-
-        <a href="/">
-            Risk Assessment
+        <a href="/" class="logo">
+            InfraSync AI
         </a>
 
-        <a href="/dashboard">
-            Dashboard
+        <div class="nav-links">
+            <a href="/">Risk Assessment</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <main class="container">
+
+        <a href="/dashboard" class="back-btn">
+            ← Back to Dashboard
         </a>
 
-    </div>
 
-</nav>
+        <!-- PROJECT TITLE -->
 
+        <div class="page-title">
 
-<!-- =========================================================
-     MAIN
-========================================================= -->
+            <h1>
+                {{ project.project_name }}
+            </h1>
 
-<main class="container">
-
-
-    <a
-        href="/dashboard"
-        class="back-btn"
-    >
-        ← Back to Dashboard
-    </a>
-
-
-    <!-- =====================================================
-         PROJECT TITLE
-    ====================================================== -->
-
-    <div class="page-title">
-
-        <h1>
-            {{ project.project_name }}
-        </h1>
-
-        <p>
-            Project details and initial AI risk assessment
-        </p>
-
-    </div>
-
-
-    <!-- =====================================================
-         RISK
-    ====================================================== -->
-
-    {% set risk =
-        project.predicted_risk|string|lower
-    %}
-
-
-    <section class="risk-card">
-
-        <div>
-
-            <div class="risk-label">
-                Predicted Risk
-            </div>
-
-            <div class="
-                risk-value
-
-                {% if risk == 'low' %}
-                    risk-low
-
-                {% elif risk == 'medium' %}
-                    risk-medium
-
-                {% elif risk == 'high' %}
-                    risk-high
-
-                {% elif risk == 'critical' %}
-                    risk-critical
-                {% endif %}
-            ">
-
-                {{ project.predicted_risk }}
-
-            </div>
+            <p>
+                Project details and initial AI risk assessment
+            </p>
 
         </div>
 
-    </section>
 
+        <!-- RISK -->
 
-    <!-- =====================================================
-         PROJECT SUMMARY
-    ====================================================== -->
+        {% set risk = project.predicted_risk|string|lower %}
 
-    <section class="section">
+        <section class="risk-card">
 
-        <h2>
-            Project Summary
-        </h2>
+            <div>
 
-
-        <div class="summary-grid">
-
-
-            <!-- TEAM SIZE -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Team Size
+                <div class="risk-label">
+                    Predicted Risk
                 </div>
 
-                <div class="summary-value">
-
-                    {{ project.team_size | default(0, true) }}
-
-                </div>
-
-            </div>
-
-
-            <!-- STAKEHOLDERS -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Stakeholders
-                </div>
-
-                <div class="summary-value">
-
-                    {{ details.stakeholder_count
-                       | default(0, true) }}
-
-                </div>
-
-            </div>
-
-
-            <!-- TIMELINE -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Timeline
-                </div>
-
-                <div class="summary-value">
-
-                    {{ project.timeline_months
-                       | default(0, true) }}
-
-                    months
-
-                </div>
-
-            </div>
-
-
-            <!-- COMPLEXITY -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Complexity
-                </div>
-
-                <div class="summary-value">
-
-                    {{ project.complexity_score
-                       | default(0, true) }}
-
-                    / 10
-
-                </div>
-
-            </div>
-
-
-            <!-- TOTAL TASKS -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Total Tasks
-                </div>
-
-                <div class="summary-value">
-
-                    {{ project.total_tasks
-                       | default(0, true) }}
-
-                </div>
-
-            </div>
-
-
-            <!-- COMPLETED -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Completed Tasks
-                </div>
-
-                <div class="summary-value">
-
-                    {{ project.completed_tasks
-                       | default(0, true) }}
-
-                </div>
-
-            </div>
-
-
-            <!-- PENDING -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Pending Tasks
-                </div>
-
-                <div class="summary-value">
-
-                    {{ details.pending_tasks
-                       | default(0, true) }}
-
-                </div>
-
-            </div>
-
-
-            <!-- OVERDUE -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Overdue Tasks
-                </div>
-
-                <div class="summary-value">
-
-                    {{ project.overdue_tasks
-                       | default(0, true) }}
-
-                </div>
-
-            </div>
-
-
-            <!-- PROJECT PROGRESS -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Project Progress
-                </div>
-
-                <div class="summary-value">
-
-                    {{ details.project_progress
-                       | default("Not Started", true) }}
-
-                </div>
-
-            </div>
-
-
-            <!-- COMPLETION -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Completion
-                </div>
-
-                <div class="summary-value">
-
-                    {{ details.completion_percentage
-                       | default(0, true) }}%
-
-                </div>
-
-            </div>
-
-
-            <!-- DELAY -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Delay
-                </div>
-
-                <div class="summary-value">
-
-                    {{ details.delay_percentage
-                       | default(0, true) }}%
-
-                </div>
-
-            </div>
-
-
-            <!-- ESTIMATED EFFORT -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Estimated Effort
-                </div>
-
-                <div class="summary-value">
-
-                    {% if details.estimated_effort_hours
-                          is defined
-                          and details.estimated_effort_hours
-                          is not none %}
-
-                        {% set estimated_hours = details.estimated_effort_hours|default(0, true)|float %}
-                        {% if estimated_hours == 0 %}
-                            0 hrs
-                        {% else %}
-                            {{ estimated_hours|round(2) }} hrs
-                        {% endif %}
-
-                    {% else %}
-
-                        0 hrs
-
+                <div class="
+                    risk-value
+                    {% if risk == 'low' %}risk-low
+                    {% elif risk == 'medium' %}risk-medium
+                    {% elif risk == 'high' %}risk-high
+                    {% elif risk == 'critical' %}risk-critical
                     {% endif %}
+                ">
+
+                    {{ project.predicted_risk }}
 
                 </div>
 
             </div>
 
-
-            <!-- ACTUAL EFFORT -->
-
-            <div class="summary-card">
-
-                <div class="summary-label">
-                    Actual Effort
-                </div>
-
-                <div class="summary-value">
-
-                    {% if details.actual_effort_hours
-                          is defined
-                          and details.actual_effort_hours
-                          is not none %}
-
-                        {% set actual_hours = details.actual_effort_hours|default(0, true)|float %}
-                        {% if actual_hours == 0 %}
-                            0 hrs
-                        {% else %}
-                            {{ actual_hours|round(2) }} hrs
-                        {% endif %}
-
-                    {% else %}
-
-                        0 hrs
-
-                    {% endif %}
-
-                </div>
-
-            </div>
+        </section>
 
 
-        </div>
+        <!-- =========================
+             PROJECT SUMMARY
+        ========================= -->
 
-    </section>
+        <section class="section">
 
-
-    <!-- =====================================================
-     TASK DETAILS
-====================================================== -->
-
-<section class="section">
-
-    <div class="task-header">
-
-        <h2>Task Details</h2>
-
-        <button
-            type="button"
-            class="add-task-btn"
-            onclick="openAddTaskModal()"
-        >
-            + Add Task
-        </button>
-
-    </div>
-
-    <div id="taskMessage" class="task-message"></div>
-
-    <div class="table-wrapper">
-
-        <table class="task-table">
-
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Task</th>
-                    <th>Assigned To</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Estimated Hours</th>
-                    <th>Deadline</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody id="taskTableBody">
-                <tr>
-                    <td colspan="8" class="task-loading">
-                        Loading tasks...
-                    </td>
-                </tr>
-            </tbody>
-
-        </table>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     TASK MODAL
-====================================================== -->
-
-<!-- =====================================================
-     TASK MODAL
-====================================================== -->
-
-<div id="taskModal" class="task-modal">
-
-    <div class="task-modal-content">
-
-        <!-- HEADER -->
-        <div class="task-modal-header">
-
-            <h2 id="taskModalTitle">
-                Add Task
+            <h2>
+                Project Summary
             </h2>
 
-            <button
-                type="button"
-                class="close-modal"
-                onclick="closeTaskModal()"
-            >
-                &times;
-            </button>
+            <div class="summary-grid">
+
+                <div class="summary-card">
+                    <div class="summary-label">Team Size</div>
+                    <div class="summary-value">
+                        {{ project.team_size | default(0, true) }}
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Stakeholders</div>
+                    <div class="summary-value">
+                        {{ details.stakeholder_count | default(0, true) }}
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Timeline</div>
+                    <div class="summary-value">
+                        {{ project.timeline_months | default(0, true) }}
+                        months
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Complexity</div>
+                    <div class="summary-value">
+                        {{ project.complexity_score | default(0, true) }}
+                        / 10
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Total Tasks</div>
+                    <div class="summary-value">
+                        {{ project.total_tasks | default(0, true) }}
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Completed Tasks</div>
+                    <div class="summary-value">
+                        {{ project.completed_tasks | default(0, true) }}
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Pending Tasks</div>
+                    <div class="summary-value">
+                        {{ details.pending_tasks | default(0, true) }}
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Overdue Tasks</div>
+                    <div class="summary-value">
+                        {{ project.overdue_tasks | default(0, true) }}
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Project Progress</div>
+                    <div class="summary-value">
+                        {{ details.project_progress | default("Not Started", true) }}
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Completion</div>
+                    <div class="summary-value">
+                        {{ details.completion_percentage | default(0, true) }}%
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Delay</div>
+                    <div class="summary-value">
+                        {{ details.delay_percentage | default(0, true) }}%
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Estimated Effort</div>
+                    <div class="summary-value">
+
+                        {% if details.estimated_effort_hours is defined
+                              and details.estimated_effort_hours is not none %}
+
+                            {% set estimated_hours =
+                                details.estimated_effort_hours
+                                | default(0, true)
+                                | float
+                            %}
+
+                            {% if estimated_hours == 0 %}
+                                0 hrs
+                            {% else %}
+                                {{ estimated_hours|round(2) }} hrs
+                            {% endif %}
+
+                        {% else %}
+                            0 hrs
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-label">Actual Effort</div>
+                    <div class="summary-value">
+
+                        {% if details.actual_effort_hours is defined
+                              and details.actual_effort_hours is not none %}
+
+                            {% set actual_hours =
+                                details.actual_effort_hours
+                                | default(0, true)
+                                | float
+                            %}
+
+                            {% if actual_hours == 0 %}
+                                0 hrs
+                            {% else %}
+                                {{ actual_hours|round(2) }} hrs
+                            {% endif %}
+
+                        {% else %}
+                            0 hrs
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             TASK DETAILS
+        ========================= -->
+
+        <section class="section">
+
+            <div class="task-header">
+
+                <h2>
+                    Task Details
+                </h2>
+
+                <button
+                    type="button"
+                    class="add-task-btn"
+                    onclick="openAddTaskModal()"
+                >
+                    + Add Task
+                </button>
+
+            </div>
+
+            <div
+                id="taskMessage"
+                class="task-message"
+            ></div>
+
+            <div class="table-wrapper">
+
+                <table class="task-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>#</th>
+                            <th>Task</th>
+                            <th>Assigned To</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Estimated Hours</th>
+                            <th>Deadline</th>
+                            <th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="taskTableBody">
+
+                        <tr>
+                            <td
+                                colspan="8"
+                                class="task-loading"
+                            >
+                                Loading tasks...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             TASK MODAL
+        ========================= -->
+
+        <div
+            id="taskModal"
+            class="task-modal"
+        >
+
+            <div class="task-modal-content">
+
+                <!-- HEADER -->
+
+                <div class="task-modal-header">
+
+                    <h2 id="taskModalTitle">
+                        Add Task
+                    </h2>
+
+                    <button
+                        type="button"
+                        class="close-modal"
+                        onclick="closeTaskModal()"
+                    >
+                        &times;
+                    </button>
+
+                </div>
+
+
+                <!-- ERROR -->
+
+                <div
+                    id="taskFormError"
+                    class="task-form-error"
+                ></div>
+
+
+                <!-- FORM -->
+
+                <form
+                    id="taskForm"
+                    onsubmit="submitTask(event)"
+                >
+
+                    <input
+                        type="hidden"
+                        id="taskId"
+                    >
+
+
+                    <div class="task-form-grid">
+
+                        <!-- TITLE -->
+
+                        <div class="task-form-group full">
+
+                            <label for="taskTitle">
+                                Task Title *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="taskTitle"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- DESCRIPTION -->
+
+                        <div class="task-form-group full">
+
+                            <label for="taskDescription">
+                                Description
+                            </label>
+
+                            <textarea
+                                id="taskDescription"
+                            ></textarea>
+
+                        </div>
+
+
+                        <!-- ASSIGNED TO -->
+
+                        <div class="task-form-group">
+
+                            <label for="taskAssignedTo">
+                                Assigned To
+                            </label>
+
+                            <input
+                                type="text"
+                                id="taskAssignedTo"
+                                placeholder="EMP-001"
+                            >
+
+                        </div>
+
+
+                        <!-- CREATED BY -->
+
+                        <div class="task-form-group">
+
+                            <label for="taskCreatedBy">
+                                Created By *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="taskCreatedBy"
+                                value="EMP-001"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- TASK TYPE -->
+
+                        <div class="task-form-group">
+
+                            <label for="taskType">
+                                Task Type
+                            </label>
+
+                            <input
+                                type="text"
+                                id="taskType"
+                                placeholder="Bug / Feature / Task"
+                            >
+
+                        </div>
+
+
+                        <!-- PRIORITY -->
+
+                        <div class="task-form-group">
+
+                            <label for="taskPriority">
+                                Priority *
+                            </label>
+
+                            <select
+                                id="taskPriority"
+                                required
+                            >
+
+                                <option value="Low">
+                                    Low
+                                </option>
+
+                                <option
+                                    value="Medium"
+                                    selected
+                                >
+                                    Medium
+                                </option>
+
+                                <option value="High">
+                                    High
+                                </option>
+
+                                <option value="Critical">
+                                    Critical
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- STATUS -->
+
+                        <div class="task-form-group">
+
+                            <label for="taskStatus">
+                                Status *
+                            </label>
+
+                            <select
+                                id="taskStatus"
+                                required
+                            >
+
+                                <option value="TO_DO">
+                                    To Do
+                                </option>
+
+                                <option value="IN_PROGRESS">
+                                    In Progress
+                                </option>
+
+                                <option value="IN_REVIEW">
+                                    In Review
+                                </option>
+
+                                <option value="CLOSED">
+                                    Closed
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- ESTIMATED HOURS -->
+
+                        <div class="task-form-group">
+
+                            <label for="taskEstimatedHours">
+                                Estimated Hours *
+                            </label>
+
+                            <input
+                                type="number"
+                                id="taskEstimatedHours"
+                                min="0"
+                                step="0.01"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- STORY POINTS -->
+
+                        <div class="task-form-group">
+
+                            <label for="taskStoryPoints">
+                                Story Points
+                            </label>
+
+                            <input
+                                type="number"
+                                id="taskStoryPoints"
+                                min="0"
+                                step="1"
+                            >
+
+                        </div>
+
+
+                        <!-- START DATE -->
+
+                        <div class="task-form-group">
+
+                            <label for="taskStartDate">
+                                Start Date
+                            </label>
+
+                            <input
+                                type="date"
+                                id="taskStartDate"
+                            >
+
+                        </div>
+
+
+                        <!-- DEADLINE -->
+
+                        <div class="task-form-group">
+
+                            <label for="taskDeadline">
+                                Deadline *
+                            </label>
+
+                            <input
+                                type="date"
+                                id="taskDeadline"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- SPRINT -->
+
+                        <div class="task-form-group">
+
+                            <label for="taskSprint">
+                                Sprint
+                            </label>
+
+                            <input
+                                type="text"
+                                id="taskSprint"
+                                placeholder="Sprint 1"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- BUTTONS -->
+
+                    <div class="task-modal-actions">
+
+                        <button
+                            type="button"
+                            class="task-form-cancel"
+                            onclick="closeTaskModal()"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="task-form-submit"
+                            id="taskSubmitButton"
+                        >
+                            Create Task
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
 
         </div>
 
 
-        <!-- ERROR MESSAGE -->
-        <div
-            id="taskFormError"
-            class="task-form-error"
-            style="display: none;"
-        ></div>
+        <!-- =========================
+             TEAM MEMBERS
+        ========================= -->
 
+        <section class="section">
 
-        <!-- FORM -->
-        <form
-            id="taskForm"
-            onsubmit="submitTask(event)"
-        >
+            <h2>
+                Team Members
+            </h2>
 
-            <!-- Used while editing -->
-            <input
-                type="hidden"
-                id="taskId"
-            >
+            {% if details.team_members is defined
+                  and details.team_members %}
 
+                <div class="table-wrapper">
 
-            <div class="task-form-grid">
+                    <table class="task-table">
 
+                        <thead>
 
-                <!-- TITLE -->
-                <div class="task-form-group full">
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Experience</th>
+                                <th>Years</th>
+                                <th>Skills</th>
+                            </tr>
 
-                    <label for="taskTitle">
-                        Task Title *
-                    </label>
+                        </thead>
 
-                    <input
-                        type="text"
-                        id="taskTitle"
-                        required
-                    >
+                        <tbody>
 
-                </div>
+                            {% for member in details.team_members %}
 
+                                <tr>
 
-                <!-- DESCRIPTION -->
-                <div class="task-form-group full">
+                                    <td>
+                                        {{ member.employee_id|default("", true) }}
+                                    </td>
 
-                    <label for="taskDescription">
-                        Description
-                    </label>
+                                    <td>
+                                        {{ member.employee_name|default("", true) }}
+                                    </td>
 
-                    <textarea
-                        id="taskDescription"
-                    ></textarea>
+                                    <td>
+                                        {{ member.email|default("", true) }}
+                                    </td>
 
-                </div>
+                                    <td>
+                                        {{ member.role|default("", true) }}
+                                    </td>
 
+                                    <td>
+                                        {{ member.department|default("", true) }}
+                                    </td>
 
-                <!-- ASSIGNED TO -->
-                <div class="task-form-group">
+                                    <td>
+                                        {{ member.experience_level|default("", true) }}
+                                    </td>
 
-                    <label for="taskAssignedTo">
-                        Assigned To
-                    </label>
+                                    <td>
+                                        {{ member.years_experience|default(0, true) }}
+                                    </td>
 
-                    <input
-                        type="text"
-                        id="taskAssignedTo"
-                        placeholder="EMP-001"
-                    >
+                                    <td>
+                                        {{ member.skills|default("", true) }}
+                                    </td>
 
-                </div>
+                                </tr>
 
+                            {% endfor %}
 
-                <!-- CREATED BY -->
-                <div class="task-form-group">
+                        </tbody>
 
-                    <label for="taskCreatedBy">
-                        Created By *
-                    </label>
-
-                    <input
-                        type="text"
-                        id="taskCreatedBy"
-                        value="EMP-001"
-                        required
-                    >
+                    </table>
 
                 </div>
 
+            {% else %}
 
-                <!-- TASK TYPE -->
-                <div class="task-form-group">
+                <div class="empty-message">
+                    No team members available.
+                </div>
 
-                    <label for="taskType">
-                        Task Type
-                    </label>
+            {% endif %}
 
-                    <input
-                        type="text"
-                        id="taskType"
-                        placeholder="Bug / Feature / Task"
-                    >
+        </section>
+
+
+        <!-- =========================
+             STAKEHOLDERS
+        ========================= -->
+
+        <section class="section">
+
+            <h2>
+                Stakeholders
+            </h2>
+
+            {% if details.clients is defined
+                  and details.clients %}
+
+                <div class="table-wrapper">
+
+                    <table class="task-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>Client ID</th>
+                                <th>Name</th>
+                                <th>Organization</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for client in details.clients %}
+
+                                <tr>
+
+                                    <td>
+                                        {{ client.client_id|default("", true) }}
+                                    </td>
+
+                                    <td>
+                                        {{ client.client_name|default("", true) }}
+                                    </td>
+
+                                    <td>
+                                        {{ client.organization|default("", true) }}
+                                    </td>
+
+                                    <td>
+                                        {{ client.role|default("", true) }}
+                                    </td>
+
+                                    <td>
+                                        {{ client.email|default("", true) }}
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
+            {% else %}
 
-                <!-- PRIORITY -->
-                <div class="task-form-group">
+                <div class="empty-message">
+                    No stakeholders available.
+                </div>
 
-                    <label for="taskPriority">
-                        Priority *
-                    </label>
+            {% endif %}
 
-                    <select
-                        id="taskPriority"
-                        required
-                    >
+        </section>
 
-                        <option value="Low">
-                            Low
-                        </option>
+    </main>
 
-                        <option
-                            value="Medium"
-                            selected
+
+    <footer>
+        InfraSync AI &nbsp; | &nbsp;
+        AI-Based Predictive Workflow Monitoring System
+    </footer>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        let editingTaskId = null;
+
+
+        /* =====================================================
+           PROJECT ID
+        ===================================================== */
+
+        const PROJECT_ID = String(
+            "{{ project.project_id | default(project.id, true) }}"
+        );
+
+
+        /* =====================================================
+           LOAD TASKS
+        ===================================================== */
+
+        async function loadTasks() {
+
+            const tableBody =
+                document.getElementById("taskTableBody");
+
+            try {
+
+                const response = await fetch(
+                    `/api/tasks/project/${encodeURIComponent(PROJECT_ID)}`
+                );
+
+                const text = await response.text();
+
+                let data = {};
+
+                try {
+                    data = text ? JSON.parse(text) : {};
+                } catch {
+                    data = {
+                        error: text || "Invalid server response."
+                    };
+                }
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        `Failed to load tasks (${response.status}).`
+                    );
+                }
+
+                renderTasks(data.tasks || []);
+
+            } catch (error) {
+
+                console.error("Load tasks error:", error);
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="task-loading">
+                            ${escapeHtml(error.message)}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+
+        /* =====================================================
+           RENDER TASKS
+        ===================================================== */
+
+        function renderTasks(tasks) {
+
+            const tableBody =
+                document.getElementById("taskTableBody");
+
+            tableBody.innerHTML = "";
+
+            if (!tasks.length) {
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="task-loading">
+                            No tasks found.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+
+            tasks.forEach((task, index) => {
+
+                const row =
+                    document.createElement("tr");
+
+                row.innerHTML = `
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(task.title || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(task.assigned_to || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(task.priority || "-")}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(formatStatus(task.status))}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            task.estimated_hours ?? "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            formatDate(task.deadline)
+                        )}
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            class="task-action-btn edit-btn"
+                            onclick="editTask('${escapeHtml(task.task_id)}')"
                         >
-                            Medium
-                        </option>
-
-                        <option value="High">
-                            High
-                        </option>
-
-                        <option value="Critical">
-                            Critical
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- STATUS -->
-                <div class="task-form-group">
-
-                    <label for="taskStatus">
-                        Status *
-                    </label>
-
-                    <select
-                        id="taskStatus"
-                        required
-                    >
-
-                        <option value="TO_DO">
-                            To Do
-                        </option>
-
-                        <option value="IN_PROGRESS">
-                            In Progress
-                        </option>
-
-                        <option value="IN_REVIEW">
-                            In Review
-                        </option>
-
-                        <option value="CLOSED">
-                            Closed
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- ESTIMATED HOURS -->
-                <div class="task-form-group">
-
-                    <label for="taskEstimatedHours">
-                        Estimated Hours *
-                    </label>
-
-                    <input
-                        type="number"
-                        id="taskEstimatedHours"
-                        min="0"
-                        step="0.01"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- STORY POINTS -->
-                <div class="task-form-group">
-
-                    <label for="taskStoryPoints">
-                        Story Points
-                    </label>
-
-                    <input
-                        type="number"
-                        id="taskStoryPoints"
-                        min="0"
-                        step="1"
-                    >
-
-                </div>
-
-
-                <!-- START DATE -->
-                <div class="task-form-group">
-
-                    <label for="taskStartDate">
-                        Start Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="taskStartDate"
-                    >
-
-                </div>
-
-
-                <!-- DEADLINE -->
-                <div class="task-form-group">
-
-                    <label for="taskDeadline">
-                        Deadline *
-                    </label>
-
-                    <input
-                        type="date"
-                        id="taskDeadline"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- SPRINT -->
-                <div class="task-form-group">
-
-                    <label for="taskSprint">
-                        Sprint
-                    </label>
-
-                    <input
-                        type="text"
-                        id="taskSprint"
-                        placeholder="Sprint 1"
-                    >
-
-                </div>
-
-
-            </div>
-
-
-            <!-- ACTIONS -->
-            <div class="task-modal-actions">
-
-                <button
-                    type="button"
-                    class="task-form-cancel"
-                    onclick="closeTaskModal()"
-                >
-                    Cancel
-                </button>
-
-                <button
-                    type="submit"
-                    class="task-form-submit"
-                    id="taskSubmitButton"
-                >
-                    Create Task
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
-
-    <!-- =====================================================
-         TEAM MEMBERS
-    ====================================================== -->
-
-    <section class="section">
-
-        <h2>
-            Team Members
-        </h2>
-
-        {% if details.team_members
-              is defined
-              and details.team_members %}
-
-            <div class="table-wrapper">
-
-                <table class="task-table">
-
-                    <thead>
-                        <tr>
-                            <th>Employee ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Department</th>
-                            <th>Experience</th>
-                            <th>Years</th>
-                            <th>Skills</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {% for member in details.team_members %}
-
-                        <tr>
-                            <td>{{ member.employee_id|default("", true) }}</td>
-                            <td>{{ member.employee_name|default("", true) }}</td>
-                            <td>{{ member.email|default("", true) }}</td>
-                            <td>{{ member.role|default("", true) }}</td>
-                            <td>{{ member.department|default("", true) }}</td>
-                            <td>{{ member.experience_level|default("", true) }}</td>
-                            <td>{{ member.years_experience|default(0, true) }}</td>
-                            <td>{{ member.skills|default("", true) }}</td>
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        {% else %}
-
-            <div class="empty-message">
-                No team members available.
-            </div>
-
-        {% endif %}
-
-    </section>
-
-
-    <!-- =====================================================
-         STAKEHOLDERS
-    ====================================================== -->
-
-    <section class="section">
-
-        <h2>
-            Stakeholders
-        </h2>
-
-        {% if details.clients
-              is defined
-              and details.clients %}
-
-            <div class="table-wrapper">
-
-                <table class="task-table">
-
-                    <thead>
-                        <tr>
-                            <th>Client ID</th>
-                            <th>Name</th>
-                            <th>Organization</th>
-                            <th>Role</th>
-                            <th>Email</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {% for client in details.clients %}
-
-                        <tr>
-                            <td>{{ client.client_id|default("", true) }}</td>
-                            <td>{{ client.client_name|default("", true) }}</td>
-                            <td>{{ client.organization|default("", true) }}</td>
-                            <td>{{ client.role|default("", true) }}</td>
-                            <td>{{ client.email|default("", true) }}</td>
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        {% else %}
-
-            <div class="empty-message">
-                No stakeholders available.
-            </div>
-
-        {% endif %}
-
-    </section>
-
-
-</main>
-
-
-<footer>
-
-    InfraSync AI &nbsp; | &nbsp;
-    AI-Based Predictive Workflow Monitoring System
-
-</footer>
-<script>
-
-let editingTaskId = null;
-
-
-/* =========================================================
-   PROJECT ID
-========================================================= */
-
-const PROJECT_ID =
-    "{{ project.id }}";
-
-
-/* =========================================================
-   LOAD TASKS
-========================================================= */
-
-async function loadTasks() {
-
-    const tableBody =
-        document.getElementById("taskTableBody");
-
-    try {
-
-        const response = await fetch(
-            `/api/tasks/project/${PROJECT_ID}`
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.error || "Failed to load tasks."
-            );
+                            Edit
+                        </button>
+
+                        <button
+                            type="button"
+                            class="task-action-btn delete-btn"
+                            onclick="deleteTask('${escapeHtml(task.task_id)}')"
+                        >
+                            Delete
+                        </button>
+
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+
+            });
         }
 
-        renderTasks(data.tasks || []);
 
-    } catch (error) {
+        /* =====================================================
+           OPEN ADD TASK
+        ===================================================== */
 
-        console.error("Load tasks error:", error);
+        function openAddTaskModal() {
 
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8" class="task-loading">
-                    Failed to load tasks.
-                </td>
-            </tr>
-        `;
-    }
-}
+            editingTaskId = null;
 
+            const form =
+                document.getElementById("taskForm");
 
-/* =========================================================
-   RENDER TASKS
-========================================================= */
+            form.reset();
 
-function renderTasks(tasks) {
-
-    const tableBody =
-        document.getElementById("taskTableBody");
-
-    tableBody.innerHTML = "";
-
-    if (!tasks.length) {
-
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8" class="task-loading">
-                    No tasks found.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    tasks.forEach((task, index) => {
-
-        const row =
-            document.createElement("tr");
-
-
-        row.innerHTML = `
-
-            <td>${index + 1}</td>
-
-            <td>
-                ${escapeHtml(task.title || "-")}
-            </td>
-
-            <td>
-                ${escapeHtml(task.assigned_to || "-")}
-            </td>
-
-            <td>
-                ${escapeHtml(task.priority || "-")}
-            </td>
-
-            <td>
-                ${formatStatus(task.status)}
-            </td>
-
-            <td>
-                ${task.estimated_hours ?? "-"}
-            </td>
-
-            <td>
-                ${formatDate(task.deadline)}
-            </td>
-
-            <td>
-
-                <button
-                    type="button"
-                    class="task-action-btn edit-btn"
-                    onclick="editTask('${task.task_id}')"
-                >
-                    Edit
-                </button>
-
-                <button
-                    type="button"
-                    class="task-action-btn delete-btn"
-                    onclick="deleteTask('${task.task_id}')"
-                >
-                    Delete
-                </button>
-
-            </td>
-        `;
-
-        tableBody.appendChild(row);
-
-    });
-}
-
-
-/* =========================================================
-   ADD TASK
-========================================================= */
-
-function openAddTaskModal() {
-
-    editingTaskId = null;
-
-    document.getElementById(
-        "taskModalTitle"
-    ).textContent = "Add Task";
-
-    document.getElementById(
-        "taskSubmitButton"
-    ).textContent = "Create Task";
-
-    document.getElementById(
-        "taskForm"
-    ).reset();
-
-    document.getElementById(
-        "taskCreatedBy"
-    ).value = "EMP-001";
-
-    document.getElementById(
-        "taskPriority"
-    ).value = "Medium";
-
-    document.getElementById(
-        "taskStatus"
-    ).value = "TO_DO";
-
-    document.getElementById(
-        "taskModal"
-    ).style.display = "flex";
-}
-
-
-/* =========================================================
-   EDIT TASK
-========================================================= */
-
-async function editTask(taskId) {
-
-    try {
-
-        const response = await fetch(
-            `/api/tasks/${taskId}`
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.error || "Failed to get task."
-            );
-        }
-
-        const task = data.task;
-
-        editingTaskId = task.task_id;
-
-
-        document.getElementById(
-            "taskModalTitle"
-        ).textContent = "Edit Task";
-
-        document.getElementById(
-            "taskSubmitButton"
-        ).textContent = "Update Task";
-
-
-        document.getElementById(
-            "taskTitle"
-        ).value = task.title || "";
-
-        document.getElementById(
-            "taskDescription"
-        ).value = task.description || "";
-
-        document.getElementById(
-            "taskAssignedTo"
-        ).value = task.assigned_to || "";
-
-        document.getElementById(
-            "taskCreatedBy"
-        ).value = task.created_by || "EMP-001";
-
-        document.getElementById(
-            "taskType"
-        ).value = task.task_type || "";
-
-        document.getElementById(
-            "taskPriority"
-        ).value = task.priority || "Medium";
-
-        document.getElementById(
-            "taskStatus"
-        ).value = task.status || "TO_DO";
-
-        document.getElementById(
-            "taskEstimatedHours"
-        ).value = task.estimated_hours ?? "";
-
-        document.getElementById(
-            "taskStoryPoints"
-        ).value = task.story_points ?? "";
-
-        document.getElementById(
-            "taskStartDate"
-        ).value = formatDateForInput(
-            task.start_date
-        );
-
-        document.getElementById(
-            "taskDeadline"
-        ).value = formatDateForInput(
-            task.deadline
-        );
-
-        document.getElementById(
-            "taskSprint"
-        ).value = task.sprint || "";
-
-
-        document.getElementById(
-            "taskModal"
-        ).style.display = "flex";
-
-
-    } catch (error) {
-
-        console.error("Edit task error:", error);
-
-        alert(error.message);
-
-    }
-}
-
-
-/* =========================================================
-   CLOSE MODAL
-========================================================= */
-
-function closeTaskModal() {
-
-    document.getElementById(
-        "taskModal"
-    ).style.display = "none";
-
-    editingTaskId = null;
-}
-
-
-/* =========================================================
-   CREATE / UPDATE
-========================================================= */
-
-async function submitTask(event) {
-
-    event.preventDefault();
-
-    const errorBox = document.getElementById("taskFormError");
-
-    // Clear previous error
-    errorBox.style.display = "none";
-    errorBox.textContent = "";
-    const taskData = {
-
-        assigned_to:
             document.getElementById(
-                "taskAssignedTo"
-            ).value.trim() || null,
+                "taskModalTitle"
+            ).textContent = "Add Task";
 
-        created_by:
+            document.getElementById(
+                "taskSubmitButton"
+            ).textContent = "Create Task";
+
             document.getElementById(
                 "taskCreatedBy"
-            ).value.trim(),
+            ).value = "EMP-001";
 
-        title:
-            document.getElementById(
-                "taskTitle"
-            ).value.trim(),
-
-        description:
-            document.getElementById(
-                "taskDescription"
-            ).value.trim() || null,
-
-        task_type:
-            document.getElementById(
-                "taskType"
-            ).value.trim() || null,
-
-        priority:
             document.getElementById(
                 "taskPriority"
-            ).value,
+            ).value = "Medium";
 
-        estimated_hours:
-            Number(
-                document.getElementById(
-                    "taskEstimatedHours"
-                ).value
-            ),
-
-        start_date:
-            document.getElementById(
-                "taskStartDate"
-            ).value || null,
-
-        deadline:
-            document.getElementById(
-                "taskDeadline"
-            ).value,
-
-        status:
             document.getElementById(
                 "taskStatus"
-            ).value,
+            ).value = "TO_DO";
 
-        story_points:
-            getNumberOrNull(
-                "taskStoryPoints"
-            ),
+            clearFormError();
 
-        sprint:
             document.getElementById(
-                "taskSprint"
-            ).value.trim() || null
-    };
-
-
-    try {
-
-        let url;
-        let method;
-
-
-        if (editingTaskId) {
-
-            url =
-                `/api/tasks/${editingTaskId}`;
-
-            method = "PUT";
-
-        } else {
-
-            url = "/api/tasks";
-
-            method = "POST";
-
-            taskData.project_id =
-                Number(PROJECT_ID);
+                "taskModal"
+            ).style.display = "flex";
         }
 
 
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(taskData)
-        });
+        /* =====================================================
+           EDIT TASK
+        ===================================================== */
 
-        const result = await response.json();
+        async function editTask(taskId) {
 
-        if (!response.ok) {
-            throw new Error(result.error || "Failed to save task.");
+            clearFormError();
+
+            try {
+
+                const response = await fetch(
+                    `/api/tasks/${encodeURIComponent(taskId)}`
+                );
+
+                const text = await response.text();
+
+                let data = {};
+
+                try {
+                    data = text ? JSON.parse(text) : {};
+                } catch {
+                    data = {
+                        error: text || "Invalid server response."
+                    };
+                }
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        `Failed to get task (${response.status}).`
+                    );
+                }
+
+                const task = data.task;
+
+                if (!task) {
+                    throw new Error("Task data was not returned.");
+                }
+
+                editingTaskId = task.task_id;
+
+
+                document.getElementById(
+                    "taskModalTitle"
+                ).textContent = "Edit Task";
+
+                document.getElementById(
+                    "taskSubmitButton"
+                ).textContent = "Update Task";
+
+
+                document.getElementById(
+                    "taskTitle"
+                ).value = task.title || "";
+
+                document.getElementById(
+                    "taskDescription"
+                ).value = task.description || "";
+
+                document.getElementById(
+                    "taskAssignedTo"
+                ).value = task.assigned_to || "";
+
+                document.getElementById(
+                    "taskCreatedBy"
+                ).value =
+                    task.created_by || "EMP-001";
+
+                document.getElementById(
+                    "taskType"
+                ).value = task.task_type || "";
+
+                document.getElementById(
+                    "taskPriority"
+                ).value =
+                    task.priority || "Medium";
+
+                document.getElementById(
+                    "taskStatus"
+                ).value =
+                    task.status || "TO_DO";
+
+                document.getElementById(
+                    "taskEstimatedHours"
+                ).value =
+                    task.estimated_hours ?? "";
+
+                document.getElementById(
+                    "taskStoryPoints"
+                ).value =
+                    task.story_points ?? "";
+
+                document.getElementById(
+                    "taskStartDate"
+                ).value =
+                    formatDateForInput(task.start_date);
+
+                document.getElementById(
+                    "taskDeadline"
+                ).value =
+                    formatDateForInput(task.deadline);
+
+                document.getElementById(
+                    "taskSprint"
+                ).value =
+                    task.sprint || "";
+
+
+                document.getElementById(
+                    "taskModal"
+                ).style.display = "flex";
+
+            } catch (error) {
+
+                console.error(
+                    "Edit task error:",
+                    error
+                );
+
+                showTaskMessage(
+                    error.message,
+                    "error"
+                );
+            }
         }
 
 
-        const data =
-            await response.json();
+        /* =====================================================
+           CLOSE MODAL
+        ===================================================== */
+
+        function closeTaskModal() {
+
+            document.getElementById(
+                "taskModal"
+            ).style.display = "none";
+
+            editingTaskId = null;
+
+            clearFormError();
+        }
 
 
-        if (!response.ok) {
+        /* =====================================================
+           SUBMIT TASK
+        ===================================================== */
 
-            throw new Error(
-                data.error ||
-                "Task operation failed."
+        async function submitTask(event) {
+
+            event.preventDefault();
+
+            clearFormError();
+
+
+            const submitButton =
+                document.getElementById(
+                    "taskSubmitButton"
+                );
+
+            submitButton.disabled = true;
+
+
+            try {
+
+                const title =
+                    document.getElementById(
+                        "taskTitle"
+                    ).value.trim();
+
+                const createdBy =
+                    document.getElementById(
+                        "taskCreatedBy"
+                    ).value.trim();
+
+                const priority =
+                    document.getElementById(
+                        "taskPriority"
+                    ).value;
+
+                const status =
+                    document.getElementById(
+                        "taskStatus"
+                    ).value;
+
+                const estimatedHoursValue =
+                    document.getElementById(
+                        "taskEstimatedHours"
+                    ).value;
+
+                const deadline =
+                    document.getElementById(
+                        "taskDeadline"
+                    ).value;
+
+
+                /* Client-side validation */
+
+                if (!title) {
+                    throw new Error(
+                        "Task Title is required."
+                    );
+                }
+
+                if (!createdBy) {
+                    throw new Error(
+                        "Created By is required."
+                    );
+                }
+
+                if (!priority) {
+                    throw new Error(
+                        "Priority is required."
+                    );
+                }
+
+                if (!status) {
+                    throw new Error(
+                        "Status is required."
+                    );
+                }
+
+                if (!estimatedHoursValue) {
+                    throw new Error(
+                        "Estimated Hours is required."
+                    );
+                }
+
+                if (!deadline) {
+                    throw new Error(
+                        "Deadline is required."
+                    );
+                }
+
+
+                const estimatedHours =
+                    Number(estimatedHoursValue);
+
+                if (
+                    Number.isNaN(estimatedHours) ||
+                    estimatedHours < 0
+                ) {
+                    throw new Error(
+                        "Estimated Hours must be a valid number."
+                    );
+                }
+
+
+                /*
+                 * Task payload.
+                 *
+                 * weight is NOT sent because backend
+                 * calculates it automatically from priority.
+                 *
+                 * actual_hours is NOT sent because it should
+                 * represent actual work performed.
+                 */
+
+                const taskData = {
+
+                    assigned_to:
+                        document.getElementById(
+                            "taskAssignedTo"
+                        ).value.trim() || null,
+
+                    created_by:
+                        createdBy,
+
+                    title:
+                        title,
+
+                    description:
+                        document.getElementById(
+                            "taskDescription"
+                        ).value.trim() || null,
+
+                    task_type:
+                        document.getElementById(
+                            "taskType"
+                        ).value.trim() || null,
+
+                    priority:
+                        priority,
+
+                    estimated_hours:
+                        estimatedHours,
+
+                    start_date:
+                        document.getElementById(
+                            "taskStartDate"
+                        ).value || null,
+
+                    deadline:
+                        deadline,
+
+                    status:
+                        status,
+
+                    story_points:
+                        getNumberOrNull(
+                            "taskStoryPoints"
+                        ),
+
+                    sprint:
+                        document.getElementById(
+                            "taskSprint"
+                        ).value.trim() || null
+                };
+
+
+                let url;
+                let method;
+
+
+                if (editingTaskId) {
+
+                    url =
+                        `/api/tasks/${encodeURIComponent(editingTaskId)}`;
+
+                    method = "PUT";
+
+                } else {
+
+                    url = "/api/tasks";
+
+                    method = "POST";
+
+                    const numericProjectId =
+                        Number(PROJECT_ID);
+
+                    if (
+                        !PROJECT_ID ||
+                        Number.isNaN(numericProjectId)
+                    ) {
+                        throw new Error(
+                            "Invalid project ID. Cannot create task."
+                        );
+                    }
+
+                    taskData.project_id =
+                        numericProjectId;
+                }
+
+
+                console.log(
+                    "Sending task:",
+                    taskData
+                );
+
+
+                const response = await fetch(
+                    url,
+                    {
+                        method: method,
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(taskData)
+                    }
+                );
+
+
+                /*
+                 * IMPORTANT:
+                 * Read response body ONLY ONCE.
+                 */
+
+                const responseText =
+                    await response.text();
+
+                let result = {};
+
+                try {
+
+                    result =
+                        responseText
+                            ? JSON.parse(responseText)
+                            : {};
+
+                } catch {
+
+                    result = {
+                        error:
+                            responseText ||
+                            "Server returned an invalid response."
+                    };
+                }
+
+
+                console.log(
+                    "Task API response:",
+                    response.status,
+                    result
+                );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.error ||
+                        result.message ||
+                        `Task operation failed (${response.status}).`
+                    );
+                }
+
+
+                /*
+                 * SUCCESS
+                 */
+
+                const wasEditing =
+                    Boolean(editingTaskId);
+
+                closeTaskModal();
+
+                await loadTasks();
+
+                showTaskMessage(
+                    wasEditing
+                        ? "Task updated successfully."
+                        : "Task created successfully.",
+                    "success"
+                );
+
+
+                /*
+                 * Reload after a short delay so
+                 * project summary values update.
+                 */
+
+                setTimeout(
+                    () => {
+                        window.location.reload();
+                    },
+                    700
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Task submit error:",
+                    error
+                );
+
+                /*
+                 * Show error INSIDE the modal.
+                 */
+
+                showFormError(
+                    error.message ||
+                    "Failed to save task."
+                );
+
+            } finally {
+
+                submitButton.disabled = false;
+            }
+        }
+
+
+        /* =====================================================
+           DELETE TASK
+        ===================================================== */
+
+        async function deleteTask(taskId) {
+
+            if (
+                !confirm(
+                    "Are you sure you want to delete this task?"
+                )
+            ) {
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/tasks/${encodeURIComponent(taskId)}`,
+                        {
+                            method: "DELETE"
+                        }
+                    );
+
+
+                const responseText =
+                    await response.text();
+
+                let data = {};
+
+                try {
+
+                    data =
+                        responseText
+                            ? JSON.parse(responseText)
+                            : {};
+
+                } catch {
+
+                    data = {
+                        error:
+                            responseText ||
+                            "Invalid server response."
+                    };
+                }
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        data.message ||
+                        `Failed to delete task (${response.status}).`
+                    );
+                }
+
+
+                await loadTasks();
+
+                showTaskMessage(
+                    "Task deleted successfully.",
+                    "success"
+                );
+
+
+                setTimeout(
+                    () => {
+                        window.location.reload();
+                    },
+                    700
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Delete task error:",
+                    error
+                );
+
+                showTaskMessage(
+                    error.message ||
+                    "Failed to delete task.",
+                    "error"
+                );
+            }
+        }
+
+
+        /* =====================================================
+           FORM ERROR
+        ===================================================== */
+
+        function showFormError(message) {
+
+            const errorBox =
+                document.getElementById(
+                    "taskFormError"
+                );
+
+            errorBox.textContent =
+                message || "An error occurred.";
+
+            errorBox.style.display =
+                "block";
+
+            /*
+             * Scroll the modal to the error.
+             */
+
+            errorBox.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+
+
+        function clearFormError() {
+
+            const errorBox =
+                document.getElementById(
+                    "taskFormError"
+                );
+
+            errorBox.textContent = "";
+
+            errorBox.style.display =
+                "none";
+        }
+
+
+        /* =====================================================
+           NUMBER HELPER
+        ===================================================== */
+
+        function getNumberOrNull(id) {
+
+            const element =
+                document.getElementById(id);
+
+            if (!element) {
+                return null;
+            }
+
+            const value =
+                element.value;
+
+            if (value === "") {
+                return null;
+            }
+
+            const number =
+                Number(value);
+
+            return Number.isNaN(number)
+                ? null
+                : number;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ===================================================== */
+
+        function formatStatus(status) {
+
+            const statusMap = {
+
+                "TO_DO":
+                    "To Do",
+
+                "IN_PROGRESS":
+                    "In Progress",
+
+                "IN_REVIEW":
+                    "In Review",
+
+                "CLOSED":
+                    "Closed"
+            };
+
+            return (
+                statusMap[status] ||
+                status ||
+                "-"
             );
         }
 
 
-        closeTaskModal();
+        /* =====================================================
+           DATE
+        ===================================================== */
 
-        await loadTasks();
+        function formatDate(value) {
 
-        showTaskMessage(
-            editingTaskId
-                ? "Task updated successfully."
-                : "Task created successfully.",
-            "success"
-        );
+            if (!value) {
+                return "-";
+            }
 
-
-        setTimeout(() => {
-            window.location.reload();
-        }, 700);
+            return String(value)
+                .substring(0, 10);
+        }
 
 
-    } catch (error) {
-        console.error("Task error:", error);
+        function formatDateForInput(value) {
 
-        const errorBox = document.getElementById("taskFormError");
+            if (!value) {
+                return "";
+            }
 
-        errorBox.textContent = error.message || "Failed to save task.";
-        errorBox.style.display = "block";
-    }
-}
-
-
-/* =========================================================
-   DELETE
-========================================================= */
-
-async function deleteTask(taskId) {
-
-    if (
-        !confirm(
-            "Are you sure you want to delete this task?"
-        )
-    ) {
-        return;
-    }
+            return String(value)
+                .substring(0, 10);
+        }
 
 
-    try {
+        /* =====================================================
+           HTML ESCAPE
+        ===================================================== */
 
-        const response =
-            await fetch(
-                `/api/tasks/${taskId}`,
-                {
-                    method: "DELETE"
+        function escapeHtml(value) {
+
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                return "";
+            }
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        /* =====================================================
+           TASK MESSAGE
+        ===================================================== */
+
+        function showTaskMessage(
+            message,
+            type
+        ) {
+
+            const element =
+                document.getElementById(
+                    "taskMessage"
+                );
+
+            element.textContent =
+                message;
+
+            element.className =
+                "task-message " +
+                (
+                    type === "success"
+                        ? "task-success"
+                        : "task-error"
+                );
+
+            element.style.display =
+                "block";
+
+
+            setTimeout(
+                () => {
+
+                    element.style.display =
+                        "none";
+
+                },
+                4000
+            );
+        }
+
+
+        /* =====================================================
+           MODAL OUTSIDE CLICK
+        ===================================================== */
+
+        document
+            .getElementById("taskModal")
+            .addEventListener(
+                "click",
+                function(event) {
+
+                    if (
+                        event.target === this
+                    ) {
+                        closeTaskModal();
+                    }
+
                 }
             );
 
 
-        const data =
-            await response.json();
+        /* =====================================================
+           ESC KEY
+        ===================================================== */
 
+        document.addEventListener(
+            "keydown",
+            function(event) {
 
-        if (!response.ok) {
+                if (
+                    event.key === "Escape"
+                ) {
 
-            throw new Error(
-                data.error ||
-                "Failed to delete task."
-            );
-        }
+                    const modal =
+                        document.getElementById(
+                            "taskModal"
+                        );
 
-
-        await loadTasks();
-
-        showTaskMessage(
-            "Task deleted successfully.",
-            "success"
-        );
-
-
-        setTimeout(() => {
-            window.location.reload();
-        }, 700);
-
-
-    } catch (error) {
-
-        console.error(
-            "Delete task error:",
-            error
-        );
-
-        showTaskMessage(
-            error.message,
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function getNumberOrNull(id) {
-
-    const value =
-        document.getElementById(id).value;
-
-    if (value === "") {
-        return null;
-    }
-
-    return Number(value);
-}
-
-
-function formatStatus(status) {
-
-    const statusMap = {
-
-        "TO_DO": "To Do",
-
-        "IN_PROGRESS": "In Progress",
-
-        "IN_REVIEW": "In Review",
-
-        "CLOSED": "Closed"
-
-    };
-
-    return statusMap[status] || status || "-";
-}
-
-
-function formatDate(value) {
-
-    if (!value) {
-        return "-";
-    }
-
-    return String(value).substring(0, 10);
-}
-
-
-function formatDateForInput(value) {
-
-    if (!value) {
-        return "";
-    }
-
-    return String(value).substring(0, 10);
-}
-
-
-function escapeHtml(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
-    }
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-function showTaskMessage(message, type) {
-
-    const element =
-        document.getElementById(
-            "taskMessage"
-        );
-
-    element.textContent = message;
-
-    element.className =
-        "task-message " +
-        (
-            type === "success"
-                ? "task-success"
-                : "task-error"
-        );
-
-    element.style.display = "block";
-
-
-    setTimeout(() => {
-
-        element.style.display = "none";
-
-    }, 4000);
-}
-
-
-/* =========================================================
-   OUTSIDE CLICK
-========================================================= */
-
-document
-    .getElementById("taskModal")
-    .addEventListener(
-        "click",
-        function(event) {
-
-            if (event.target === this) {
-                closeTaskModal();
+                    if (
+                        modal.style.display === "flex"
+                    ) {
+                        closeTaskModal();
+                    }
+                }
             }
-
-        }
-    );
+        );
 
 
-/* =========================================================
-   LOAD
-========================================================= */
+        /* =====================================================
+           PAGE LOAD
+        ===================================================== */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
 
-        loadTasks();
+                loadTasks();
 
-    }
-);
+            }
+        );
 
-</script>
+    </script>
 
 </body>
 
