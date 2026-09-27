@@ -1,12 +1,14 @@
 import os
 from datetime import datetime, timezone
 from pathlib import Path
-
+from backend.services.project_service import refresh_project_task_metrics
 from flask import Blueprint, jsonify, request
 from dotenv import load_dotenv
 from supabase import create_client
 from .task_risk import predict_task_risk_internal
-
+from backend.services.project_service import (
+    refresh_project_task_metrics
+)
 
 # ============================================================
 # ENVIRONMENT
@@ -248,18 +250,24 @@ def create_task():
         data = request.get_json()
 
         if not data:
+
             return jsonify({
-                "error": "Request body is required."
+                "error":
+                    "Request body is required."
             }), 400
+
+        # ====================================================
+        # CLEAN TASK DATA
+        # ====================================================
 
         task_data = clean_task_data(
             data,
             partial=False
         )
 
-        # ----------------------------------------------------
-        # Default values
-        # ----------------------------------------------------
+        # ====================================================
+        # DEFAULT WEIGHT
+        # ====================================================
 
         if task_data.get("weight") is None:
 
@@ -270,17 +278,20 @@ def create_task():
                 "Critical": 6
             }
 
-            task_data["weight"] = weight_map.get(
-                task_data.get("priority"),
-                1
+            task_data["weight"] = (
+                weight_map.get(
+                    task_data.get("priority"),
+                    1
+                )
             )
 
         if task_data.get("actual_hours") is None:
+
             task_data["actual_hours"] = None
 
-        # ----------------------------------------------------
-        # Insert task
-        # ----------------------------------------------------
+        # ====================================================
+        # INSERT TASK
+        # ====================================================
 
         response = (
             supabase
@@ -290,15 +301,25 @@ def create_task():
         )
 
         if not response.data:
+
             return jsonify({
-                "error": "Task could not be created."
+                "error":
+                    "Task could not be created."
             }), 500
 
         task = response.data[0]
 
-        # ----------------------------------------------------
-        # Task history
-        # ----------------------------------------------------
+        project_id = task["project_id"]
+
+        print(
+            f"[TASK CREATED] "
+            f"task_id={task['task_id']} "
+            f"project_id={project_id}"
+        )
+
+        # ====================================================
+        # TASK HISTORY
+        # ====================================================
 
         create_history(
             task_id=task["task_id"],
@@ -309,51 +330,110 @@ def create_task():
             remarks="Task created"
         )
 
-        # ----------------------------------------------------
-        # AUTOMATIC INITIAL TASK-RISK PREDICTION
-        # ----------------------------------------------------
+        # ====================================================
+        # INITIAL TASK RISK
+        # ====================================================
 
         prediction_data = {
-            "project_id": task["project_id"],
-            "issue_id": task["task_id"],
 
-            "issue_type": task.get("task_type"),
-            "priority": task.get("priority"),
-            "status": task.get("status"),
+            "project_id":
+                task["project_id"],
 
-            "story_points": task.get("story_points"),
+            "issue_id":
+                task["task_id"],
 
-            "story_points_missing": (
-                1
-                if task.get("story_points") is None
-                else 0
-            ),
+            "issue_type":
+                task.get("task_type"),
 
-            "timespent": (
-                task.get("actual_hours") or 0
-            ),
+            "priority":
+                task.get("priority"),
 
-            "assignee": task.get("assigned_to"),
-            "sprint": task.get("sprint"),
+            "status":
+                task.get("status"),
 
-            "task_age_days": 0,
+            "story_points":
+                task.get("story_points"),
 
-            "status_change_count": 0,
-            "priority_change_count": 0,
-            "assignee_change_count": 0,
-            "story_point_change_count": 0,
-            "estimate_change_count": 0,
-            "changes_last_7_days": 0
+            "story_points_missing":
+                (
+                    1
+                    if task.get("story_points") is None
+                    else 0
+                ),
+
+            "timespent":
+                (
+                    task.get("actual_hours")
+                    or 0
+                ),
+
+            "assignee":
+                task.get("assigned_to"),
+
+            "sprint":
+                task.get("sprint"),
+
+            "task_age_days":
+                0,
+
+            "status_change_count":
+                0,
+
+            "priority_change_count":
+                0,
+
+            "assignee_change_count":
+                0,
+
+            "story_point_change_count":
+                0,
+
+            "estimate_change_count":
+                0,
+
+            "changes_last_7_days":
+                0
         }
 
-        risk_result = predict_task_risk_internal(
-            prediction_data
+        risk_result = (
+            predict_task_risk_internal(
+                prediction_data
+            )
         )
 
+        # ====================================================
+        # REFRESH PROJECT METRICS
+        # ====================================================
+
+        project_metrics = (
+            refresh_project_task_metrics(
+                project_id
+            )
+        )
+
+        print(
+            "[CREATE] PROJECT METRICS:",
+            project_metrics
+        )
+
+        # ====================================================
+        # RESPONSE
+        # ====================================================
+
         return jsonify({
-            "message": "Task created successfully.",
-            "task": task,
-            "risk": risk_result
+
+            "message":
+                "Task created successfully.",
+
+            "task":
+                task,
+
+            "risk":
+                risk_result,
+
+            "project_metrics":
+                project_metrics
+
         }), 201
 
     except ValueError as e:
@@ -364,11 +444,14 @@ def create_task():
 
     except Exception as e:
 
+        import traceback
+
+        traceback.print_exc()
+
         return jsonify({
             "error": str(e)
         }), 500
-
-
+    
 # ============================================================
 # GET ALL TASKS FOR A PROJECT
 # ============================================================
@@ -447,13 +530,15 @@ def update_task(task_id):
         data = request.get_json()
 
         if not data:
+
             return jsonify({
-                "error": "Request body is required."
+                "error":
+                    "Request body is required."
             }), 400
 
-        # ----------------------------------------------------
-        # Get existing task
-        # ----------------------------------------------------
+        # ====================================================
+        # GET EXISTING TASK
+        # ====================================================
 
         existing_response = (
             supabase
@@ -467,14 +552,21 @@ def update_task(task_id):
         if not existing_response.data:
 
             return jsonify({
-                "error": "Task not found."
+                "error":
+                    "Task not found."
             }), 404
 
-        existing_task = existing_response.data[0]
+        existing_task = (
+            existing_response.data[0]
+        )
 
-        # ----------------------------------------------------
-        # Clean update data
-        # ----------------------------------------------------
+        project_id = (
+            existing_task["project_id"]
+        )
+
+        # ====================================================
+        # CLEAN UPDATE
+        # ====================================================
 
         update_data = clean_task_data(
             data,
@@ -484,44 +576,53 @@ def update_task(task_id):
         if not update_data:
 
             return jsonify({
-                "error": "No valid task fields provided."
+                "error":
+                    "No valid task fields provided."
             }), 400
 
-        # ----------------------------------------------------
-        # Detect important changes
-        # ----------------------------------------------------
+        # ====================================================
+        # STATUS INFORMATION
+        # ====================================================
 
         updated_by = data.get(
             "updated_by",
             data.get("created_by")
         )
 
-        previous_status = existing_task.get("status")
+        previous_status = (
+            existing_task.get("status")
+        )
+
         new_status = update_data.get(
             "status",
             previous_status
         )
 
-        # ----------------------------------------------------
-        # Update completed_at automatically
-        # ----------------------------------------------------
+        # ====================================================
+        # COMPLETED_AT
+        # ====================================================
 
         if (
             new_status == "CLOSED"
             and previous_status != "CLOSED"
-            and "completed_at" not in update_data
+            and "completed_at"
+            not in update_data
         ):
-            update_data["completed_at"] = utc_now()
+
+            update_data["completed_at"] = (
+                utc_now()
+            )
 
         elif (
             new_status != "CLOSED"
             and previous_status == "CLOSED"
         ):
+
             update_data["completed_at"] = None
 
-        # ----------------------------------------------------
-        # Update task
-        # ----------------------------------------------------
+        # ====================================================
+        # UPDATE TASK
+        # ====================================================
 
         response = (
             supabase
@@ -534,14 +635,15 @@ def update_task(task_id):
         if not response.data:
 
             return jsonify({
-                "error": "Task could not be updated."
+                "error":
+                    "Task could not be updated."
             }), 500
 
         updated_task = response.data[0]
 
-        # ----------------------------------------------------
-        # Task history
-        # ----------------------------------------------------
+        # ====================================================
+        # TASK HISTORY - STATUS
+        # ====================================================
 
         if (
             "status" in update_data
@@ -549,16 +651,25 @@ def update_task(task_id):
         ):
 
             if new_status == "CLOSED":
-                change_type = "TASK_COMPLETED"
+
+                change_type = (
+                    "TASK_COMPLETED"
+                )
 
             elif (
                 previous_status == "CLOSED"
                 and new_status != "CLOSED"
             ):
-                change_type = "TASK_REOPENED"
+
+                change_type = (
+                    "TASK_REOPENED"
+                )
 
             else:
-                change_type = "STATUS_CHANGE"
+
+                change_type = (
+                    "STATUS_CHANGE"
+                )
 
             if updated_by:
 
@@ -570,6 +681,10 @@ def update_task(task_id):
                     new_status=new_status,
                     remarks="Task status updated"
                 )
+
+        # ====================================================
+        # TASK HISTORY - ASSIGNMENT
+        # ====================================================
 
         if (
             "assigned_to" in update_data
@@ -587,6 +702,10 @@ def update_task(task_id):
                     remarks="Task assignment updated"
                 )
 
+        # ====================================================
+        # TASK HISTORY - PRIORITY
+        # ====================================================
+
         if (
             "priority" in update_data
             and
@@ -603,9 +722,36 @@ def update_task(task_id):
                     remarks="Task priority updated"
                 )
 
+        # ====================================================
+        # REFRESH PROJECT METRICS
+        # ====================================================
+
+        project_metrics = (
+            refresh_project_task_metrics(
+                project_id
+            )
+        )
+
+        print(
+            "[UPDATE] PROJECT METRICS:",
+            project_metrics
+        )
+
+        # ====================================================
+        # RESPONSE
+        # ====================================================
+
         return jsonify({
-            "message": "Task updated successfully.",
-            "task": updated_task
+
+            "message":
+                "Task updated successfully.",
+
+            "task":
+                updated_task,
+
+            "project_metrics":
+                project_metrics
+
         }), 200
 
     except ValueError as e:
@@ -616,10 +762,13 @@ def update_task(task_id):
 
     except Exception as e:
 
+        import traceback
+
+        traceback.print_exc()
+
         return jsonify({
             "error": str(e)
         }), 500
-
 
 # ============================================================
 # DELETE TASK
@@ -627,6 +776,190 @@ def update_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
+
+    try:
+
+        # ====================================================
+        # GET TASK
+        # ====================================================
+
+        existing_response = (
+            supabase
+            .table("Tasks")
+            .select("*")
+            .eq("task_id", task_id)
+            .limit(1)
+            .execute()
+        )
+
+        if not existing_response.data:
+
+            return jsonify({
+                "error":
+                    "Task not found."
+            }), 404
+
+        task = existing_response.data[0]
+
+        project_id = (
+            task.get("project_id")
+        )
+
+        # ====================================================
+        # DELETE TASK
+        # ====================================================
+
+        response = (
+            supabase
+            .table("Tasks")
+            .delete()
+            .eq("task_id", task_id)
+            .execute()
+        )
+
+        if not response.data:
+
+            return jsonify({
+                "error":
+                    "Task could not be deleted."
+            }), 500
+
+        # ====================================================
+        # REFRESH PROJECT METRICS
+        # ====================================================
+
+        project_metrics = (
+            refresh_project_task_metrics(
+                project_id
+            )
+        )
+
+        print(
+            "[DELETE] PROJECT METRICS:",
+            project_metrics
+        )
+
+        # ====================================================
+        # RESPONSE
+        # ====================================================
+
+        return jsonify({
+
+            "message":
+                "Task deleted successfully.",
+
+            "task_id":
+                task_id,
+
+            "project_id":
+                project_id,
+
+            "project_metrics":
+                project_metrics
+
+        }), 200
+
+    except Exception as e:
+
+        import traceback
+
+        traceback.print_exc()
+
+        return jsonify({
+            "error": str(e)
+        }), 500
+
+    try:
+
+        # ====================================================
+        # GET TASK
+        # ====================================================
+
+        existing_response = (
+            supabase
+            .table("Tasks")
+            .select("*")
+            .eq("task_id", task_id)
+            .limit(1)
+            .execute()
+        )
+
+        if not existing_response.data:
+
+            return jsonify({
+                "error":
+                    "Task not found."
+            }), 404
+
+        task = existing_response.data[0]
+
+        project_id = (
+            task.get("project_id")
+        )
+
+        # ====================================================
+        # DELETE TASK
+        # ====================================================
+
+        response = (
+            supabase
+            .table("Tasks")
+            .delete()
+            .eq("task_id", task_id)
+            .execute()
+        )
+
+        if not response.data:
+
+            return jsonify({
+                "error":
+                    "Task could not be deleted."
+            }), 500
+
+        # ====================================================
+        # REFRESH PROJECT METRICS
+        # ====================================================
+
+        project_metrics = (
+            refresh_project_task_metrics(
+                project_id
+            )
+        )
+
+        print(
+            "[DELETE] PROJECT METRICS:",
+            project_metrics
+        )
+
+        # ====================================================
+        # RESPONSE
+        # ====================================================
+
+        return jsonify({
+
+            "message":
+                "Task deleted successfully.",
+
+            "task_id":
+                task_id,
+
+            "project_id":
+                project_id,
+
+            "project_metrics":
+                project_metrics
+
+        }), 200
+
+    except Exception as e:
+
+        import traceback
+
+        traceback.print_exc()
+
+        return jsonify({
+            "error": str(e)
+        }), 500
 
     try:
 
@@ -672,11 +1005,20 @@ def delete_task(task_id):
             return jsonify({
                 "error": "Task could not be deleted."
             }), 500
+        
+        # ----------------------------------------------------
+        # REFRESH PROJECT EXECUTION METRICS
+        # ----------------------------------------------------
+
+        project_metrics = refresh_project_task_metrics(
+            task["project_id"]
+        )
 
         return jsonify({
             "message": "Task deleted successfully.",
             "task_id": task_id,
-            "project_id": task.get("project_id")
+            "project_id": task["project_id"],
+            "project_metrics": project_metrics
         }), 200
 
     except Exception as e:

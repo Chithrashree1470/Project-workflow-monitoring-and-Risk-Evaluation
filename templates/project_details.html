@@ -683,152 +683,189 @@
         </section>
 
 
-        <!-- =========================
-             PROJECT SUMMARY
-        ========================= -->
+<!-- =========================
+     PROJECT SUMMARY
+========================= -->
 
-        <section class="section">
+<section class="section">
 
-            <h2>
-                Project Summary
-            </h2>
+    <h2>
+        Project Summary
+    </h2>
 
-            <div class="summary-grid">
+    <div class="summary-grid">
 
-                <div class="summary-card">
-                    <div class="summary-label">Team Size</div>
-                    <div class="summary-value">
-                        {{ project.team_size | default(0, true) }}
-                    </div>
-                </div>
+        <!-- TEAM SIZE -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Team Size
+            </div>
+            <div class="summary-value">
+                {{ project.team_size | default(0, true) }}
+            </div>
+        </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Stakeholders</div>
-                    <div class="summary-value">
-                        {{ details.stakeholder_count | default(0, true) }}
-                    </div>
-                </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Timeline</div>
-                    <div class="summary-value">
-                        {{ project.timeline_months | default(0, true) }}
-                        months
-                    </div>
-                </div>
+        <!-- STAKEHOLDERS -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Stakeholders
+            </div>
+            <div class="summary-value">
+                {{ details.stakeholder_count | default(0, true) }}
+            </div>
+        </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Complexity</div>
-                    <div class="summary-value">
-                        {{ project.complexity_score | default(0, true) }}
-                        / 10
-                    </div>
-                </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Total Tasks</div>
-                    <div class="summary-value">
-                        {{ project.total_tasks | default(0, true) }}
-                    </div>
-                </div>
+        <!-- TIMELINE -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Timeline
+            </div>
+            <div class="summary-value">
+                {{ project.timeline_months | default(0, true) }}
+                months
+            </div>
+        </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Completed Tasks</div>
-                    <div class="summary-value">
-                        {{ project.completed_tasks | default(0, true) }}
-                    </div>
-                </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Pending Tasks</div>
-                    <div class="summary-value">
-                        {{ details.pending_tasks | default(0, true) }}
-                    </div>
-                </div>
+        <!-- COMPLEXITY -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Complexity
+            </div>
+            <div class="summary-value">
+                {{ project.complexity_score | default(0, true) }}
+                / 10
+            </div>
+        </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Overdue Tasks</div>
-                    <div class="summary-value">
-                        {{ project.overdue_tasks | default(0, true) }}
-                    </div>
-                </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Project Progress</div>
-                    <div class="summary-value">
-                        {{ details.project_progress | default("Not Started", true) }}
-                    </div>
-                </div>
+        <!-- TOTAL TASKS -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Total Tasks
+            </div>
+            <div class="summary-value">
+                {{ project.total_tasks | default(0, true) }}
+            </div>
+        </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Completion</div>
-                    <div class="summary-value">
-                        {{ details.completion_percentage | default(0, true) }}%
-                    </div>
-                </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Delay</div>
-                    <div class="summary-value">
-                        {{ details.delay_percentage | default(0, true) }}%
-                    </div>
-                </div>
+        <!-- COMPLETED TASKS -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Completed Tasks
+            </div>
+            <div class="summary-value">
+                {{ project.completed_tasks | default(0, true) }}
+            </div>
+        </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Estimated Effort</div>
-                    <div class="summary-value">
 
-                        {% if details.estimated_effort_hours is defined
-                              and details.estimated_effort_hours is not none %}
+        <!-- PENDING TASKS -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Pending Tasks
+            </div>
+            <div class="summary-value">
+                {{ project.pending_tasks | default(0, true) }}
+            </div>
+        </div>
 
-                            {% set estimated_hours =
-                                details.estimated_effort_hours
-                                | default(0, true)
-                                | float
-                            %}
 
-                            {% if estimated_hours == 0 %}
-                                0 hrs
-                            {% else %}
-                                {{ estimated_hours|round(2) }} hrs
-                            {% endif %}
+        <!-- OVERDUE TASKS -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Overdue Tasks
+            </div>
+            <div class="summary-value">
+                {{ project.overdue_tasks | default(0, true) }}
+            </div>
+        </div>
 
-                        {% else %}
-                            0 hrs
-                        {% endif %}
 
-                    </div>
-                </div>
+        <!-- PROJECT PROGRESS -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Project Progress
+            </div>
+            <div class="summary-value">
+                {{ project.project_progress | default("Not Started", true) }}
+            </div>
+        </div>
 
-                <div class="summary-card">
-                    <div class="summary-label">Actual Effort</div>
-                    <div class="summary-value">
 
-                        {% if details.actual_effort_hours is defined
-                              and details.actual_effort_hours is not none %}
+        <!-- COMPLETION -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Completion
+            </div>
+            <div class="summary-value">
+                {{ project.completion_percentage | default(0, true) }}%
+            </div>
+        </div>
 
-                            {% set actual_hours =
-                                details.actual_effort_hours
-                                | default(0, true)
-                                | float
-                            %}
 
-                            {% if actual_hours == 0 %}
-                                0 hrs
-                            {% else %}
-                                {{ actual_hours|round(2) }} hrs
-                            {% endif %}
+        <!-- DELAY -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Delay
+            </div>
+            <div class="summary-value">
+                {{ project.delay_percentage | default(0, true) }}%
+            </div>
+        </div>
 
-                        {% else %}
-                            0 hrs
-                        {% endif %}
 
-                    </div>
-                </div>
+        <!-- ESTIMATED EFFORT -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Estimated Effort
+            </div>
+            <div class="summary-value">
+
+                {% set estimated_hours =
+                    project.estimated_effort_hours
+                    | default(0, true)
+                    | float
+                %}
+
+                {% if estimated_hours == 0 %}
+                    0 hrs
+                {% else %}
+                    {{ estimated_hours|round(2) }} hrs
+                {% endif %}
 
             </div>
+        </div>
 
-        </section>
+
+        <!-- ACTUAL EFFORT -->
+        <div class="summary-card">
+            <div class="summary-label">
+                Actual Effort
+            </div>
+            <div class="summary-value">
+
+                {% set actual_hours =
+                    project.actual_effort_hours
+                    | default(0, true)
+                    | float
+                %}
+
+                {% if actual_hours == 0 %}
+                    0 hrs
+                {% else %}
+                    {{ actual_hours|round(2) }} hrs
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+
+</section>
 
 
         <!-- =========================

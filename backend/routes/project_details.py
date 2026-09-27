@@ -1,7 +1,9 @@
 import json
 
 from flask import Blueprint, render_template
-
+from backend.services.project_service import (
+    refresh_project_task_metrics
+)
 from backend.supabase_client import supabase
 
 project_details_bp = Blueprint("project_details", __name__)
@@ -148,6 +150,69 @@ def project_details(project_id):
 
             tasks = []
 
+        # =========================================================
+        # REFRESH PROJECT EXECUTION METRICS
+        # =========================================================
+
+        try:
+
+            refreshed_metrics = (
+                refresh_project_task_metrics(
+                    project_id
+                )
+            )
+
+            print(
+                "[PROJECT DETAILS] REFRESHED METRICS:",
+                refreshed_metrics
+            )
+
+            # Update the project object used by Jinja
+            project.update({
+                "total_tasks":
+                    refreshed_metrics["total_tasks"],
+
+                "completed_tasks":
+                    refreshed_metrics["completed_tasks"],
+
+                "pending_tasks":
+                    refreshed_metrics["pending_tasks"],
+
+                "overdue_tasks":
+                    refreshed_metrics["overdue_tasks"],
+
+                "completion_percentage":
+                    refreshed_metrics[
+                        "completion_percentage"
+                    ],
+
+                "delay_percentage":
+                    refreshed_metrics[
+                        "delay_percentage"
+                    ],
+
+                "estimated_effort_hours":
+                    refreshed_metrics[
+                        "estimated_effort_hours"
+                    ],
+
+                "actual_effort_hours":
+                    refreshed_metrics[
+                        "actual_effort_hours"
+                    ],
+
+                "project_progress":
+                    refreshed_metrics[
+                        "project_progress"
+                    ]
+            })
+
+        except Exception as metrics_error:
+
+            print(
+                "Project metrics refresh error:",
+                metrics_error
+            )
 
         # =========================================================
         # GET DYNAMIC PROJECT RISK
