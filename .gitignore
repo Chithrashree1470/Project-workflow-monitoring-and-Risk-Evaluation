@@ -15,9 +15,6 @@ node_modules/
 # Logs
 *.log
 
-# Python model
-*.pkl
-
 # OS files
 .DS_Store
 Thumbs.db
