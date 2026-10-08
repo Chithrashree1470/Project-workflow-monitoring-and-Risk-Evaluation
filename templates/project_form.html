@@ -297,6 +297,51 @@ button {
 
 }
 
+.skill-input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.skill-input-row input {
+    flex: 1;
+}
+
+.skill-remove-btn {
+    background: #172538;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    padding: 9px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.skill-remove-btn:hover {
+    background: #26364a;
+}
+
+.skill-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.skill-suggestion {
+    background: #142538;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    padding: 7px 11px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.skill-suggestion:hover {
+    border-color: #38bdf8;
+    color: #38bdf8;
+}
+
 </style>
 
 </head>
@@ -388,6 +433,7 @@ button {
                         <input
                             type="text"
                             name="Project_Type"
+                            id="Project_Type"
                             placeholder="e.g. ERP, Web Application, Banking"
                         >
 
@@ -477,7 +523,44 @@ button {
 
             </div>
 
+            <!-- ================================================= -->
+<!-- PROJECT TECHNOLOGY / SKILL REQUIREMENTS -->
+<!-- ================================================= -->
 
+<div class="section">
+
+    <h2 class="section-title">
+        Project Technology / Skill Requirements
+    </h2>
+
+    <div class="info-note">
+        Select the technologies or skills required for this project.
+        The system suggests technologies based on the project type,
+        but the project manager can add or remove requirements.
+    </div>
+
+    <div id="requiredSkillsContainer">
+
+        <!-- Technology rows will be added here -->
+
+    </div>
+
+    <button
+        type="button"
+        class="add-btn"
+        onclick="addRequiredSkill()"
+    >
+        + Add Technology / Skill
+    </button>
+
+    <div
+        id="skillSuggestions"
+        class="skill-suggestions"
+    >
+        <!-- Suggestions generated from project type -->
+    </div>
+
+</div>
             <!-- ================================================= -->
             <!-- MANAGER RESUME -->
             <!-- ================================================= -->
@@ -894,7 +977,132 @@ button {
 let teamNumber = 0;
 let clientNumber = 0;
 let taskNumber = 0;
+let requiredSkillNumber = 0;
 
+/* ============================================================
+   PROJECT TECHNOLOGY / SKILL REQUIREMENTS
+============================================================ */
+
+const projectTechnologySuggestions = {
+    "Web Application": [
+        "Java",
+        "Spring Boot",
+        "React",
+        "PostgreSQL"
+    ],
+
+    "Mobile Application": [
+        "Flutter",
+        "Dart",
+        "Firebase"
+    ],
+
+    "ML Application": [
+        "Python",
+        "Pandas",
+        "Scikit-learn"
+    ],
+
+    "Data Analytics": [
+        "Python",
+        "SQL",
+        "Pandas"
+    ],
+
+    "Backend System": [
+        "Java",
+        "Spring Boot",
+        "PostgreSQL"
+    ],
+
+    "Full Stack": [
+        "React",
+        "Node.js",
+        "PostgreSQL"
+    ]
+};
+
+
+function addRequiredSkill(value = "") {
+
+    requiredSkillNumber++;
+
+    const row = document.createElement("div");
+
+    row.className = "skill-input-row";
+
+    row.innerHTML = `
+        <input
+            type="text"
+            name="Required_Technology"
+            placeholder="e.g. Java, Spring Boot, PostgreSQL"
+            value="${escapeHtmlAttribute(value)}"
+            required
+        >
+
+        <button
+            type="button"
+            class="skill-remove-btn"
+            onclick="this.closest('.skill-input-row').remove()"
+        >
+            Remove
+        </button>
+    `;
+
+    document
+        .getElementById("requiredSkillsContainer")
+        .appendChild(row);
+}
+
+
+function escapeHtmlAttribute(value) {
+
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+
+function updateTechnologySuggestions() {
+
+    const projectTypeInput =
+        document.querySelector('[name="Project_Type"]');
+
+    const suggestionsContainer =
+        document.getElementById("skillSuggestions");
+
+    if (!projectTypeInput || !suggestionsContainer) {
+        return;
+    }
+
+    const projectType =
+        projectTypeInput.value.trim();
+
+    suggestionsContainer.innerHTML = "";
+
+    const technologies =
+        projectTechnologySuggestions[projectType] || [];
+
+    technologies.forEach(technology => {
+
+        const button =
+            document.createElement("button");
+
+        button.type = "button";
+        button.className = "skill-suggestion";
+        button.textContent = "+ " + technology;
+
+        button.addEventListener(
+            "click",
+            () => addRequiredSkill(technology)
+        );
+
+        suggestionsContainer.appendChild(button);
+    });
+}
 
 /* ============================================================
    MASTER DATA LOOKUPS
@@ -1806,7 +2014,12 @@ function updateSummary() {
 
 updateTeam();
 updateSummary();
-
+document
+    .getElementById("Project_Type")
+    .addEventListener(
+        "input",
+        updateTechnologySuggestions
+    );
 </script>
 
 </body>

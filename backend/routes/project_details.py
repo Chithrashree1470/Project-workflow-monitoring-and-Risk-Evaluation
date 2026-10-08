@@ -2,10 +2,11 @@ import json
 
 from flask import Blueprint, render_template, request, jsonify
 
+from backend.routes import project
 from backend.services.project_service import (
     refresh_project_task_metrics
 )
-
+from backend.services.project_skill import update_project_skill_metrics
 from backend.supabase_client import supabase
 
 from backend.services.project_skill import (
@@ -343,7 +344,9 @@ def project_details(project_id):
         project["current_risk"] = (
             current_risk
         )
-
+        skill_metrics = update_project_skill_metrics(project_id)
+        project["skill_coverage"] = skill_metrics["skill_coverage"]
+        project["skill_gap"] = skill_metrics["skill_gap"]
 
         # =========================================================
         # RENDER PAGE
@@ -379,213 +382,139 @@ def project_details(project_id):
     "/api/project/<project_id>/employees",
     methods=["POST"]
 )
+@project_details_bp.route(
+    "/api/project/<project_id>/employees",
+    methods=["POST"]
+)
 def add_project_employee(project_id):
+
+    if not _can_edit():
+        return jsonify({
+            "success": False,
+            "message": (
+                "Edit mode is available only to "
+                "manager or employee views."
+            )
+        }), 403
 
     try:
 
-        # ---------------------------------------------------------
-        # CHECK PROJECT
-        # ---------------------------------------------------------
+        project, _ = _get_project(project_id)
 
-        project_response = (
-            supabase
-            .table("projects")
-            .select("id")
-            .eq("id", project_id)
-            .limit(1)
-            .execute()
-        )
-
-        if not project_response.data:
-
+        if not project:
             return jsonify({
                 "success": False,
                 "message": "Project not found."
             }), 404
 
-
-        # ---------------------------------------------------------
-        # READ EMPLOYEE ID
-        # ---------------------------------------------------------
-
-        data = (
-            request.get_json(
-                silent=True
-            ) or {}
-        )
+        data = request.get_json(silent=True) or {}
 
         employee_id = str(
-            data.get("employee_id")
-            or ""
+            data.get("employee_id") or ""
         ).strip()
 
         if not employee_id:
-
             return jsonify({
                 "success": False,
-                "message":
-                    "Employee ID is required."
+                "message": "Employee ID is required."
             }), 400
 
-
-        # ---------------------------------------------------------
-        # GET EMPLOYEE
-        # ---------------------------------------------------------
-
-        employee = get_employee_by_id(
-            employee_id
-        )
+        employee = get_employee_by_id(employee_id)
 
         if not employee:
-
             return jsonify({
                 "success": False,
-                "message":
-                    "Employee ID not found."
+                "message": "Employee ID not found."
             }), 404
-
-
-        # ---------------------------------------------------------
-        # CHECK IF ALREADY ASSIGNED
-        # ---------------------------------------------------------
 
         existing = (
             supabase
             .table("project_team_members")
-            .select("employee_id")
-            .eq(
-                "project_id",
-                project_id
-            )
-            .eq(
-                "employee_id",
-                employee_id
-            )
+            .select("id")
+            .eq("project_id", project_id)
+            .eq("employee_id", employee_id)
             .limit(1)
             .execute()
         )
 
         if existing.data:
-
             return jsonify({
-                "success": True,
-                "message":
-                    "Employee already assigned."
-            }), 200
-
-
-        # ---------------------------------------------------------
-        # CREATE TEAM MEMBER ROW
-        # ---------------------------------------------------------
+                "success": False,
+                "message": (
+                    "Employee is already assigned "
+                    "to this project."
+                )
+            }), 409
 
         row = {
-
-            "project_id":
-                project_id,
-
-            "employee_id":
-                employee_id,
-
-            "employee_name":
-                employee.get(
-                    "employee_name",
-                    employee.get(
-                        "name",
-                        ""
-                    )
-                ),
-
-            "email":
-                employee.get(
-                    "email",
-                    ""
-                ),
-
-            "role":
-                employee.get(
-                    "role",
-                    ""
-                ),
-
-            "department":
-                employee.get(
-                    "department",
-                    ""
-                ),
-
-            "experience_level":
-                employee.get(
-                    "experience_level",
-                    ""
-                ),
-
-            "years_experience":
-                employee.get(
-                    "years_experience",
-                    0
-                ),
-
-            "skills":
-                employee.get(
-                    "skills",
-                    ""
-                )
+            "project_id": project_id,
+            "employee_id": employee_id,
+            "employee_name": employee.get(
+                "employee_name",
+                employee.get("name", "")
+            ),
+            "email": employee.get("email", ""),
+            "role": employee.get("role", ""),
+            "department": employee.get(
+                "department",
+                ""
+            ),
+            "experience_level": employee.get(
+                "experience_level",
+                "Junior"
+            ),
+            "years_experience": employee.get(
+                "years_experience",
+                0
+            ),
+            "skills": employee.get(
+                "skills",
+                ""
+            )
         }
 
-
-        # ---------------------------------------------------------
-        # INSERT TEAM MEMBER
-        # ---------------------------------------------------------
-
-        supabase \
-            .table("project_team_members") \
-            .insert(row) \
+        insert_response = (
+            supabase
+            .table("project_team_members")
+            .insert(row)
             .execute()
-
-
-        # ---------------------------------------------------------
-        # RECALCULATE SKILL METRICS
-        # ---------------------------------------------------------
-
-        skill_metrics = (
-            update_project_skill_metrics(
-                project_id
-            )
         )
 
+        if not insert_response.data:
+            raise RuntimeError(
+                "Employee could not be added to the project."
+            )
+
+        # =====================================================
+        # RECALCULATE AND SAVE SKILL METRICS
+        # =====================================================
+
+        skill_metrics = (
+            update_project_skill_metrics(project_id)
+        )
+
+        # Existing project baseline calculation
+        baseline = recalculate_project_baseline(
+            project_id
+        )
 
         return jsonify({
-
-            "success":
-                True,
-
-            "employee":
-                row,
-
-            "skill_metrics":
-                skill_metrics
-
+            "success": True,
+            "employee": row,
+            "skill_metrics": skill_metrics,
+            "baseline": baseline,
+            "message": "Employee assigned."
         }), 201
-
 
     except Exception as error:
 
-        print(
-            "Project employee add error:",
-            error
-        )
+        import traceback
+        traceback.print_exc()
 
         return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                str(error)
-
+            "success": False,
+            "message": str(error)
         }), 500
-
-
 # =============================================================
 # REMOVE EMPLOYEE FROM PROJECT
 # =============================================================
@@ -594,66 +523,65 @@ def add_project_employee(project_id):
     "/api/project/<project_id>/employees/<employee_id>",
     methods=["DELETE"]
 )
-def remove_project_employee(
-    project_id,
-    employee_id
-):
+@project_details_bp.route(
+    "/api/project/<project_id>/employees/<employee_id>",
+    methods=["DELETE"]
+)
+def remove_project_employee(project_id, employee_id):
+
+    if not _can_edit():
+        return jsonify({
+            "success": False,
+            "message": (
+                "Edit mode is available only to "
+                "manager or employee views."
+            )
+        }), 403
 
     try:
 
-        # ---------------------------------------------------------
-        # REMOVE TEAM MEMBER
-        # ---------------------------------------------------------
-
-        supabase \
-            .table("project_team_members") \
-            .delete() \
-            .eq(
-                "project_id",
-                project_id
-            ) \
-            .eq(
-                "employee_id",
-                employee_id
-            ) \
+        response = (
+            supabase
+            .table("project_team_members")
+            .delete()
+            .eq("project_id", project_id)
+            .eq("employee_id", employee_id)
             .execute()
-
-
-        # ---------------------------------------------------------
-        # RECALCULATE SKILL METRICS
-        # ---------------------------------------------------------
-
-        skill_metrics = (
-            update_project_skill_metrics(
-                project_id
-            )
         )
 
+        if not response.data:
+            return jsonify({
+                "success": False,
+                "message": (
+                    "Employee assignment not found."
+                )
+            }), 404
+
+        # =====================================================
+        # RECALCULATE AND SAVE SKILL METRICS
+        # =====================================================
+
+        skill_metrics = (
+            update_project_skill_metrics(project_id)
+        )
+
+        # Existing project baseline calculation
+        baseline = recalculate_project_baseline(
+            project_id
+        )
 
         return jsonify({
-
-            "success":
-                True,
-
-            "skill_metrics":
-                skill_metrics
-
+            "success": True,
+            "skill_metrics": skill_metrics,
+            "baseline": baseline
         }), 200
-
 
     except Exception as error:
 
-        print(
-            "Project employee remove error:",
-            error
-        )
+        import traceback
+        traceback.print_exc()
 
         return jsonify({
-
-            "success":
-                False,
-
-            "message":
-                str(error)
-
+            "success": False,
+            "message": str(error)
         }), 500
