@@ -190,10 +190,10 @@ def update_project_skill_metrics(project_id):
 
     return result
 
-from backend.services.project_skill import (
-    calculate_skill_coverage
-)
+# from backend.services.project_skill import (
+#     calculate_skill_coverage
+# )
 
-if __name__ == "__main__":
-    result = calculate_skill_coverage(50)
-    print(result)
+# if __name__ == "__main__":
+#     result = calculate_skill_coverage(50)
+#     print(result)

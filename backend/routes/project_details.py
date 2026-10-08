@@ -1,17 +1,33 @@
 import json
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request, jsonify
+
 from backend.services.project_service import (
     refresh_project_task_metrics
 )
+
 from backend.supabase_client import supabase
 
-project_details_bp = Blueprint("project_details", __name__)
+from backend.services.project_skill import (
+    update_project_skill_metrics
+)
+
+from backend.master_data import (
+    get_employee_by_id
+)
+
+
+project_details_bp = Blueprint(
+    "project_details",
+    __name__
+)
 
 
 @project_details_bp.route("/project/<project_id>")
 def project_details(project_id):
+
     try:
+
         # =========================================================
         # GET PROJECT
         # =========================================================
@@ -32,11 +48,15 @@ def project_details(project_id):
 
         project = projects[0]
 
-        details = project.get("project_details") or {}
+        details = project.get(
+            "project_details"
+        ) or {}
 
         if isinstance(details, str):
+
             try:
                 details = json.loads(details)
+
             except Exception:
                 details = {}
 
@@ -46,6 +66,7 @@ def project_details(project_id):
         # =========================================================
 
         try:
+
             team_response = (
                 supabase
                 .table("project_team_members")
@@ -54,17 +75,22 @@ def project_details(project_id):
                 .execute()
             )
 
-            project_team_members = team_response.data or []
+            project_team_members = (
+                team_response.data or []
+            )
 
         except Exception as team_error:
+
             print(
                 "Project team lookup error:",
                 team_error
             )
 
-            project_team_members = details.get(
-                "team_members",
-                []
+            project_team_members = (
+                details.get(
+                    "team_members",
+                    []
+                )
             )
 
 
@@ -73,6 +99,7 @@ def project_details(project_id):
         # =========================================================
 
         try:
+
             client_response = (
                 supabase
                 .table("project_clients")
@@ -81,17 +108,22 @@ def project_details(project_id):
                 .execute()
             )
 
-            project_clients = client_response.data or []
+            project_clients = (
+                client_response.data or []
+            )
 
         except Exception as client_error:
+
             print(
                 "Project client lookup error:",
                 client_error
             )
 
-            project_clients = details.get(
-                "clients",
-                []
+            project_clients = (
+                details.get(
+                    "clients",
+                    []
+                )
             )
 
 
@@ -101,10 +133,15 @@ def project_details(project_id):
 
         if project_team_members:
 
-            details["team_members"] = project_team_members
+            details["team_members"] = (
+                project_team_members
+            )
 
             details["team_member_ids"] = [
-                member.get("employee_id", "")
+                member.get(
+                    "employee_id",
+                    ""
+                )
                 for member in project_team_members
                 if member.get("employee_id")
             ]
@@ -116,10 +153,15 @@ def project_details(project_id):
 
         if project_clients:
 
-            details["clients"] = project_clients
+            details["clients"] = (
+                project_clients
+            )
 
             details["stakeholder_ids"] = [
-                client.get("client_id", "")
+                client.get(
+                    "client_id",
+                    ""
+                )
                 for client in project_clients
                 if client.get("client_id")
             ]
@@ -130,16 +172,22 @@ def project_details(project_id):
         # =========================================================
 
         try:
+
             task_response = (
                 supabase
                 .table("Tasks")
                 .select("*")
                 .eq("project_id", project_id)
-                .order("created_at", desc=False)
+                .order(
+                    "created_at",
+                    desc=False
+                )
                 .execute()
             )
 
-            tasks = task_response.data or []
+            tasks = (
+                task_response.data or []
+            )
 
         except Exception as task_error:
 
@@ -149,6 +197,7 @@ def project_details(project_id):
             )
 
             tasks = []
+
 
         # =========================================================
         # REFRESH PROJECT EXECUTION METRICS
@@ -163,23 +212,32 @@ def project_details(project_id):
             )
 
             print(
-                "[PROJECT DETAILS] REFRESHED METRICS:",
+                "[PROJECT DETAILS] "
+                "REFRESHED METRICS:",
                 refreshed_metrics
             )
 
-            # Update the project object used by Jinja
             project.update({
-                "total_tasks":
-                    refreshed_metrics["total_tasks"],
 
-                "completed_tasks":
-                    refreshed_metrics["completed_tasks"],
+                "total_tasks":
+                    refreshed_metrics[
+                        "total_tasks"
+                    ],
 
                 "pending_tasks":
-                    refreshed_metrics["pending_tasks"],
+                    refreshed_metrics[
+                        "pending_tasks"
+                    ],
+
+                "completed_tasks":
+                    refreshed_metrics[
+                        "completed_tasks"
+                    ],
 
                 "overdue_tasks":
-                    refreshed_metrics["overdue_tasks"],
+                    refreshed_metrics[
+                        "overdue_tasks"
+                    ],
 
                 "completion_percentage":
                     refreshed_metrics[
@@ -214,15 +272,9 @@ def project_details(project_id):
                 metrics_error
             )
 
+
         # =========================================================
         # GET DYNAMIC PROJECT RISK
-        # =========================================================
-        #
-        # This table contains the CURRENT dynamic risk after
-        # tasks have been created/updated.
-        #
-        # We do NOT calculate risk here.
-        # task_risk.py remains responsible for calculation.
         # =========================================================
 
         try:
@@ -232,7 +284,10 @@ def project_details(project_id):
                 .table("project_dynamic_risk")
                 .select("*")
                 .eq("project_id", project_id)
-                .order("calculated_at", desc=True)
+                .order(
+                    "calculated_at",
+                    desc=True
+                )
                 .limit(1)
                 .execute()
             )
@@ -260,45 +315,34 @@ def project_details(project_id):
         # =========================================================
         # DETERMINE RISK TO DISPLAY
         # =========================================================
-        #
-        # NEW PROJECT:
-        #     No dynamic risk yet
-        #     -> use initial predicted_risk
-        #
-        # EXISTING PROJECT WITH TASKS:
-        #     Dynamic risk exists
-        #     -> use dynamic risk_level
-        #
-        # This keeps the initial risk and dynamic risk separate
-        # in the database while giving the frontend one current
-        # risk value to display.
-        # =========================================================
 
         if dynamic_risk:
 
             current_risk = (
-                dynamic_risk.get("risk_level")
-                or project.get("predicted_risk")
+                dynamic_risk.get(
+                    "risk_level"
+                )
+                or project.get(
+                    "predicted_risk"
+                )
             )
 
         else:
 
-            current_risk = project.get(
-                "predicted_risk"
+            current_risk = (
+                project.get(
+                    "predicted_risk"
+                )
             )
 
 
         # =========================================================
         # ADD CURRENT RISK TO PROJECT OBJECT
         # =========================================================
-        #
-        # project_details.html can now simply use:
-        #
-        #     {{ project.current_risk }}
-        #
-        # =========================================================
 
-        project["current_risk"] = current_risk
+        project["current_risk"] = (
+            current_risk
+        )
 
 
         # =========================================================
@@ -325,3 +369,291 @@ def project_details(project_id):
             "Unable to load project details.",
             500
         )
+
+
+# =============================================================
+# ADD EMPLOYEE TO PROJECT
+# =============================================================
+
+@project_details_bp.route(
+    "/api/project/<project_id>/employees",
+    methods=["POST"]
+)
+def add_project_employee(project_id):
+
+    try:
+
+        # ---------------------------------------------------------
+        # CHECK PROJECT
+        # ---------------------------------------------------------
+
+        project_response = (
+            supabase
+            .table("projects")
+            .select("id")
+            .eq("id", project_id)
+            .limit(1)
+            .execute()
+        )
+
+        if not project_response.data:
+
+            return jsonify({
+                "success": False,
+                "message": "Project not found."
+            }), 404
+
+
+        # ---------------------------------------------------------
+        # READ EMPLOYEE ID
+        # ---------------------------------------------------------
+
+        data = (
+            request.get_json(
+                silent=True
+            ) or {}
+        )
+
+        employee_id = str(
+            data.get("employee_id")
+            or ""
+        ).strip()
+
+        if not employee_id:
+
+            return jsonify({
+                "success": False,
+                "message":
+                    "Employee ID is required."
+            }), 400
+
+
+        # ---------------------------------------------------------
+        # GET EMPLOYEE
+        # ---------------------------------------------------------
+
+        employee = get_employee_by_id(
+            employee_id
+        )
+
+        if not employee:
+
+            return jsonify({
+                "success": False,
+                "message":
+                    "Employee ID not found."
+            }), 404
+
+
+        # ---------------------------------------------------------
+        # CHECK IF ALREADY ASSIGNED
+        # ---------------------------------------------------------
+
+        existing = (
+            supabase
+            .table("project_team_members")
+            .select("employee_id")
+            .eq(
+                "project_id",
+                project_id
+            )
+            .eq(
+                "employee_id",
+                employee_id
+            )
+            .limit(1)
+            .execute()
+        )
+
+        if existing.data:
+
+            return jsonify({
+                "success": True,
+                "message":
+                    "Employee already assigned."
+            }), 200
+
+
+        # ---------------------------------------------------------
+        # CREATE TEAM MEMBER ROW
+        # ---------------------------------------------------------
+
+        row = {
+
+            "project_id":
+                project_id,
+
+            "employee_id":
+                employee_id,
+
+            "employee_name":
+                employee.get(
+                    "employee_name",
+                    employee.get(
+                        "name",
+                        ""
+                    )
+                ),
+
+            "email":
+                employee.get(
+                    "email",
+                    ""
+                ),
+
+            "role":
+                employee.get(
+                    "role",
+                    ""
+                ),
+
+            "department":
+                employee.get(
+                    "department",
+                    ""
+                ),
+
+            "experience_level":
+                employee.get(
+                    "experience_level",
+                    ""
+                ),
+
+            "years_experience":
+                employee.get(
+                    "years_experience",
+                    0
+                ),
+
+            "skills":
+                employee.get(
+                    "skills",
+                    ""
+                )
+        }
+
+
+        # ---------------------------------------------------------
+        # INSERT TEAM MEMBER
+        # ---------------------------------------------------------
+
+        supabase \
+            .table("project_team_members") \
+            .insert(row) \
+            .execute()
+
+
+        # ---------------------------------------------------------
+        # RECALCULATE SKILL METRICS
+        # ---------------------------------------------------------
+
+        skill_metrics = (
+            update_project_skill_metrics(
+                project_id
+            )
+        )
+
+
+        return jsonify({
+
+            "success":
+                True,
+
+            "employee":
+                row,
+
+            "skill_metrics":
+                skill_metrics
+
+        }), 201
+
+
+    except Exception as error:
+
+        print(
+            "Project employee add error:",
+            error
+        )
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                str(error)
+
+        }), 500
+
+
+# =============================================================
+# REMOVE EMPLOYEE FROM PROJECT
+# =============================================================
+
+@project_details_bp.route(
+    "/api/project/<project_id>/employees/<employee_id>",
+    methods=["DELETE"]
+)
+def remove_project_employee(
+    project_id,
+    employee_id
+):
+
+    try:
+
+        # ---------------------------------------------------------
+        # REMOVE TEAM MEMBER
+        # ---------------------------------------------------------
+
+        supabase \
+            .table("project_team_members") \
+            .delete() \
+            .eq(
+                "project_id",
+                project_id
+            ) \
+            .eq(
+                "employee_id",
+                employee_id
+            ) \
+            .execute()
+
+
+        # ---------------------------------------------------------
+        # RECALCULATE SKILL METRICS
+        # ---------------------------------------------------------
+
+        skill_metrics = (
+            update_project_skill_metrics(
+                project_id
+            )
+        )
+
+
+        return jsonify({
+
+            "success":
+                True,
+
+            "skill_metrics":
+                skill_metrics
+
+        }), 200
+
+
+    except Exception as error:
+
+        print(
+            "Project employee remove error:",
+            error
+        )
+
+        return jsonify({
+
+            "success":
+                False,
+
+            "message":
+                str(error)
+
+        }), 500

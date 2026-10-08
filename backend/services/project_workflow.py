@@ -6,6 +6,10 @@ from backend.services.project_input import (
     read_clients
 )
 
+from backend.services.project_skill import (
+    update_project_skill_metrics
+)
+
 from backend.services.project_risk import (
     model,
     MODEL_FEATURES,
@@ -59,6 +63,20 @@ def run_project_prediction(form):
     team_members = read_team_members()
     clients = read_clients()
     tasks = read_tasks_from_form()
+
+    # Read required project technologies
+    required_technologies = [
+        technology.strip()
+        for technology in form.getlist(
+            "Required_Technology"
+        )
+        if technology and technology.strip()
+    ]
+
+    # Remove duplicate technologies
+    required_technologies = list(
+        dict.fromkeys(required_technologies)
+    )
 
     # Build the original project-risk feature row
     (
@@ -123,7 +141,13 @@ def run_project_prediction(form):
         predicted_risk=predicted_risk,
         task_summary=task_summary,
         start_date=start_date,
-        end_date=end_date
+        end_date=end_date,
+        required_technologies=required_technologies
+    )
+
+    # Calculate and save initial skill metrics
+    skill_metrics = update_project_skill_metrics(
+        project_id
     )
 
     return {
@@ -134,20 +158,52 @@ def run_project_prediction(form):
         "end_date": end_date,
         "project_type": project_type,
 
+        "required_technologies":
+            required_technologies,
+
+        "skill_coverage":
+            skill_metrics["skill_coverage"],
+
+        "skill_gap":
+            skill_metrics["skill_gap"],
+
+        "covered_skills":
+            skill_metrics["covered_skills"],
+
+        "missing_skills":
+            skill_metrics["missing_skills"],
+
+        "team_skills":
+            skill_metrics["team_skills"],
+
         "team_experience": team_experience,
-        "project_manager_experience": pm_experience,
+
+        "project_manager_experience":
+            pm_experience,
 
         "project_budget": project_budget,
+
         "timeline_months": timeline,
+
         "complexity_score": complexity,
 
-        "team_size": len(team_members),
-        "stakeholder_count": len(clients),
+        "team_size":
+            len(team_members),
 
-        "total_tasks": task_summary["total_tasks"],
-        "completed_tasks": task_summary["completed_tasks"],
-        "pending_tasks": task_summary["pending_tasks"],
-        "overdue_tasks": task_summary["overdue_tasks"],
+        "stakeholder_count":
+            len(clients),
+
+        "total_tasks":
+            task_summary["total_tasks"],
+
+        "completed_tasks":
+            task_summary["completed_tasks"],
+
+        "pending_tasks":
+            task_summary["pending_tasks"],
+
+        "overdue_tasks":
+            task_summary["overdue_tasks"],
 
         "completion_percentage":
             task_summary["completion_percentage"],
