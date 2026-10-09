@@ -273,6 +273,56 @@ button {
     color: #e5e7eb;
 }
 
+.capability-card {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 13px 14px;
+    text-align: left;
+    background: #07111f;
+    color: #e5e7eb;
+    border: 1px solid #334155;
+    border-radius: 9px;
+    cursor: pointer;
+}
+
+.capability-card:hover {
+    border-color: #38bdf8;
+    background: #0b1c2e;
+}
+
+.capability-card strong,
+.capability-card span,
+.capability-card small,
+.capability-card em {
+    display: block;
+}
+
+.capability-card strong {
+    color: #38bdf8;
+    font-size: 15px;
+}
+
+.capability-card span {
+    margin-top: 4px;
+    color: #cbd5e1;
+    font-size: 13px;
+}
+
+.capability-card small {
+    margin-top: 5px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.capability-card em {
+    margin-top: 7px;
+    color: #7dd3fc;
+    font-size: 11px;
+    font-style: normal;
+}
+
+
 @media (max-width: 800px) {
 
     .form-grid {
@@ -391,6 +441,9 @@ button {
                             placeholder="e.g. ERP, Web Application, Banking"
                         >
 
+                        <small id="capabilityStatus" style="display:block;margin-top:8px;color:#94a3b8;">Type a project type to see capable employee IDs.</small>
+                        <div id="capableEmployees" class="calculated" style="margin-top:10px;">No project type entered.</div>
+
                     </div>
 
 
@@ -477,61 +530,21 @@ button {
 
             </div>
 
-
             <!-- ================================================= -->
-            <!-- MANAGER RESUME -->
+            <!-- PROJECT MANAGER -->
             <!-- ================================================= -->
 
             <div class="section">
-
-                <h2 class="section-title">
-                    Project Manager Information
-                </h2>
-
+                <h2 class="section-title">Project Manager Information</h2>
                 <div class="info-note">
-
-                    Upload the project manager's resume.
-                    The system will extract relevant experience
-                    information and determine the project manager
-                    experience category automatically.
-
+                    The project manager is created once inside the project workspace.
+                    No resume is required during project creation. The manager can upload
+                    the resume later from Manager View, where it is stored with the project.
                 </div>
-
-                <div class="form-group">
-
-                    <label>
-                        Project Manager Resume
-                    </label>
-
-                    <input
-                        type="file"
-                        name="Manager_Resume"
-                        id="Manager_Resume"
-                        accept=".pdf,.docx,.txt"
-                    >
-
-                    <small id="resumeStatus" style="margin-top:8px;color:#94a3b8;">
-                        Upload a PDF, DOCX or TXT resume.
-                    </small>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label>
-                        Project Manager Experience
-                    </label>
-
-                    <input
-                        type="text"
-                        id="managerExperience"
-                        value="Will be calculated from resume"
-                        readonly
-                    >
-
-                </div>
-
+                <div class="calculated"><strong>Manager Experience:</strong> <span>Set later in Manager View</span></div>
             </div>
+
+
 
 
             <!-- ================================================= -->
@@ -540,107 +553,53 @@ button {
 
             <div class="section">
 
-                <h2 class="section-title">
-                    Team Members
-                </h2>
+                <h2 class="section-title">Team Members</h2>
 
                 <div class="info-note">
-
-                    Add the employees who will work on this project.
-                    Team experience is calculated automatically from
-                    the experience level and years of experience of
-                    all employees.
-
+                    Recommended employees are still shown based on Project Type. You may
+                    select a recommendation or enter any valid Employee ID from the employee
+                    master table below. Details are retrieved automatically and remain read-only.
                 </div>
 
+                <div class="form-grid" style="margin:16px 0;">
+                    <div class="form-group">
+                        <label for="manualEmployeeId">Add employee by ID</label>
+                        <input type="text" id="manualEmployeeId" placeholder="EMP-001" autocomplete="off">
+                    </div>
+                    <div class="form-group" style="justify-content:flex-end;">
+                        <button type="button" class="add-btn" style="margin-top:0;" onclick="addManualEmployee()">+ Add Employee ID</button>
+                    </div>
+                </div>
+                <div id="employeeMessage" class="info-note" style="display:none;margin-top:0;"></div>
 
                 <div class="table-wrapper">
-
                     <table>
-
                         <thead>
-
                             <tr>
-
-                                <th>
-                                    Employee ID
-                                </th>
-
-                                <th>
-                                    Employee Name
-                                </th>
-
-                                <th>
-                                    Email
-                                </th>
-
-                                <th>
-                                    Role
-                                </th>
-
-                                <th>
-                                    Department
-                                </th>
-
-                                <th>
-                                    Experience
-                                </th>
-
-                                <th>
-                                    Years
-                                </th>
-
-                                <th>
-                                    Skills
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
+                                <th>Employee ID</th>
+                                <th>Employee Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Department</th>
+                                <th>Experience</th>
+                                <th>Years</th>
+                                <th>Skills</th>
+                                <th>Action</th>
                             </tr>
-
                         </thead>
-
                         <tbody id="teamBody"></tbody>
-
                     </table>
-
                 </div>
 
-                <button
-                    type="button"
-                    class="add-btn"
-                    onclick="addTeamMember()"
-                >
-                    + Add Team Member
-                </button>
-
-
                 <div class="calculated">
-
-                    <strong>
-                        Calculated Team Experience:
-                    </strong>
-
-                    <span id="teamExperience">
-                        No team members
-                    </span>
-
+                    <strong>Selected employees:</strong>
+                    <span id="teamCount">0</span>
                     <br>
-
-                    <strong>
-                        Team Size:
-                    </strong>
-
-                    <span id="teamCount">
-                        0
-                    </span>
-
+                    <strong>Calculated Team Experience:</strong>
+                    <span id="teamExperience">No team members</span>
                 </div>
 
             </div>
-
 
             <!-- ================================================= -->
             <!-- CLIENTS -->
@@ -648,223 +607,83 @@ button {
 
             <div class="section">
 
-                <h2 class="section-title">
-                    Clients / Stakeholders
-                </h2>
+                <h2 class="section-title">Clients / Stakeholders</h2>
 
                 <div class="info-note">
-
-                    Add the clients, organizations or stakeholder
-                    representatives connected with this project.
-
+                    Enter a Client ID from the clients master table and click Add Client.
+                    The client information is then filled automatically and remains read-only.
                 </div>
 
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="newClientId">Client ID</label>
+                        <input
+                            type="text"
+                            id="newClientId"
+                            placeholder="CLIENT-001"
+                            autocomplete="off"
+                        >
+                    </div>
+                    <div class="form-group" style="justify-content:flex-end;">
+                        <button type="button" class="add-btn" style="margin-top:0;" onclick="addClient()">
+                            + Add Client
+                        </button>
+                    </div>
+                </div>
 
-                <div class="table-wrapper">
+                <div id="clientMessage" class="info-note" style="display:none;margin-top:15px;margin-bottom:0;"></div>
 
+                <div class="table-wrapper" style="margin-top:18px;">
                     <table>
-
                         <thead>
-
                             <tr>
-
-                                <th>
-                                    Client ID
-                                </th>
-
-                                <th>
-                                    Name
-                                </th>
-
-                                <th>
-                                    Organization
-                                </th>
-
-                                <th>
-                                    Role
-                                </th>
-
-                                <th>
-                                    Email
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
+                                <th>Client ID</th>
+                                <th>Name</th>
+                                <th>Organization</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th>Action</th>
                             </tr>
-
                         </thead>
-
                         <tbody id="clientBody"></tbody>
-
                     </table>
-
                 </div>
-
-                <button
-                    type="button"
-                    class="add-btn"
-                    onclick="addClient()"
-                >
-                    + Add Client
-                </button>
 
             </div>
-
 
             <!-- ================================================= -->
             <!-- TASKS -->
             <!-- ================================================= -->
 
             <div class="section">
-
-                <h2 class="section-title">
-                    Task Assignment
-                </h2>
-
+                <h2 class="section-title">Task Assignment</h2>
                 <div class="info-note">
-
-                    Assign tasks to the employee IDs entered above.
-                    Reusing the same employee ID across tasks counts
-                    that employee only once.
-
+                    No tasks are entered during project creation. Tasks are added later
+                    from Project Details by a manager or employee after clicking Edit Project.
                 </div>
-
-
-                <div class="table-wrapper">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Task
-                                </th>
-
-                                <th>
-                                    Assigned Employee ID
-                                </th>
-
-                                <th>
-                                    Stakeholder ID
-                                </th>
-
-                                <th>
-                                    Estimated Days
-                                </th>
-
-                                <th>
-                                    Actual Days
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="taskBody"></tbody>
-
-                    </table>
-
-                </div>
-
-                <button
-                    type="button"
-                    class="add-btn"
-                    onclick="addTask()"
-                >
-                    + Add Task
-                </button>
-
-
-                <div class="summary">
-
-                    <div class="summary-box">
-                        <span>Team Size</span>
-                        <strong id="teamSize">0</strong>
-                    </div>
-
-                    <div class="summary-box">
-                        <span>Stakeholders</span>
-                        <strong id="stakeholderCount">0</strong>
-                    </div>
-
-                    <div class="summary-box">
-                        <span>Total Tasks</span>
-                        <strong id="totalTasks">0</strong>
-                    </div>
-
-                    <div class="summary-box">
-                        <span>Completed</span>
-                        <strong id="completedTasks">0</strong>
-                    </div>
-
-                    <div class="summary-box">
-                        <span>Pending</span>
-                        <strong id="pendingTasks">0</strong>
-                    </div>
-
-                    <div class="summary-box">
-                        <span>Overdue</span>
-                        <strong id="overdueTasks">0</strong>
-                    </div>
-
-                    <div class="summary-box">
-                        <span>Estimated Effort</span>
-                        <strong id="estimatedEffort">0 hrs</strong>
-                    </div>
-
-                    <div class="summary-box">
-                        <span>Actual Effort</span>
-                        <strong id="actualEffort">0 hrs</strong>
-                    </div>
-
-                </div>
-
-
-                <div class="calculated">
-
-                    <strong>
-                        Complexity:
-                    </strong>
-
-                    <span id="complexity">
-                        Calculated after clicking Submit Project Data
-                    </span>
-
-                    <br>
-
-                    <strong>
-                        Completion:
-                    </strong>
-
-                    <span id="completion">
-                        0.00%
-                    </span>
-
-                    <br>
-
-                    <strong>
-                        Delay:
-                    </strong>
-
-                    <span id="delay">
-                        0.00%
-                    </span>
-
-                </div>
-
+                <table style="display:none"><tbody id="taskBody"></tbody></table>
+                <div class="calculated"><strong>Initial Tasks:</strong> 0</div>
             </div>
+
+            <div class="section">
+                <div class="summary">
+                    <div class="summary-box"><span>Team Size</span><strong id="teamSize">0</strong></div>
+                    <div class="summary-box"><span>Stakeholders</span><strong id="stakeholderCount">0</strong></div>
+                    <div class="summary-box"><span>Total Tasks</span><strong id="totalTasks">0</strong></div>
+                    <div class="summary-box"><span>Completed</span><strong id="completedTasks">0</strong></div>
+                    <div class="summary-box"><span>Pending</span><strong id="pendingTasks">0</strong></div>
+                    <div class="summary-box"><span>Overdue</span><strong id="overdueTasks">0</strong></div>
+                    <div class="summary-box"><span>Estimated Effort</span><strong id="estimatedEffort">0 hrs</strong></div>
+                    <div class="summary-box"><span>Actual Effort</span><strong id="actualEffort">0 hrs</strong></div>
+                </div>
+                <div class="calculated">
+                    <strong>Complexity:</strong> <span id="complexity">Calculated after clicking Submit Project Data</span><br>
+                    <strong>Completion:</strong> <span id="completion">0.00%</span><br>
+                    <strong>Delay:</strong> <span id="delay">0.00%</span>
+                </div>
+            </div>
+
+
 
 
             <!-- ================================================= -->
@@ -1024,70 +843,182 @@ async function lookupClient(row) {
 
         idInput.style.borderColor = "#22c55e";
         idInput.title = "Client found.";
-
+        showClientMessage("Client added successfully.", true);
         updateSummary();
 
     } catch (error) {
         clearClientFields(row);
         idInput.style.borderColor = "#ef4444";
         idInput.title = "Unable to look up client.";
+        showClientMessage("Unable to look up client.");
         updateSummary();
     }
 }
 
 
-async function analyzeManagerResume() {
-    const input = document.getElementById("Manager_Resume");
-    const output = document.getElementById("managerExperience");
-    const status = document.getElementById("resumeStatus");
 
-    if (!input.files.length) {
-        output.value = "Will be calculated from resume";
-        status.textContent = "Upload a PDF, DOCX or TXT resume.";
+/* ============================================================
+   CLIENT SELECTION
+============================================================ */
+
+function showClientMessage(message, success = false) {
+    const box = document.getElementById("clientMessage");
+    box.style.display = "block";
+    box.textContent = message;
+    box.style.color = success ? "#86efac" : "#fecaca";
+    box.style.borderColor = success ? "rgba(34,197,94,.35)" : "rgba(239,68,68,.35)";
+}
+
+function addClient() {
+    const input = document.getElementById("newClientId");
+    const clientId = input.value.trim();
+
+    if (!clientId) {
+        showClientMessage("Enter a Client ID.");
         return;
     }
 
-    const formData = new FormData();
-    formData.append("Manager_Resume", input.files[0]);
+    const existing = Array.from(
+        document.querySelectorAll('#clientBody input[name="Client_ID"]')
+    ).some(element => element.value.trim().toLowerCase() === clientId.toLowerCase());
 
-    output.value = "Analyzing resume...";
-    status.textContent = "Extracting project-management experience...";
+    if (existing) {
+        showClientMessage("This client is already selected.");
+        return;
+    }
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td>
+            <input name="Client_ID" value="${escapeHtml(clientId)}" readonly>
+        </td>
+        <td><input name="Client_Name" placeholder="Loading..." readonly></td>
+        <td><input name="Client_Organization" placeholder="Loading..." readonly></td>
+        <td><input name="Client_Role" placeholder="Loading..." readonly></td>
+        <td><input name="Client_Email" placeholder="Loading..." readonly></td>
+        <td>
+            <button type="button" class="remove-btn" onclick="this.closest('tr').remove(); updateSummary();">
+                Remove
+            </button>
+        </td>
+    `;
+
+    document.getElementById("clientBody").appendChild(row);
+    input.value = "";
+    showClientMessage("Looking up client...", true);
+    lookupClient(row);
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+/* ============================================================
+   CAPABLE EMPLOYEES BY PROJECT TYPE
+============================================================ */
+
+let capabilityTimer = null;
+let capableEmployeeIds = new Set();
+
+function clearSelectedTeam() {
+    document.getElementById("teamBody").innerHTML = "";
+    capableEmployeeIds = new Set();
+    updateTeam();
+    updateSummary();
+}
+
+async function loadCapableEmployees() {
+    const input = document.querySelector('[name="Project_Type"]');
+    const status = document.getElementById('capabilityStatus');
+    const box = document.getElementById('capableEmployees');
+    const projectType = input.value.trim();
+
+    capableEmployeeIds = new Set();
+
+    if (!projectType) {
+        status.textContent = 'Enter a Project Type to see capable employee IDs.';
+        box.textContent = 'No project type entered.';
+        clearSelectedTeam();
+        return;
+    }
+
+    status.textContent = 'Finding capable employees...';
+    box.textContent = 'Loading...';
 
     try {
         const response = await fetch(
-            "/api/manager-experience",
-            {
-                method: "POST",
-                body: formData
-            }
+            `/api/employees/capable?project_type=${encodeURIComponent(projectType)}`
         );
-
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-            output.value = "Unable to determine";
-            status.textContent =
-                data.message || "Resume analysis failed.";
+            throw new Error(data.message || 'Unable to find capable employees.');
+        }
+
+        const employees = data.employees || [];
+        capableEmployeeIds = new Set(
+            employees
+                .map(employee => String(employee.employee_id || '').trim().toUpperCase())
+                .filter(Boolean)
+        );
+
+        if (!employees.length) {
+            status.textContent = 'No employees are mapped to this project type.';
+            box.textContent = 'No capable employees found.';
+            clearSelectedTeam();
             return;
         }
 
-        output.value = data.experience;
-        status.textContent =
-            "Experience category extracted automatically from the resume.";
+        box.innerHTML = employees.map(employee => `
+            <button
+                type="button"
+                class="capability-card"
+                onclick="selectRecommendedEmployee('${escapeHtml(employee.employee_id)}')"
+            >
+                <strong>${escapeHtml(employee.employee_id)}</strong>
+                <span>${escapeHtml(employee.employee_name || '')} · ${escapeHtml(employee.role || '')} · ${escapeHtml(employee.years_experience ?? 0)} yrs</span>
+                <small>${escapeHtml(employee.skills || '')}</small>
+                <em>Click to select</em>
+            </button>
+        `).join('');
+
+        status.textContent = 'Click an Employee ID to add that employee to the team. Multiple employees can be selected.';
+        clearSelectedTeam();
 
     } catch (error) {
-        output.value = "Unable to determine";
-        status.textContent = "Unable to analyze the resume.";
+        box.textContent = 'Unable to load capable employees.';
+        status.textContent = error.message || 'Unable to load capable employees.';
+        clearSelectedTeam();
     }
 }
 
-document
-    .getElementById("Manager_Resume")
-    .addEventListener(
-        "change",
-        analyzeManagerResume
-    );
+function selectRecommendedEmployee(employeeId) {
+    employeeId = String(employeeId || '').trim();
 
+    if (!employeeId || !capableEmployeeIds.has(employeeId.toUpperCase())) {
+        return;
+    }
+
+    const alreadySelected = Array.from(
+        document.querySelectorAll('#teamBody input[name="Employee_ID"]')
+    ).some(input => input.value.trim() === employeeId);
+
+    if (alreadySelected) {
+        return;
+    }
+
+    addTeamMember(employeeId);
+}
+
+document.querySelector('[name="Project_Type"]').addEventListener('input', () => {
+    clearTimeout(capabilityTimer);
+    capabilityTimer = setTimeout(loadCapableEmployees, 350);
+});
 
 /* ============================================================
    TIMELINE
@@ -1170,138 +1101,94 @@ document
    TEAM
 ============================================================ */
 
-function addTeamMember() {
+function addTeamMember(prefilledId = "", allowManual = false) {
+    const employeeId = String(prefilledId || '').trim();
+
+    // Recommendations remain restricted to the project's capability matches.
+    // Manually entered IDs are allowed after lookup against the employee master.
+    if (!employeeId || (!allowManual && !capableEmployeeIds.has(employeeId.toUpperCase()))) {
+        return;
+    }
+
+    const alreadySelected = Array.from(
+        document.querySelectorAll('#teamBody input[name="Employee_ID"]')
+    ).some(input => input.value.trim() === employeeId);
+
+    if (alreadySelected) {
+        return;
+    }
 
     teamNumber++;
 
-    const row =
-        document.createElement(
-            "tr"
-        );
+    const row = document.createElement("tr");
 
     row.innerHTML = `
-
         <td>
-            <input
-                name="Employee_ID"
-                placeholder="EMP-001"
-                required
-            >
+            <input name="Employee_ID" value="${escapeHtml(employeeId)}" readonly>
         </td>
-
+        <td><input name="Employee_Name" placeholder="Loading..." readonly></td>
+        <td><input name="Employee_Email" placeholder="Loading..." readonly></td>
+        <td><input name="Employee_Role" placeholder="Loading..." readonly></td>
+        <td><input name="Employee_Department" placeholder="Loading..." readonly></td>
+        <td><input name="Employee_Experience" placeholder="Loading..." readonly></td>
+        <td><input name="Employee_Years" type="number" readonly></td>
+        <td><input name="Employee_Skills" placeholder="Loading..." readonly></td>
         <td>
-            <input
-                name="Employee_Name"
-                placeholder="Auto-filled"
-                readonly
-            >
-        </td>
-
-        <td>
-            <input
-                name="Employee_Email"
-                type="email"
-                placeholder="Auto-filled"
-                readonly
-            >
-        </td>
-
-        <td>
-            <input
-                name="Employee_Role"
-                placeholder="Auto-filled"
-                readonly
-            >
-        </td>
-
-        <td>
-            <input
-                name="Employee_Department"
-                placeholder="Auto-filled"
-                readonly
-            >
-        </td>
-
-        <td>
-
-            <input
-                name="Employee_Experience"
-                placeholder="Auto-filled"
-                readonly
-            >
-
-        </td>
-
-        <td>
-            <input
-                name="Employee_Years"
-                type="number"
-                min="0"
-                step="0.1"
-                placeholder="Auto-filled"
-                readonly
-            >
-        </td>
-
-        <td>
-            <input
-                name="Employee_Skills"
-                placeholder="Auto-filled"
-                readonly
-            >
-        </td>
-
-        <td>
-
-            <button
-                type="button"
-                class="remove-btn"
-                onclick="this.closest('tr').remove(); updateTeam();"
-            >
+            <button type="button" class="remove-btn" onclick="this.closest('tr').remove(); updateTeam(); updateSummary();">
                 Remove
             </button>
-
         </td>
-
     `;
 
-    document
-        .getElementById("teamBody")
-        .appendChild(row);
-
-    row
-        .querySelector('[name="Employee_ID"]')
-        .addEventListener(
-            "blur",
-            () => lookupEmployee(row)
-        );
-
-    row
-        .querySelector('[name="Employee_ID"]')
-        .addEventListener(
-            "change",
-            () => lookupEmployee(row)
-        );
-
-    row
-        .querySelectorAll("input,select")
-        .forEach(
-            element => {
-
-                element.addEventListener(
-                    "input",
-                    updateTeam
-                );
-
-                element.addEventListener(
-                    "change",
-                    updateTeam
-                );
-
-            }
-        );
-
+    document.getElementById("teamBody").appendChild(row);
+    lookupEmployee(row);
     updateTeam();
+    updateSummary();
+}
+
+
+async function addManualEmployee() {
+    const input = document.getElementById("manualEmployeeId");
+    const messageBox = document.getElementById("employeeMessage");
+    const employeeId = String(input.value || "").trim();
+
+    const showMessage = (message, success = false) => {
+        messageBox.style.display = "block";
+        messageBox.textContent = message;
+        messageBox.style.color = success ? "#86efac" : "#fecaca";
+        messageBox.style.borderColor = success ? "rgba(34,197,94,.35)" : "rgba(239,68,68,.35)";
+    };
+
+    if (!employeeId) {
+        showMessage("Enter an Employee ID.");
+        return;
+    }
+
+    const existing = Array.from(
+        document.querySelectorAll('#teamBody input[name="Employee_ID"]')
+    ).some(element => element.value.trim().toLowerCase() === employeeId.toLowerCase());
+
+    if (existing) {
+        showMessage("This employee is already selected.");
+        return;
+    }
+
+    showMessage("Looking up employee in the master table...", true);
+
+    try {
+        const response = await fetch("/api/employee/" + encodeURIComponent(employeeId));
+        const result = await response.json();
+
+        if (!response.ok || !result.success || !result.employee) {
+            throw new Error(result.message || "Employee ID was not found.");
+        }
+
+        addTeamMember(result.employee.employee_id || employeeId, true);
+        input.value = "";
+        showMessage("Employee added. Master-table details have been filled automatically.", true);
+    } catch (error) {
+        showMessage(error.message || "Unable to look up this employee.");
+    }
 }
 
 
@@ -1343,307 +1230,17 @@ function updateTeam() {
         return;
     }
 
-    let total = 0;
-
-    let count = 0;
-
+    let totalYears = 0;
     validRows.forEach(row => {
-
-        const level =
-            row.querySelector(
-                '[name="Employee_Experience"]'
-            ).value;
-
-        const years =
-            Number(
-                row.querySelector(
-                    '[name="Employee_Years"]'
-                ).value
-            ) || 0;
-
-        if (years > 0) {
-
-            if (years < 1)
-                total += 0;
-
-            else if (years < 3)
-                total += 1;
-
-            else if (years < 7)
-                total += 2;
-
-            else
-                total += 3;
-
-        } else {
-
-            const mapping = {
-
-                Intern: 0,
-                Junior: 1,
-                Mid: 2,
-                Senior: 3
-
-            };
-
-            total +=
-                mapping[level] ?? 1;
-
-        }
-
-        count++;
-
+        totalYears += Number(row.querySelector('[name="Employee_Years"]').value) || 0;
     });
 
-    const average =
-        total / count;
+    const averageYears = totalYears / validRows.length;
 
-    let result;
-
-    if (average < 0.75)
-        result = "Junior";
-
-    else if (average < 1.75)
-        result = "Mixed";
-
-    else if (average < 2.5)
-        result = "Senior";
-
-    else
-        result = "Expert";
-
-    document
-        .getElementById("teamExperience")
-        .textContent =
-        result;
+    document.getElementById("teamExperience").textContent =
+        averageYears.toFixed(2) + " years average";
 }
 
-
-/* ============================================================
-   CLIENT
-============================================================ */
-
-function addClient() {
-
-    clientNumber++;
-
-    const row =
-        document.createElement(
-            "tr"
-        );
-
-    row.innerHTML = `
-
-        <td>
-            <input
-                name="Client_ID"
-                placeholder="CLIENT-001"
-                required
-            >
-        </td>
-
-        <td>
-            <input
-                name="Client_Name"
-                placeholder="Auto-filled"
-                readonly
-            >
-        </td>
-
-        <td>
-            <input
-                name="Client_Organization"
-                placeholder="Auto-filled"
-                readonly
-            >
-        </td>
-
-        <td>
-            <input
-                name="Client_Role"
-                placeholder="Auto-filled"
-                readonly
-            >
-        </td>
-
-        <td>
-            <input
-                name="Client_Email"
-                type="email"
-                placeholder="Auto-filled"
-                readonly
-            >
-        </td>
-
-        <td>
-
-            <button
-                type="button"
-                class="remove-btn"
-                onclick="this.closest('tr').remove(); updateSummary();"
-            >
-                Remove
-            </button>
-
-        </td>
-
-    `;
-
-    document
-        .getElementById("clientBody")
-        .appendChild(row);
-
-    row
-        .querySelector('[name="Client_ID"]')
-        .addEventListener(
-            "blur",
-            () => lookupClient(row)
-        );
-
-    row
-        .querySelector('[name="Client_ID"]')
-        .addEventListener(
-            "change",
-            () => lookupClient(row)
-        );
-
-    updateSummary();
-}
-
-
-/* ============================================================
-   TASK
-============================================================ */
-
-function addTask() {
-
-    taskNumber++;
-
-    const row =
-        document.createElement(
-            "tr"
-        );
-
-    row.innerHTML = `
-
-        <td>
-
-            <input
-                name="Task_Name"
-                placeholder="Task name"
-            >
-
-        </td>
-
-        <td>
-
-            <input
-                name="Task_Assignee_ID"
-                placeholder="EMP-001"
-            >
-
-        </td>
-
-        <td>
-
-            <input
-                name="Task_Stakeholder_ID"
-                placeholder="CLIENT-001"
-            >
-
-        </td>
-
-        <td>
-
-            <input
-                name="Task_Estimated_Days"
-                type="number"
-                min="0"
-                step="0.01"
-                value="0"
-            >
-
-        </td>
-
-        <td>
-
-            <input
-                name="Task_Actual_Days"
-                type="number"
-                min="0"
-                step="0.01"
-                value="0"
-            >
-
-        </td>
-
-        <td>
-
-            <select name="Task_Status">
-
-                <option value="Pending">
-                    Pending
-                </option>
-
-                <option value="In Progress">
-                    In Progress
-                </option>
-
-                <option value="Completed">
-                    Completed
-                </option>
-
-                <option value="Overdue">
-                    Overdue
-                </option>
-
-            </select>
-
-        </td>
-
-        <td>
-
-            <button
-                type="button"
-                class="remove-btn"
-                onclick="this.closest('tr').remove(); updateSummary();"
-            >
-                Remove
-            </button>
-
-        </td>
-
-    `;
-
-    document
-        .getElementById("taskBody")
-        .appendChild(row);
-
-    row
-        .querySelectorAll("input,select")
-        .forEach(
-            element => {
-
-                element.addEventListener(
-                    "input",
-                    updateSummary
-                );
-
-                element.addEventListener(
-                    "change",
-                    updateSummary
-                );
-
-            }
-        );
-
-    updateSummary();
-}
-
-
-/* ============================================================
-   SUMMARY
-============================================================ */
 
 function updateSummary() {
 
