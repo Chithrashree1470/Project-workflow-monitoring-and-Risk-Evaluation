@@ -165,30 +165,63 @@ def update_project_skill_metrics(project_id):
     in the projects table.
     """
 
-    result = calculate_skill_coverage(
-        project_id
-    )
+    result = calculate_skill_coverage(project_id)
 
     update_data = {
         "skill_coverage": result["skill_coverage"],
         "skill_gap": result["skill_gap"]
     }
 
-    (
+    response = (
         supabase
         .table("projects")
         .update(update_data)
         .eq("id", project_id)
+        .select("id, skill_coverage, skill_gap")
         .execute()
     )
 
     print(
-        f"[SKILL METRICS] project_id={project_id}, "
-        f"coverage={result['skill_coverage']}, "
-        f"gap={result['skill_gap']}"
+        f"[SKILL METRICS] project_id={project_id}"
+    )
+
+    print(
+        f"[SKILL METRICS] required="
+        f"{result['required_skills']}"
+    )
+
+    print(
+        f"[SKILL METRICS] team="
+        f"{result['team_skills']}"
+    )
+
+    print(
+        f"[SKILL METRICS] covered="
+        f"{result['covered_skills']}"
+    )
+
+    print(
+        f"[SKILL METRICS] missing="
+        f"{result['missing_skills']}"
+    )
+
+    print(
+        f"[SKILL METRICS] coverage="
+        f"{result['skill_coverage']}"
+    )
+
+    print(
+        f"[SKILL METRICS] gap="
+        f"{result['skill_gap']}"
+    )
+
+    print(
+        f"[SKILL METRICS] DATABASE UPDATE="
+        f"{response.data}"
     )
 
     return result
+
 
 # from backend.services.project_skill import (
 #     calculate_skill_coverage
