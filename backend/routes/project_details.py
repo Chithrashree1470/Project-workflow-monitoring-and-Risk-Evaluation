@@ -13,10 +13,10 @@ from backend.services.project_skill import (
     update_project_skill_metrics
 )
 
+
 from backend.master_data import (
     get_employee_by_id
 )
-
 
 project_details_bp = Blueprint(
     "project_details",
@@ -382,30 +382,32 @@ def project_details(project_id):
     "/api/project/<project_id>/employees",
     methods=["POST"]
 )
-@project_details_bp.route(
-    "/api/project/<project_id>/employees",
-    methods=["POST"]
-)
 def add_project_employee(project_id):
-
-    if not _can_edit():
-        return jsonify({
-            "success": False,
-            "message": (
-                "Edit mode is available only to "
-                "manager or employee views."
-            )
-        }), 403
 
     try:
 
-        project, _ = _get_project(project_id)
+        # =====================================================
+        # CHECK WHETHER PROJECT EXISTS
+        # =====================================================
 
-        if not project:
+        project_response = (
+            supabase
+            .table("projects")
+            .select("id")
+            .eq("id", project_id)
+            .limit(1)
+            .execute()
+        )
+
+        if not project_response.data:
             return jsonify({
                 "success": False,
                 "message": "Project not found."
             }), 404
+
+        # =====================================================
+        # GET REQUEST DATA
+        # =====================================================
 
         data = request.get_json(silent=True) or {}
 
@@ -419,6 +421,10 @@ def add_project_employee(project_id):
                 "message": "Employee ID is required."
             }), 400
 
+        # =====================================================
+        # GET EMPLOYEE
+        # =====================================================
+
         employee = get_employee_by_id(employee_id)
 
         if not employee:
@@ -426,6 +432,10 @@ def add_project_employee(project_id):
                 "success": False,
                 "message": "Employee ID not found."
             }), 404
+
+        # =====================================================
+        # CHECK EXISTING ASSIGNMENT
+        # =====================================================
 
         existing = (
             supabase
@@ -446,6 +456,10 @@ def add_project_employee(project_id):
                 )
             }), 409
 
+        # =====================================================
+        # CREATE TEAM MEMBER ROW
+        # =====================================================
+
         row = {
             "project_id": project_id,
             "employee_id": employee_id,
@@ -453,8 +467,14 @@ def add_project_employee(project_id):
                 "employee_name",
                 employee.get("name", "")
             ),
-            "email": employee.get("email", ""),
-            "role": employee.get("role", ""),
+            "email": employee.get(
+                "email",
+                ""
+            ),
+            "role": employee.get(
+                "role",
+                ""
+            ),
             "department": employee.get(
                 "department",
                 ""
@@ -473,6 +493,10 @@ def add_project_employee(project_id):
             )
         }
 
+        # =====================================================
+        # INSERT EMPLOYEE
+        # =====================================================
+
         insert_response = (
             supabase
             .table("project_team_members")
@@ -490,19 +514,15 @@ def add_project_employee(project_id):
         # =====================================================
 
         skill_metrics = (
-            update_project_skill_metrics(project_id)
-        )
-
-        # Existing project baseline calculation
-        baseline = recalculate_project_baseline(
-            project_id
+            update_project_skill_metrics(
+                project_id
+            )
         )
 
         return jsonify({
             "success": True,
             "employee": row,
             "skill_metrics": skill_metrics,
-            "baseline": baseline,
             "message": "Employee assigned."
         }), 201
 
@@ -515,6 +535,7 @@ def add_project_employee(project_id):
             "success": False,
             "message": str(error)
         }), 500
+       
 # =============================================================
 # REMOVE EMPLOYEE FROM PROJECT
 # =============================================================
@@ -523,22 +544,17 @@ def add_project_employee(project_id):
     "/api/project/<project_id>/employees/<employee_id>",
     methods=["DELETE"]
 )
-@project_details_bp.route(
-    "/api/project/<project_id>/employees/<employee_id>",
-    methods=["DELETE"]
-)
-def remove_project_employee(project_id, employee_id):
 
-    if not _can_edit():
-        return jsonify({
-            "success": False,
-            "message": (
-                "Edit mode is available only to "
-                "manager or employee views."
-            )
-        }), 403
+def remove_project_employee(
+    project_id,
+    employee_id
+):
 
     try:
+
+        # =====================================================
+        # REMOVE EMPLOYEE FROM PROJECT
+        # =====================================================
 
         response = (
             supabase
@@ -548,6 +564,10 @@ def remove_project_employee(project_id, employee_id):
             .eq("employee_id", employee_id)
             .execute()
         )
+
+        # =====================================================
+        # CHECK WHETHER EMPLOYEE WAS FOUND
+        # =====================================================
 
         if not response.data:
             return jsonify({
@@ -562,18 +582,14 @@ def remove_project_employee(project_id, employee_id):
         # =====================================================
 
         skill_metrics = (
-            update_project_skill_metrics(project_id)
-        )
-
-        # Existing project baseline calculation
-        baseline = recalculate_project_baseline(
-            project_id
+            update_project_skill_metrics(
+                project_id
+            )
         )
 
         return jsonify({
             "success": True,
-            "skill_metrics": skill_metrics,
-            "baseline": baseline
+            "skill_metrics": skill_metrics
         }), 200
 
     except Exception as error:
