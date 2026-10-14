@@ -103,6 +103,22 @@ def calculate_skill_coverage(project_id):
     team_members = get_project_team_members(
         project_id
     )
+    team_skills = []
+
+    for member in team_members:
+        skills = parse_skills(
+            member.get("skills")
+        )
+
+        team_skills.extend(skills)
+
+    team_skills = list(
+        dict.fromkeys(
+            skill.strip()
+            for skill in team_skills
+            if skill and skill.strip()
+        )
+    )
 
     # ---------------------------------------------------------
     # Clean required technologies
@@ -232,6 +248,8 @@ def calculate_skill_coverage(project_id):
 
     return {
         "required_skills": required_technologies,
+
+        "team_skills": team_skills,
 
         "covered_skills": covered_skills,
 

@@ -5,6 +5,7 @@ from backend.services.project_input import (
     read_team_members,
     read_clients
 )
+from backend.supabase_client import supabase
 
 from backend.services.project_skill import (
     update_project_skill_metrics
@@ -17,7 +18,10 @@ from backend.services.project_risk import (
     safe_float,
     calculate_timeline,
     make_feature_row,
-    calculate_task_summary
+    calculate_task_summary,
+    calculate_ml_risk_score,
+    calculate_hybrid_risk,
+    risk_score_to_level
 )
 
 from backend.services.project_service import save_project
@@ -108,13 +112,24 @@ def run_project_prediction(form):
         end_date
     )
 
-    # Initial project-risk prediction
+    # ============================================================
+    # INITIAL PROJECT-LEVEL RISK PREDICTION
+    # ============================================================
+
+    # Original CatBoost class prediction
     prediction = model.predict(
         input_df
     )
 
     predicted_risk = str(
         prediction[0]
+    )
+
+    # Continuous CatBoost risk score
+    ml_risk_score, risk_probabilities = (
+        calculate_ml_risk_score(
+            input_df
+        )
     )
 
     # Existing project-level XAI
@@ -145,15 +160,71 @@ def run_project_prediction(form):
         required_technologies=required_technologies
     )
 
-    # Calculate and save initial skill metrics
+    # ============================================================
+    # SKILL METRICS
+    # ============================================================
+
     skill_metrics = update_project_skill_metrics(
         project_id
     )
+
+    skill_gap = skill_metrics["skill_gap"]
+
+    # ============================================================
+    # HYBRID PROJECT RISK
+    # ============================================================
+
+    hybrid_risk_score = calculate_hybrid_risk(
+        ml_risk_score,
+        skill_gap
+    )
+
+    hybrid_risk_level = risk_score_to_level(
+        hybrid_risk_score
+    )
+
+    # ============================================================
+    # SAVE PROJECT RISK SCORES
+    # ============================================================
+
+    risk_update = (
+        supabase
+        .table("projects")
+        .update({
+            "ml_risk_score": ml_risk_score,
+            "hybrid_risk_score": hybrid_risk_score,
+            "hybrid_risk_level": hybrid_risk_level
+        })
+        .eq("id", project_id)
+        .select(
+            "id, ml_risk_score, hybrid_risk_score, hybrid_risk_level"
+        )
+        .execute()
+    )
+
+    print(
+        "[PROJECT HYBRID RISK] DATABASE UPDATE:",
+        risk_update.data
+    )
+
+    if not risk_update.data:
+        raise RuntimeError(
+            f"Failed to save hybrid risk for project {project_id}"
+        )
 
     return {
         "project_id": project_id,
         "project_name": project_name,
         "risk_level": predicted_risk,
+        "ml_risk_score": ml_risk_score,
+
+        "risk_probabilities": risk_probabilities,
+
+        "skill_gap": skill_metrics["skill_gap"],
+
+        "hybrid_risk_score": hybrid_risk_score,
+
+        "hybrid_risk_level": hybrid_risk_level,
         "start_date": start_date,
         "end_date": end_date,
         "project_type": project_type,

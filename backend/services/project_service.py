@@ -1,7 +1,9 @@
 from datetime import datetime, date
 
 from backend.supabase_client import supabase
-
+from backend.services.project_skill import (
+    update_project_skill_metrics
+)
 
 def refresh_project_task_metrics(project_id):
 
