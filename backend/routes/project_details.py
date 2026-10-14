@@ -318,32 +318,24 @@ def project_details(project_id):
         # =========================================================
 
         if dynamic_risk:
-
             current_risk = (
-                dynamic_risk.get(
-                    "risk_level"
-                )
-                or project.get(
-                    "predicted_risk"
-                )
+                dynamic_risk.get("risk_level")
+                or project.get("hybrid_risk_level")
+                or project.get("predicted_risk")
             )
-
         else:
-
             current_risk = (
-                project.get(
-                    "predicted_risk"
-                )
+                project.get("hybrid_risk_level")
+                or project.get("predicted_risk")
             )
+
+        project["current_risk"] = current_risk
 
 
         # =========================================================
         # ADD CURRENT RISK TO PROJECT OBJECT
         # =========================================================
 
-        project["current_risk"] = (
-            current_risk
-        )
         skill_metrics = update_project_skill_metrics(project_id)
         project["skill_coverage"] = skill_metrics["skill_coverage"]
         project["skill_gap"] = skill_metrics["skill_gap"]
