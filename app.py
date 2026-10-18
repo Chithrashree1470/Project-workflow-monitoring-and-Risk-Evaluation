@@ -10,10 +10,6 @@ from backend.routes.tasks import tasks_bp
 from backend.routes.task_risk import task_risk_bp
 from backend.master_data import master_data_bp
 from backend.manager import manager_bp
-<<<<<<< Updated upstream
-=======
-from backend.routes.access import access_bp
->>>>>>> Stashed changes
 
 load_dotenv()
 print("SUPABASE_URL:", os.getenv("SUPABASE_URL"))
@@ -28,10 +24,6 @@ app.secret_key = os.getenv(
 app.register_blueprint(project_bp)
 app.register_blueprint(master_data_bp)
 app.register_blueprint(manager_bp)
-<<<<<<< Updated upstream
-=======
-app.register_blueprint(access_bp)
->>>>>>> Stashed changes
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(project_details_bp)
 app.register_blueprint(tasks_bp)
@@ -50,8 +42,4 @@ if __name__ == "__main__":
     print("Features:", len(MODEL_FEATURES))
     print("Supabase: Connected")
     print("=" * 60)
-<<<<<<< Updated upstream
     app.run(debug=True)
-=======
-    app.run(debug=True)
->>>>>>> Stashed changes
