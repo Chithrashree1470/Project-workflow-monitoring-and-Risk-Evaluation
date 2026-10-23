@@ -622,6 +622,29 @@ def calculate_project_dynamic_risk(project_id):
     )
 
 
+    # Preserve the continuous score saved by the initial project-level
+    # CatBoost prediction instead of replacing it with a label-only score.
+    try:
+        initial_risk_response = (
+            supabase
+            .table("project_dynamic_risk")
+            .select("baseline_risk_score, baseline_risk_level")
+            .eq("project_id", project_id)
+            .limit(1)
+            .execute()
+        )
+        initial_risk_rows = initial_risk_response.data or []
+        if initial_risk_rows:
+            stored_baseline_score = initial_risk_rows[0].get("baseline_risk_score")
+            stored_baseline_level = initial_risk_rows[0].get("baseline_risk_level")
+            if stored_baseline_score is not None:
+                baseline_score = max(0.0, min(1.0, float(stored_baseline_score)))
+            if stored_baseline_level:
+                baseline_risk_level = str(stored_baseline_level).strip()
+    except (TypeError, ValueError) as error:
+        print(f"[RISK BASELINE] Could not read stored initial score for project {project_id}: {error}")
+
+
 
     # --------------------------------------------------------
 
@@ -845,38 +868,31 @@ def calculate_project_dynamic_risk(project_id):
 
 
 
+    # Replace the current row with the final dynamic-risk result. This avoids
+    # leaving the initial project_catboost_initial row as the current risk.
+    # project_dynamic_risk is the current-state table; history is append-only.
     (
-
         supabase
-
         .table("project_dynamic_risk")
-
         .delete()
-
-        .eq(
-
-            "project_id",
-
-            project_id
-
-        )
-
+        .eq("project_id", project_id)
         .execute()
-
     )
-
-
-
-    (
-
+    current_save_response = (
         supabase
-
         .table("project_dynamic_risk")
-
         .insert(project_record)
-
         .execute()
-
+    )
+    if not current_save_response.data:
+        raise RuntimeError(
+            f"Failed to save current dynamic risk for project {project_id}."
+        )
+    print(
+        "[CURRENT PROJECT RISK] Saved final dynamic risk for project",
+        project_id,
+        "| score:", current_score,
+        "| level:", current_level,
     )
 
 

@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 from catboost import Pool
@@ -29,45 +28,78 @@ def explain_prediction(model, feature_row, predicted_risk, top_n=8):
         pool,
         type="ShapValues"
     )
-
-    # CatBoost returns:
-    #   Binary/regression: (samples, features + 1)
-    #   Multiclass:        (classes, samples, features + 1)
-    #
-    # We only have one input row, so select that row while
-    # preserving the feature contributions.
-
     shap_array = np.asarray(shap_result)
 
-    if shap_array.ndim == 2:
-        # Shape: (samples, features + 1)
-        shap_values = shap_array[0, :-1]
+    # CatBoost SHAP layouts vary by objective/version. Normalize the result
+    # to one contribution per input feature without assuming a fixed class axis.
+    expected_feature_count = len(feature_names)
+    class_index = 0
 
-    elif shap_array.ndim == 3:
-        # Shape: (classes, samples, features + 1)
-        #
-        # Select the class corresponding to the predicted class
-        # when possible.
+    try:
+        if hasattr(model, "classes_"):
+            classes = list(model.classes_)
+            predicted_text = str(predicted_risk)
+            class_index = next(
+                (
+                    i for i, value in enumerate(classes)
+                    if str(value) == predicted_text
+                ),
+                0
+            )
+    except Exception:
         class_index = 0
 
-        try:
-            if hasattr(model, "classes_"):
-                classes = list(model.classes_)
+    if shap_array.ndim == 1:
+        # Single row, features + expected value.
+        row_values = shap_array
 
-                if predicted_risk in classes:
-                    class_index = classes.index(predicted_risk)
-                elif str(predicted_risk) in [str(c) for c in classes]:
-                    class_index = [
-                        str(c) for c in classes
-                    ].index(str(predicted_risk))
-        except Exception:
-            class_index = 0
+    elif shap_array.ndim == 2:
+        # Usually (samples, features + 1), but accept a single-row vector
+        # represented as (1, features + 1).
+        if shap_array.shape[0] == 1:
+            row_values = shap_array[0]
+        elif shap_array.shape[1] == 1:
+            row_values = shap_array[:, 0]
+        else:
+            raise ValueError(
+                f"Unexpected 2D SHAP output shape: {shap_array.shape}"
+            )
 
-        shap_values = shap_array[class_index, 0, :-1]
+    elif shap_array.ndim == 3:
+        # Common layouts include (classes, samples, features + 1) and
+        # (samples, classes, features + 1). Detect the single-sample axis.
+        if shap_array.shape[1] == 1:
+            # (classes, samples, features + 1)
+            safe_class_index = min(max(class_index, 0), shap_array.shape[0] - 1)
+            row_values = shap_array[safe_class_index, 0, :]
+        elif shap_array.shape[0] == 1:
+            # (samples, classes, features + 1)
+            safe_class_index = min(max(class_index, 0), shap_array.shape[1] - 1)
+            row_values = shap_array[0, safe_class_index, :]
+        else:
+            raise ValueError(
+                f"Cannot identify the single input row in SHAP output shape: "
+                f"{shap_array.shape}"
+            )
 
     else:
         raise ValueError(
             f"Unexpected SHAP output shape: {shap_array.shape}"
+        )
+
+    row_values = np.asarray(row_values).reshape(-1)
+
+    # The final SHAP value is the expected/base value when present.
+    if row_values.size == expected_feature_count + 1:
+        shap_values = row_values[:-1]
+    elif row_values.size == expected_feature_count:
+        shap_values = row_values
+    else:
+        raise ValueError(
+            "SHAP feature count does not match input features: "
+            f"received {row_values.size} values for "
+            f"{expected_feature_count} features "
+            f"(shape={shap_array.shape})"
         )
 
     explanations = []
@@ -77,7 +109,6 @@ def explain_prediction(model, feature_row, predicted_risk, top_n=8):
         feature_row.iloc[0].values,
         shap_values
     ):
-        # Convert NumPy scalar safely to Python float.
         shap_value = float(np.asarray(shap_value).item())
 
         explanations.append({
@@ -144,4 +175,3 @@ def explain_prediction(model, feature_row, predicted_risk, top_n=8):
         "problems": problems,
         "explanations": explanations
     }
-

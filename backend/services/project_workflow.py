@@ -95,9 +95,42 @@ def run_project_prediction(form):
         input_df
     )
 
+    predicted_risk_value = prediction[0]
+    if hasattr(predicted_risk_value, "item"):
+        predicted_risk_value = predicted_risk_value.item()
+
     predicted_risk = str(
-        prediction[0]
-    )
+        predicted_risk_value
+    ).strip()
+
+    # Calculate the probability-weighted initial risk score from the same
+    # CatBoost prediction. This does not change the predicted risk label.
+    predicted_risk_score = None
+    if hasattr(model, "predict_proba") and hasattr(model, "classes_"):
+        probabilities = model.predict_proba(input_df)[0]
+        risk_values = {
+            "Low": 0.00,
+            "Medium": 0.33,
+            "High": 0.67,
+            "Critical": 1.00,
+        }
+        weighted_score = 0.0
+        probability_total = 0.0
+
+        for class_name, probability in zip(model.classes_, probabilities):
+            normalized_class = str(class_name).strip().replace("_", " ").title()
+            if normalized_class.endswith(" Risk"):
+                normalized_class = normalized_class[:-5].strip()
+
+            if normalized_class in risk_values:
+                weighted_score += float(probability) * risk_values[normalized_class]
+                probability_total += float(probability)
+
+        if probability_total > 0:
+            predicted_risk_score = max(
+                0.0,
+                min(1.0, weighted_score / probability_total)
+            )
 
     # Existing project-level XAI
     xai_result = explain_prediction(
@@ -107,7 +140,7 @@ def run_project_prediction(form):
         top_n=8
     )
 
-    # Save project
+    # Save project and its initial CatBoost risk
     project_id = save_project(
         project_name=project_name,
         project_type=project_type,
@@ -123,13 +156,15 @@ def run_project_prediction(form):
         predicted_risk=predicted_risk,
         task_summary=task_summary,
         start_date=start_date,
-        end_date=end_date
+        end_date=end_date,
+        predicted_risk_score=predicted_risk_score
     )
 
     return {
         "project_id": project_id,
         "project_name": project_name,
         "risk_level": predicted_risk,
+        "risk_score": predicted_risk_score,
         "start_date": start_date,
         "end_date": end_date,
         "project_type": project_type,

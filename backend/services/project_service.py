@@ -244,7 +244,8 @@ def save_project(
     predicted_risk,
     task_summary,
     start_date,
-    end_date
+    end_date,
+    predicted_risk_score=None
 ):
 
     # ========================================================
@@ -341,6 +342,9 @@ def save_project(
         "predicted_risk":
             predicted_risk,
 
+        "predicted_risk_score":
+            predicted_risk_score,
+
         "saved_at":
             datetime.now().isoformat()
     }
@@ -359,6 +363,11 @@ def save_project(
 
         "team_size":
             len(team_members),
+
+        # Save stakeholder count as a top-level projects column as well
+        # as in the existing project_details JSON.
+        "stakeholder_count":
+            len(clients),
 
         "project_budget":
             project_budget,
@@ -494,6 +503,78 @@ def save_project(
             .insert(client_rows)
             .execute()
         )
+
+    # ========================================================
+    # SAVE INITIAL PROJECT CATBOOST RISK TO BOTH RISK TABLES
+    # ========================================================
+
+    raw_level = str(predicted_risk or "Low").strip()
+    normalized_level = raw_level.replace("_", " ").title()
+    if normalized_level.endswith(" Risk"):
+        normalized_level = normalized_level[:-5].strip()
+
+    score_by_level = {
+        "Low": 0.00,
+        "Medium": 0.33,
+        "High": 0.67,
+        "Critical": 1.00,
+    }
+    risk_level = normalized_level if normalized_level in score_by_level else "Low"
+    risk_score = (
+        float(predicted_risk_score)
+        if predicted_risk_score is not None
+        else score_by_level[risk_level]
+    )
+    risk_score = max(0.0, min(1.0, risk_score))
+
+    unfinished_statuses = {"TODO", "TO_DO", "IN_PROGRESS", "IN_REVIEW"}
+    unfinished_task_count = sum(
+        1 for task in tasks
+        if str(task.get("status") or "").strip().upper() in unfinished_statuses
+    )
+
+    initial_risk_record = {
+        "project_id": project_id,
+        "risk_score": risk_score,
+        "risk_level": risk_level,
+        "total_task_count": len(tasks),
+        "high_task_count": 0,
+        "critical_task_count": 0,
+        "risk_trend": "Stable",
+        "risk_change": 0.0,
+        "model_version": "project_catboost_initial",
+        "baseline_risk_score": risk_score,
+        "baseline_risk_level": risk_level,
+        "baseline_risk_change": 0.0,
+        "unfinished_task_count": unfinished_task_count,
+    }
+
+    # This is a new project, so create its initial current-risk record.
+    current_risk_response = (
+        supabase.table("project_dynamic_risk")
+        .insert(initial_risk_record)
+        .execute()
+    )
+    if not current_risk_response.data:
+        raise RuntimeError(
+            f"Initial project risk was not saved for project {project_id}."
+        )
+
+    # Preserve the initial CatBoost assessment in the append-only history table.
+    history_response = (
+        supabase.table("project_dynamic_risk_history")
+        .insert(dict(initial_risk_record))
+        .execute()
+    )
+    if not history_response.data:
+        raise RuntimeError(
+            f"Initial project risk history was not saved for project {project_id}."
+        )
+
+    print(
+        f"[INITIAL PROJECT RISK SAVED] project_id={project_id}, "
+        f"risk_level={risk_level}, risk_score={risk_score:.4f}"
+    )
 
     # ========================================================
     # RETURN PROJECT ID

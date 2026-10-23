@@ -767,6 +767,95 @@ def make_feature_row(
 
 
 # ============================================================
+# SAVE INITIAL PROJECT CATBOOST RISK
+# ============================================================
+
+def _save_initial_project_catboost_risk(project_id, predicted_risk, predicted_risk_score, tasks):
+    """Seed current risk and history with the initial project CatBoost result.
+
+    This only runs when no current dynamic-risk row exists. Once task-based
+    dynamic risk has been calculated, subsequent CatBoost refreshes must not
+    overwrite it.
+    """
+    current_response = (
+        supabase.table("project_dynamic_risk")
+        .select("project_id, model_version")
+        .eq("project_id", project_id)
+        .limit(1)
+        .execute()
+    )
+    existing_current = (current_response.data or [None])[0]
+    # Do not overwrite a task-based dynamic risk. However, if an earlier
+    # version saved the initial CatBoost row with a label-only score, update
+    # that initial row with the probability-derived score.
+    if existing_current and existing_current.get("model_version") != "project_catboost_initial":
+        return None
+
+    raw_level = str(predicted_risk or "Low").strip()
+    normalized_level = raw_level.replace("_", " ").title()
+    if normalized_level.endswith(" Risk"):
+        normalized_level = normalized_level[:-5].strip()
+    score_by_level = {
+        "Low": 0.00,
+        "Medium": 0.33,
+        "High": 0.67,
+        "Critical": 1.00,
+    }
+    risk_level = normalized_level if normalized_level in score_by_level else "Low"
+    # Prefer the probability-derived CatBoost score. The label mapping is only
+    # a compatibility fallback for models that do not expose predict_proba.
+    risk_score = float(predicted_risk_score) if predicted_risk_score is not None else score_by_level[risk_level]
+    risk_score = max(0.0, min(1.0, risk_score))
+
+    unfinished_statuses = {"TODO", "TO_DO", "IN_PROGRESS", "IN_REVIEW"}
+    unfinished_task_count = sum(
+        1 for task in tasks
+        if str(task.get("status") or "").strip().upper() in unfinished_statuses
+    )
+    total_task_count = len(tasks)
+    # These fields count task-level risks, not the project-level CatBoost label.
+    high_task_count = 0
+    critical_task_count = 0
+
+    initial_record = {
+        "project_id": project_id,
+        "risk_score": risk_score,
+        "risk_level": risk_level,
+        "total_task_count": total_task_count,
+        "high_task_count": high_task_count,
+        "critical_task_count": critical_task_count,
+        "risk_trend": "Stable",
+        "risk_change": 0.0,
+        "baseline_risk_score": risk_score,
+        "baseline_risk_level": risk_level,
+        "baseline_risk_change": 0.0,
+        "unfinished_task_count": unfinished_task_count,
+        "model_version": "project_catboost_initial",
+    }
+
+    if existing_current:
+        supabase.table("project_dynamic_risk").update(initial_record).eq("project_id", project_id).execute()
+    else:
+        supabase.table("project_dynamic_risk").insert(initial_record).execute()
+    # Record the initial CatBoost result in history only once per project.
+    # Re-running the project prediction must not append duplicate initial rows.
+    initial_history_response = (
+        supabase.table("project_dynamic_risk_history")
+        .select("id")
+        .eq("project_id", project_id)
+        .eq("model_version", "project_catboost_initial")
+        .limit(1)
+        .execute()
+    )
+    if not (initial_history_response.data or []):
+        history_record = dict(initial_record)
+        supabase.table("project_dynamic_risk_history").insert(history_record).execute()
+
+    print(f"[INITIAL PROJECT RISK] Saved CatBoost risk for project {project_id}: {risk_level} ({risk_score:.4f})")
+    return initial_record
+
+
+# ============================================================
 # RE-RUN PROJECT-LEVEL CATBOOST FROM CURRENT SUPABASE DATA
 # ============================================================
 
@@ -869,7 +958,31 @@ def refresh_project_catboost_prediction(project_id):
     predicted_risk = prediction[0]
     if hasattr(predicted_risk, "item"):
         predicted_risk = predicted_risk.item()
-    predicted_risk = str(predicted_risk)
+    predicted_risk = str(predicted_risk).strip()
+
+    # Calculate a continuous 0-1 score from the project CatBoost class
+    # probabilities, rather than assigning a fixed score from the label.
+    # Expected score = sum(P(class) * risk value for that class).
+    risk_values = {
+        "Low": 0.00,
+        "Medium": 0.33,
+        "High": 0.67,
+        "Critical": 1.00,
+    }
+    predicted_risk_score = None
+    if hasattr(model, "predict_proba") and hasattr(model, "classes_"):
+        probabilities = model.predict_proba(X)[0]
+        probability_score = 0.0
+        probability_total = 0.0
+        for class_name, probability in zip(model.classes_, probabilities):
+            label = str(class_name).strip().replace("_", " ").title()
+            if label.endswith(" Risk"):
+                label = label[:-5].strip()
+            if label in risk_values:
+                probability_score += float(probability) * risk_values[label]
+                probability_total += float(probability)
+        if probability_total > 0:
+            predicted_risk_score = max(0.0, min(1.0, probability_score / probability_total))
 
     # Update the canonical project prediction and refresh the stored snapshot's
     # metrics without altering the trained model or feature engineering.
@@ -878,6 +991,11 @@ def refresh_project_catboost_prediction(project_id):
     if not updated_details.get("initial_predicted_risk"):
         updated_details["initial_predicted_risk"] = project.get("predicted_risk") or predicted_risk
     updated_details.update({
+        "initial_predicted_risk_score": (
+            updated_details.get("initial_predicted_risk_score")
+            if updated_details.get("initial_predicted_risk_score") is not None
+            else predicted_risk_score
+        ),
         "team_experience": team_experience,
         "project_manager_experience": pm_experience,
         "complexity_score": complexity,
@@ -906,9 +1024,19 @@ def refresh_project_catboost_prediction(project_id):
     }
     supabase.table("projects").update(update_payload).eq("id", project_id).execute()
 
+    # Persist the initial project-level CatBoost risk to both risk tables once.
+    # Later task-based dynamic-risk calculations replace the current record.
+    _save_initial_project_catboost_risk(
+        project_id=project_id,
+        predicted_risk=predicted_risk,
+        predicted_risk_score=predicted_risk_score,
+        tasks=db_tasks,
+    )
+
     return {
         "project_id": project_id,
         "predicted_risk": predicted_risk,
+        "risk_score": predicted_risk_score,
         "total_tasks": task_summary["total_tasks"],
         "completed_tasks": task_summary["completed_tasks"],
         "pending_tasks": task_summary["pending_tasks"],
