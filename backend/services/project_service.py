@@ -1,7 +1,9 @@
 from datetime import datetime, date
 
 from backend.supabase_client import supabase
-
+from backend.services.project_skill import (
+    update_project_skill_metrics
+)
 
 def refresh_project_task_metrics(project_id):
 
@@ -245,6 +247,7 @@ def save_project(
     task_summary,
     start_date,
     end_date,
+    required_technologies=None,
     predicted_risk_score=None
 ):
 
@@ -397,7 +400,9 @@ def save_project(
             predicted_risk,
 
         "project_details":
-            project_details
+            project_details,
+
+        "required_technologies": required_technologies,
     }
 
     # ========================================================
@@ -464,6 +469,19 @@ def save_project(
             .table("project_team_members")
             .insert(team_rows)
             .execute()
+        )
+
+        # ========================================================
+        # SKILL COVERAGE
+        # ========================================================
+
+        skill_metrics = update_project_skill_metrics(
+            project_id
+        )
+
+        print(
+            "[PROJECT SKILL METRICS]",
+            skill_metrics
         )
 
     # ========================================================

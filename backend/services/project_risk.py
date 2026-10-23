@@ -465,6 +465,96 @@ def calculate_task_summary(
             progress
 
     }
+# ============================================================
+# PROJECT RISK SCORING
+# ============================================================
+
+RISK_VALUES = {
+    "Low": 0.00,
+    "Medium": 0.33,
+    "High": 0.67,
+    "Critical": 1.00
+}
+
+
+def calculate_ml_risk_score(input_df):
+    """
+    Convert the project-level CatBoost probability output
+    into a continuous risk score between 0 and 1.
+    """
+
+    probabilities = model.predict_proba(input_df)[0]
+    class_names = list(model.classes_)
+
+    probability_map = {
+        str(class_names[i]): float(probabilities[i])
+        for i in range(len(class_names))
+    }
+
+    ml_risk_score = sum(
+        probability_map.get(label, 0.0) * score
+        for label, score in RISK_VALUES.items()
+    )
+
+    return round(ml_risk_score, 4), probability_map
+
+
+def calculate_hybrid_risk(
+    ml_risk_score,
+    skill_gap,
+    skill_weight=0.30
+):
+    """
+    Combine project-level ML risk with skill gap.
+
+    Formula:
+        Hybrid Risk =
+            ML Risk +
+            λ × Skill Gap × (1 - ML Risk)
+    """
+
+    ml_risk_score = max(
+        0.0,
+        min(1.0, float(ml_risk_score))
+    )
+
+    skill_gap = max(
+        0.0,
+        min(1.0, float(skill_gap))
+    )
+
+    hybrid_risk = (
+        ml_risk_score
+        + skill_weight
+        * skill_gap
+        * (1.0 - ml_risk_score)
+    )
+
+    return round(
+        min(1.0, hybrid_risk),
+        4
+    )
+
+
+def risk_score_to_level(score):
+    """
+    Convert continuous project risk score
+    into a project risk level.
+    """
+
+    score = float(score)
+
+    if score < 0.25:
+        return "Low"
+
+    if score < 0.50:
+        return "Medium"
+
+    if score < 0.75:
+        return "High"
+
+    return "Critical"
+    
 def make_feature_row(
     form,
     team_members,

@@ -20,14 +20,14 @@ Focus on getting this model reliable first.
 
 ### Stage 2 — Improve the initial model
 
-* EDA
-* Check class imbalance
-* Feature selection
-* Compare CatBoost / Random Forest / XGBoost / Logistic Regression
-* Hyperparameter tuning
-* Evaluate with **macro-F1, precision, recall, confusion matrix**, not just accuracy
-* Check for data leakage
-* Save the best model + preprocessing
+- EDA
+- Check class imbalance
+- Feature selection
+- Compare CatBoost / Random Forest / XGBoost / Logistic Regression
+- Hyperparameter tuning
+- Evaluate with **macro-F1, precision, recall, confusion matrix**, not just accuracy
+- Check for data leakage
+- Save the best model + preprocessing
 
 ### Stage 3 — Integrate it into project creation
 
@@ -91,3 +91,31 @@ Risk Model
 That would remove the need for the manager to manually provide complexity.
 
 **So don't build the complexity model now.** Keep the manually supplied `Complexity_Score` for the initial prototype, get the risk model working properly, then progressively automate the inputs.
+
+## Skill parameters:
+
+Option 1 — Expert-defined initial weight
+For the prototype:
+λ = 0.25
+
+Then explicitly state:
+The skill-risk contribution was initially bounded using an expert-defined weighting parameter and is intended for calibration using historical project data.
+
+That's acceptable for a prototype.
+Option 2 — Sensitivity analysis
+Test:
+λ = 0.10
+λ = 0.20
+λ = 0.30
+λ = 0.40
+λ = 0.50
+
+and show how project-risk classifications change.
+This is much stronger for your report.
+Option 3 — Learn λ from data
+Best academically, if we eventually have enough project-level historical data containing team-skill information.
+Optimize:
+\[
+\lambda^\* = \arg\min*{\lambda} Loss(R*{final},Y)
+\]
+where Y is the actual project outcome/risk label.

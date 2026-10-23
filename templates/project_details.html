@@ -149,6 +149,353 @@
             .nav { padding: 12px 5%; }
             .container { width: 94%; }
         }
+        /* =========================
+   PROJECT SKILLS
+========================= */
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.skill-box {
+    background: #101f30;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.skill-label {
+    color: #91a6b8;
+    font-size: 13px;
+    margin-bottom: 9px;
+}
+
+.skill-value {
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.skill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skill-tag {
+    display: inline-block;
+    background: #142538;
+    border: 1px solid #334155;
+    color: #d6e7f5;
+    padding: 7px 11px;
+    border-radius: 7px;
+    font-size: 13px;
+}
+
+
+/* =========================
+   TEAM MEMBERS
+========================= */
+
+.team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.team-header h2 {
+    margin-bottom: 0;
+}
+
+.table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.team-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.team-table th,
+.team-table td {
+    padding: 12px;
+    text-align: left;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.team-table th:nth-child(1),
+.team-table td:nth-child(1) {
+    width: 25%;
+}
+
+.team-table th:nth-child(2),
+.team-table td:nth-child(2) {
+    width: 45%;
+}
+
+.team-table th:nth-child(3),
+.team-table td:nth-child(3) {
+    width: 30%;
+}
+
+.team-table th {
+    background: #091625;
+    color: #38bdf8;
+    font-size: 12px;
+    text-align: left;
+    padding: 13px;
+    border-bottom: 1px solid #1e293b;
+}
+
+.team-table td {
+    background: #0a1625;
+    color: #dbe7f0;
+    font-size: 13px;
+    padding: 13px;
+    border-bottom: 1px solid #1e293b;
+}
+
+.team-input {
+    width: 100%;
+    padding: 8px 10px;
+    background: #091625;
+    border: 1px solid #26384b;
+    border-radius: 7px;
+    color: #e5f3ff;
+    outline: none;
+}
+
+.team-input:focus {
+    border-color: #38bdf8;
+}
+
+.team-action-btn {
+    padding: 7px 11px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.add-team-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #38bdf8;
+    color: #07111f;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.add-team-btn:hover {
+    background: #7dd3fc;
+}
+
+.remove-team-btn {
+    background: #dc2626;
+    color: white;
+}
+
+.remove-team-btn:hover {
+    background: #ef4444;
+}
+
+.team-message {
+    display: none;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+.team-success {
+    display: block;
+    background: rgba(34,197,94,0.12);
+    border: 1px solid rgba(34,197,94,0.3);
+    color: #4ade80;
+}
+
+.team-error {
+    display: block;
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #f87171;
+}
+
+@media (max-width: 800px) {
+
+    .skills-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .team-header {
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+
+.team-input {
+    width: 100%;
+    min-width: 130px;
+    padding: 10px;
+    background: #07111f;
+    color: #e5e7eb;
+    border: 1px solid #334155;
+    border-radius: 7px;
+}
+
+.team-input[readonly] {
+    background: #0a1625;
+    color: #cbd5e1;
+}
+
+.team-message {
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+.team-success {
+    color: #22c55e;
+}
+
+.team-error {
+    color: #ef4444;
+}
+
+.empty-message {
+    text-align: center;
+    color: #64748b;
+    padding: 20px;
+}
+
+.task-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.75);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.task-modal-content {
+    width: 100%;
+    max-width: 850px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    background: #0c1b2b;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 16px;
+    padding: 28px;
+}
+
+.task-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.task-modal-header h2 {
+    color: #38bdf8;
+    margin: 0;
+}
+
+.close-modal {
+    background: transparent;
+    border: 0;
+    color: #94a3b8;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.task-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.task-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+}
+
+.task-form-group.full {
+    grid-column: 1 / -1;
+}
+
+.task-form-group label {
+    color: #91a6b8;
+    font-size: 12px;
+}
+
+.task-form-group input,
+.task-form-group select,
+.task-form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    background: #091625;
+    border: 1px solid #26384b;
+    border-radius: 7px;
+    color: #e5f3ff;
+}
+
+.task-form-group textarea {
+    resize: vertical;
+}
+
+.task-form-actions,
+.task-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.task-form-error {
+    display: none;
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 8px;
+    padding: 11px;
+    margin-bottom: 18px;
+}
+
+@media (max-width: 600px) {
+    .task-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .task-form-group.full {
+        grid-column: auto;
+    }
+
+    .task-modal {
+        padding: 12px;
+    }
+
+    .task-modal-content {
+        padding: 20px;
+        max-height: calc(100vh - 24px);
+    }
+}
     </style>
 </head>
 
@@ -168,18 +515,7 @@
             <p class="muted">Project details, current risk and execution workflow.</p>
         </div>
 
-        <div class="actions">
-            {% if role in ['manager', 'employee'] %}
-            <button class="btn primary" type="button" onclick="toggleEditor()">
-                Edit / Add Tasks
-            </button>
-            {% endif %}
 
-            <button class="btn primary" id="pageGenerateRisk"
-                    type="button" onclick="generateRisk()">
-                Generate Risk
-            </button>
-        </div>
     </div>
 
     <section class="card">
@@ -201,6 +537,37 @@
         </div>
     </section>
 
+    <!-- Hybrid-skill coverage and gap -->
+    <section class="section" id="projectSkillsSection">
+        <h2>Project Skill Requirements</h2>
+        <div class="skills-grid">
+            <div class="skill-box">
+                <div class="skill-label">Required Technologies</div>
+                <div class="skill-list">
+                    {% set technologies = project.required_technologies | default([], true) %}
+                    {% if technologies is string %}
+                        {% set technologies = technologies.split(',') %}
+                    {% endif %}
+                    {% if technologies %}
+                        {% for technology in technologies %}
+                            <span class="skill-tag">{{ technology }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="empty-message">No technologies specified</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="skill-box">
+                <div class="skill-label">Skill Coverage</div>
+                <div class="skill-value" id="skillCoverage">{{ ((project.skill_coverage | default(0, true) | float) * 100) | round(2) }}%</div>
+            </div>
+            <div class="skill-box">
+                <div class="skill-label">Skill Gap</div>
+                <div class="skill-value" id="skillGap">{{ ((project.skill_gap | default(0, true) | float) * 100) | round(2) }}%</div>
+            </div>
+        </div>
+    </section>
+
     <section class="section">
         <h2>Project Summary</h2>
         <div class="grid">
@@ -216,35 +583,217 @@
         </div>
     </section>
 
+<section class="section" id="teamSection">
+    <h2>Team Members</h2>
+
+    <div class="table-wrapper">
+        <table class="team-table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Employee Name</th>
+                    <th>Open Tasks</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="teamBody">
+                {% if details.team_members %}
+                    {% for member in details.team_members %}
+                        {% set open_tasks = namespace(count=0) %}
+
+                        {% for task in tasks %}
+                            {% if task.assigned_to|string == member.employee_id|string
+                                  and task.status|upper != 'CLOSED' %}
+                                {% set open_tasks.count = open_tasks.count + 1 %}
+                            {% endif %}
+                        {% endfor %}
+
+                        <tr data-employee-id="{{ member.employee_id }}">
+    <td>{{ member.employee_id }}</td>
+    <td>{{ member.employee_name }}</td>
+    <td>{{ open_tasks.count }}</td>
+    <td>
+        <button
+            type="button"
+            class="btn danger small"
+            onclick="removeTeamMember('{{ member.employee_id }}')">
+            Remove
+        </button>
+    </td>
+</tr>
+                    {% endfor %}
+                {% else %}
+                    <tr id="emptyTeamRow">
+                        <td colspan="4" class="empty-message">
+                            No team members assigned.
+                        </td>~
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        <div class="actions" style="margin-top: 15px;">
+    <input
+        type="text"
+        id="newEmployeeId"
+        placeholder="Enter Employee ID"
+        class="team-input"
+        style="max-width: 260px;"
+    >
+
+    <button
+        type="button"
+        class="btn primary"
+        onclick="addTeamMember()">
+        Add Employee
+    </button>
+</div>
+
+<div id="teamMessage" class="message" role="status"></div>
+    </div>
+</section>
+
     <section class="section">
-        <h2>Team Members</h2>
+        <div class="top">
+            <div>
+                <h2 style="margin-bottom:5px;">Tasks &amp; Execution Risk</h2>
+                <p class="muted">Use Edit / Add Tasks to edit, add or remove tasks.</p>
+            </div>
+        </div>
+        <div class="actions">
+        {% if role in ['manager', 'employee'] %}
+        <button class="btn primary" type="button"
+                onclick="openAddTaskModal()">
+            + Add Task
+        </button>
+
+        {% if role == 'manager' %}
+        <button class="btn" type="button"
+                onclick="toggleEditor()">
+            Task Generator
+        </button>
+        {% endif %}
+        {% endif %}
+    </div>
+
         <div class="tablewrap">
             <table>
                 <thead>
                 <tr>
-                    <th>Employee ID</th><th>Name</th><th>Email</th>
-                    <th>Role</th><th>Department</th><th>Experience</th>
-                    <th>Years</th><th>Skills</th>
+                    <th>Task</th><th>Assigned To</th><th>Priority</th>
+                    <th>Status</th><th>Deadline</th><th>Estimate</th>
+                    <th>Actual</th><th>Task Risk</th>
+                    {% if role in ['manager', 'employee'] %}<th>Actions</th>{% endif %}
                 </tr>
                 </thead>
-                <tbody>
-                {% for member in details.team_members %}
-                <tr>
-                    <td>{{ member.employee_id }}</td>
-                    <td>{{ member.employee_name }}</td>
-                    <td>{{ member.email }}</td>
-                    <td>{{ member.role }}</td>
-                    <td>{{ member.department }}</td>
-                    <td>{{ member.experience_level }}</td>
-                    <td>{{ member.years_experience }}</td>
-                    <td>{{ member.skills }}</td>
-                </tr>
+
+                <tbody id="taskTableBody">
+                {% for task in tasks %}
+                    {% set prediction = task_predictions.get(task.task_id|string) %}
+                    <tr data-task-id="{{ task.task_id }}"
+                        data-title="{{ task.title|default('', true) }}"
+                        data-assigned="{{ task.assigned_to|default('', true) }}"
+                        data-sprint="{{ task.sprint|default('', true) }}"
+                        data-priority="{{ task.priority|default('Medium', true) }}"
+                        data-status="{{ task.status|default('TO_DO', true) }}"
+                        data-deadline="{{ task.deadline|default('', true) }}"
+                        data-estimated="{{ task.estimated_hours|default(0, true) }}"
+                        data-actual="{{ task.actual_hours|default(0, true) }}"
+                        data-description="{{ task.description|default('', true) }}"
+                        data-task-type="{{ task.task_type|default('Task', true) }}">
+
+                        <td data-field="title">{{ task.title }}</td>
+                        <td data-field="assigned_to">{{ task.assigned_to }}</td>
+                        <td data-field="priority">{{ task.priority }}</td>
+                        <td data-field="status">{{ task.status }}</td>
+                        <td data-field="deadline">{{ task.deadline }}</td>
+                        <td data-field="estimated_hours">{{ task.estimated_hours|default(0) }} hrs</td>
+                        <td data-field="actual_hours">{{ task.actual_hours|default(0) }} hrs</td>
+                        
+
+                        <td data-task-risk>
+                            {% if prediction %}
+                            <span class="badge">
+                                {{ prediction.risk_label }} ·
+                                {{ '%.3f'|format(prediction.risk_score|float) }}
+                            </span>
+                            {% else %}
+                            <span class="muted">Not calculated</span>
+                            {% endif %}
+                        </td>
+
+                        {% if role in ['manager', 'employee'] %}
+                        <td>
+                            <div class="row-actions task-actions">
+    <button class="btn small" type="button"
+            onclick="openEditTask(this)">Edit</button>
+    <button class="btn danger small" type="button"
+            onclick="removeTask(this)">Remove</button>
+</div>
+                        </td>
+                        {% endif %}
+                    </tr>
                 {% else %}
-                <tr><td class="empty" colspan="8">No employees assigned.</td></tr>
+                    <tr id="noTasksRow">
+                        <td class="empty"
+                            colspan="{% if role in ['manager', 'employee'] %}9{% else %}8{% endif %}">
+                            No tasks yet. Add a task to get started.
+                        </td>
+                    </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        {% if role in ['manager', 'employee'] %}
+<div id="editor" class="editor">
+    {% if role == 'manager' %}
+    <div class="notice">
+        <strong>Task Generator</strong>
+        <p>
+            Generate task suggestions automatically, review them,
+            and save the tasks when ready. Use the + Add Task button
+            above to create a task manually.
+        </p>
+
+        <div style="max-width:260px;margin:12px 0;">
+            <label for="taskCount">Total number of tasks</label>
+            <input id="taskCount" type="number"
+                   min="1" max="30" value="5">
+        </div>
+
+        <div class="actions">
+            <button class="btn primary" type="button"
+                    id="generateTaskSuggestionsButton"
+                    onclick="generateTaskSuggestions()">
+                Generate Tasks Automatically
+            </button>
+        </div>
+
+        <div id="taskGenerationMessage"
+             class="message" role="status" aria-live="polite"></div>
+
+        <div id="generatedTasks"></div>
+
+        <div class="actions" id="taskFormActions"
+             style="display:none;margin-top:14px;">
+            <button class="btn primary" type="button"
+                    id="saveGeneratedTasksButton"
+                    onclick="saveGeneratedTasks()">
+                Save Tasks
+            </button>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="actions" style="margin-top:15px;">
+        <button class="btn" type="button"
+                onclick="toggleEditor()">
+            Close Task Generator
+        </button>
+    </div>
+</div>
+{% endif %}
     </section>
 
     <section class="section">
@@ -274,195 +823,103 @@
         </div>
     </section>
 
-    <section class="section">
-        <div class="top">
-            <div>
-                <h2 style="margin-bottom:5px;">Tasks &amp; Execution Risk</h2>
-                <p class="muted">Use Edit / Add Tasks to edit, add or remove tasks.</p>
-            </div>
+    {% if role in ['manager', 'employee'] %}
+<div id="taskModal" class="task-modal" aria-hidden="true">
+    <div class="task-modal-content" role="dialog"
+         aria-modal="true" aria-labelledby="taskModalTitle">
+
+        <div class="task-modal-header">
+            <h2 id="taskModalTitle">Add Task</h2>
+            <button type="button" class="close-modal"
+                    onclick="closeTaskModal()"
+                    aria-label="Close">&times;</button>
         </div>
 
-        <div class="tablewrap">
-            <table>
-                <thead>
-                <tr>
-                    <th>Task</th><th>Assigned To</th><th>Priority</th>
-                    <th>Status</th><th>Deadline</th><th>Estimate</th>
-                    <th>Actual</th><th>Task Risk</th>
-                    {% if role in ['manager', 'employee'] %}<th>Actions</th>{% endif %}
-                </tr>
-                </thead>
+        <div id="taskFormError" class="task-form-error"
+             role="alert"></div>
 
-                <tbody id="taskTableBody">
-                {% for task in tasks %}
-                    {% set prediction = task_predictions.get(task.task_id|string) %}
-                    <tr data-task-id="{{ task.task_id }}"
-                        data-title="{{ task.title|default('', true) }}"
-                        data-assigned="{{ task.assigned_to|default('', true) }}"
-                        data-priority="{{ task.priority|default('Medium', true) }}"
-                        data-status="{{ task.status|default('TO_DO', true) }}"
-                        data-deadline="{{ task.deadline|default('', true) }}"
-                        data-estimated="{{ task.estimated_hours|default(0, true) }}"
-                        data-actual="{{ task.actual_hours|default(0, true) }}"
-                        data-description="{{ task.description|default('', true) }}"
-                        data-task-type="{{ task.task_type|default('Task', true) }}">
-
-                        <td data-field="title">{{ task.title }}</td>
-                        <td data-field="assigned_to">{{ task.assigned_to }}</td>
-                        <td data-field="priority">{{ task.priority }}</td>
-                        <td data-field="status">{{ task.status }}</td>
-                        <td data-field="deadline">{{ task.deadline }}</td>
-                        <td data-field="estimated_hours">{{ task.estimated_hours|default(0) }} hrs</td>
-                        <td data-field="actual_hours">{{ task.actual_hours|default(0) }} hrs</td>
-
-                        <td data-task-risk>
-                            {% if prediction %}
-                            <span class="badge">
-                                {{ prediction.risk_label }} ·
-                                {{ '%.3f'|format(prediction.risk_score|float) }}
-                            </span>
-                            {% else %}
-                            <span class="muted">Not calculated</span>
-                            {% endif %}
-                        </td>
-
-                        {% if role in ['manager', 'employee'] %}
-                        <td>
-                            <div class="row-actions task-actions" style="display:none;">
-                                <button class="btn small" type="button"
-                                        onclick="editTask(this)">Edit</button>
-                                <button class="btn danger small" type="button"
-                                        onclick="removeTask(this)">Remove</button>
-                            </div>
-                        </td>
-                        {% endif %}
-                    </tr>
-                {% else %}
-                    <tr id="noTasksRow">
-                        <td class="empty"
-                            colspan="{% if role in ['manager', 'employee'] %}9{% else %}8{% endif %}">
-                            No tasks yet. Add a task to get started.
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        {% if role in ['manager', 'employee'] %}
-        <div id="editor" class="editor">
-            <div class="notice">
-                Edit task details in the table, then click <strong>Save All Changes</strong>.
-                New tasks can be added below. Generate Risk is available at the top of this page.
-            </div>
-
-            {% if role == 'manager' %}
-            <div class="notice" style="margin-top:14px;">
-                <strong>Task planning</strong>
-                <p>First choose how many tasks you need. Then generate suggestions based on the saved project type or enter tasks manually.</p>
-                <div style="max-width:260px;margin:12px 0;">
-                    <label for="taskCount">Total number of tasks</label>
-                    <input id="taskCount" type="number" min="1" max="30" value="5">
-                </div>
-                <div class="actions">
-                    <button class="btn primary" type="button" id="generateTaskSuggestionsButton" onclick="generateTaskSuggestions()">Generate Tasks Automatically</button>
-                    <button class="btn" type="button" onclick="startManualTasks()">Add Task Manually</button>
-                </div>
-                <div id="taskGenerationMessage" class="message" role="status" aria-live="polite"></div>
-                <div id="generatedTasks"></div>
-                <div class="actions" id="taskFormActions" style="display:none;margin-top:14px;">
-                    <button class="btn primary" type="button" id="saveGeneratedTasksButton" onclick="saveGeneratedTasks()">Save Tasks</button>
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="actions" style="margin-top:15px;">
-                <button class="btn primary" id="saveAllButton" type="button"
-                        onclick="saveAllChanges()">Save All Changes</button>
-                <button class="btn" type="button" onclick="cancelEditing()">Cancel Editing</button>
-            </div>
-
-            {% if role != 'manager' %}
-            <h3>Add Task</h3>
-            <div class="formgrid">
-                <div class="full">
-                    <label for="title">Task Title</label>
-                    <input id="title" required>
+        <form id="taskForm" onsubmit="submitTask(event)">
+            <div class="task-form-grid">
+                <div class="task-form-group full">
+                    <label for="taskTitle">Task Title *</label>
+                    <input id="taskTitle" type="text"
+                           maxlength="200" required>
                 </div>
 
-                <div>
-                    <label for="assigned">Assigned Employee</label>
-                    <select id="assigned" required>
-                        {% for member in details.team_members %}
-                        <option value="{{ member.employee_id }}">
-                            {{ member.employee_id }} — {{ member.employee_name }}
-                        </option>
-                        {% endfor %}
+                <div class="task-form-group full">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" rows="3"></textarea>
+                </div>
+
+                <div class="task-form-group">
+                    <label for="taskAssignedTo">Assigned Employee ID *</label>
+                    <input id="taskAssignedTo" type="text"
+                           placeholder="EMP-001" required>
+                    <small class="muted">
+                        Enter a valid employee ID, even if the employee
+                        is not yet part of this project's team.
+                    </small>
+                </div>
+
+                <div class="task-form-group">
+                    <label for="taskPriority">Priority *</label>
+                    <select id="taskPriority" required>
+                        <option>Low</option>
+                        <option selected>Medium</option>
+                        <option>High</option>
+                        <option>Critical</option>
                     </select>
                 </div>
 
-                <div>
-                    <label for="priority">Priority</label>
-                    <select id="priority">
-                        <option>Low</option><option selected>Medium</option>
-                        <option>High</option><option>Critical</option>
+                <div class="task-form-group">
+                    <label for="taskStatus">Status *</label>
+                    <select id="taskStatus" required>
+                        <option value="TO_DO">To Do</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="IN_REVIEW">In Review</option>
+                        <option value="CLOSED">Closed</option>
                     </select>
                 </div>
 
-                <div>
-                    <label for="status">Status</label>
-                    <select id="status">
-                        <option value="TO_DO" selected>TO_DO</option>
-                        <option value="IN_PROGRESS">IN_PROGRESS</option>
-                        <option value="IN_REVIEW">IN_REVIEW</option>
-                        <option value="CLOSED">CLOSED</option>
-                    </select>
+                <div class="task-form-group">
+                    <label for="taskDeadline">Deadline *</label>
+                    <input id="taskDeadline" type="date" required>
                 </div>
 
-                {% set project_start_date = project.start_date|default(details.start_date|default('', true), true)|default('', true) %}
-                {% set project_end_date = project.end_date|default(details.end_date|default('', true), true)|default('', true) %}
-
-                <div>
-                    <label for="deadline">Task Deadline</label>
-                    <input type="date" id="deadline"
-                           min="{{ project_start_date[:10] if project_start_date else '' }}"
-                           max="{{ project_end_date[:10] if project_end_date else '' }}"
-                           required>
-                    <small class="muted">Keep the deadline within the project dates.</small>
+                <div class="task-form-group">
+                    <label for="taskEstimatedHours">Estimated Hours *</label>
+                    <input id="taskEstimatedHours" type="number"
+                           min="0.5" step="0.5" required>
                 </div>
 
-                <div>
-                    <label for="estimatedHours">Estimated Hours</label>
-                    <input type="number" id="estimatedHours" min="0.5" step="0.5" required>
+                <div class="task-form-group">
+                    <label for="taskActualHours">Actual Hours</label>
+                    <input id="taskActualHours" type="number"
+                           min="0" step="0.5" value="0">
                 </div>
 
-                <div>
-                    <label for="actualHours">Actual Hours</label>
-                    <input type="number" id="actualHours" min="0" step="0.5" value="0">
-                </div>
-
-                <div>
-                    <label for="taskType">Task Type</label>
-                    <input id="taskType" value="Task">
-                </div>
-
-                <div class="full">
-                    <label for="description">Description</label>
-                    <textarea id="description" rows="3"></textarea>
-                </div>
+                <div class="task-form-group">
+    <label for="taskType">Task Type</label>
+    <input id="taskType" type="text" value="Task" placeholder="Bug / Feature / Task">
+</div>
+<div class="task-form-group">
+    <label for="taskSprint">Sprint *</label>
+    <input id="taskSprint" type="text"
+           placeholder="Sprint 1" required>
+</div>
             </div>
 
-            <div class="actions" style="margin-top:15px;">
-                <button class="btn" id="saveTaskButton" type="button" onclick="saveTask()">
-                    Save Task
-                </button>
+            <div class="task-modal-actions">
+                <button type="button" class="btn"
+                        onclick="closeTaskModal()">Cancel</button>
+                <button type="submit" class="btn primary"
+                        id="taskSubmitButton">Create Task</button>
             </div>
+        </form>
+    </div>
+</div>
+{% endif %}
 
-            <div id="editMessage" class="message" role="status" aria-live="polite"></div>
-            {% endif %}
-        </div>
-        {% endif %}
-    </section>
 </main>
 
 <script>
@@ -471,6 +928,7 @@ const currentRole = {{ (role or '')|tojson }};
 const subjectId = {{ (subject_id or '')|tojson }};
 
 let editingEnabled = false;
+let editingTaskId = null;
 const originalRows = new Map();
 
 function message(text, type = '') {
@@ -506,9 +964,9 @@ function toggleEditor() {
     editingEnabled = !editingEnabled;
     editor.style.display = editingEnabled ? 'block' : 'none';
 
-    document.querySelectorAll('.task-actions').forEach(actions => {
-        actions.style.display = editingEnabled ? 'flex' : 'none';
-    });
+    // document.querySelectorAll('.task-actions').forEach(actions => {
+    //     actions.style.display = editingEnabled ? 'flex' : 'none';
+    // });
 
     if (editingEnabled) {
         document.querySelectorAll('#taskTableBody tr[data-task-id]').forEach(row => {
@@ -836,6 +1294,115 @@ async function generateRisk() {
     }
 }
 
+/* ============================================================
+   PROJECT TEAM MANAGEMENT
+============================================================ */
+
+function showTeamMessage(text, success = true) {
+    const element = document.getElementById("teamMessage");
+    if (!element) return;
+
+    element.textContent = text;
+    element.className = "message " + (success ? "success" : "error");
+}
+
+function updateSkillMetrics(metrics) {
+    if (!metrics) return;
+
+    const coverage = Number(metrics.skill_coverage);
+    const gap = Number(metrics.skill_gap);
+
+    const coverageElement = document.getElementById("skillCoverage");
+    const gapElement = document.getElementById("skillGap");
+
+    if (coverageElement && Number.isFinite(coverage)) {
+        coverageElement.textContent = `${(coverage * 100).toFixed(2)}%`;
+    }
+
+    if (gapElement && Number.isFinite(gap)) {
+        gapElement.textContent = `${(gap * 100).toFixed(2)}%`;
+    }
+}
+
+function ensureTeamEmptyState() {
+    const tbody = document.getElementById("teamBody");
+
+    if (tbody && !tbody.querySelector("tr[data-employee-id]")) {
+        tbody.innerHTML = `
+            <tr id="emptyTeamRow">
+                <td colspan="4" class="empty-message">
+                    No team members assigned.
+                </td>
+            </tr>`;
+    }
+}
+
+async function addTeamMember() {
+    const input = document.getElementById("newEmployeeId");
+    const employeeId = input?.value.trim();
+
+    if (!employeeId) {
+        showTeamMessage("Enter an Employee ID.", false);
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `/api/project/${encodeURIComponent(projectId)}/employees`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ employee_id: employeeId })
+            }
+        );
+
+        const result = await readApiResponse(response);
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Could not add employee.");
+        }
+
+        updateSkillMetrics(result.skill_metrics);
+        showTeamMessage("Employee added successfully.");
+        window.location.reload();
+
+    } catch (error) {
+        showTeamMessage(error.message || "Could not add employee.", false);
+    }
+}
+
+async function removeTeamMember(employeeId) {
+    if (!confirm(`Remove employee ${employeeId} from this project?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `/api/project/${encodeURIComponent(projectId)}/employees/${encodeURIComponent(employeeId)}`,
+            {
+                method: "DELETE",
+                headers: { "Accept": "application/json" }
+            }
+        );
+
+        const result = await readApiResponse(response);
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Could not remove employee.");
+        }
+
+        updateSkillMetrics(result.skill_metrics);
+        showTeamMessage("Employee removed successfully.");
+        window.location.reload();
+
+    } catch (error) {
+        showTeamMessage(error.message || "Could not remove employee.", false);
+    }
+}
+
 // ---------------- Task suggestion and draft management ----------------
 let taskDrafts = [];
 let taskGenerationEmployees = [];
@@ -922,6 +1489,144 @@ async function saveGeneratedTasks() {
         window.setTimeout(()=>window.location.reload(),900);
     } catch(error) { taskGenerationMessage(error.message||'Could not save tasks.', 'error'); }
     finally { button.disabled=false; }
+}
+
+function openAddTaskModal() {
+    editingTaskId = null;
+
+    const form = document.getElementById('taskForm');
+    form.reset();
+    document.getElementById('taskSprint').value = '';
+    document.getElementById('taskModalTitle').textContent = 'Add Task';
+    document.getElementById('taskSubmitButton').textContent = 'Create Task';
+
+    if (currentRole === 'employee') {
+        document.getElementById('taskAssignedTo').value = String(subjectId || '');
+    }
+
+    document.getElementById('taskModal').style.display = 'flex';
+    document.getElementById('taskModal').setAttribute('aria-hidden', 'false');
+    clearTaskFormError();
+}
+
+function openEditTask(button) {
+    const row = button.closest('tr[data-task-id]');
+    if (!row) return;
+
+    editingTaskId = row.dataset.taskId;
+
+    document.getElementById('taskForm').reset();
+    document.getElementById('taskModalTitle').textContent = 'Edit Task';
+    document.getElementById('taskSubmitButton').textContent = 'Save Changes';
+
+    document.getElementById('taskTitle').value = row.dataset.title || '';
+    document.getElementById('taskDescription').value = row.dataset.description || '';
+    document.getElementById('taskAssignedTo').value = row.dataset.assigned || '';
+    document.getElementById('taskPriority').value = row.dataset.priority || 'Medium';
+    document.getElementById('taskStatus').value = row.dataset.status || 'TO_DO';
+    document.getElementById('taskDeadline').value =
+        (row.dataset.deadline || '').slice(0, 10);
+    document.getElementById('taskEstimatedHours').value = row.dataset.estimated || '';
+    document.getElementById('taskActualHours').value = row.dataset.actual || '0';
+    document.getElementById('taskType').value = row.dataset.taskType || 'Task';
+    document.getElementById('taskSprint').value =
+    row.dataset.sprint || '';
+
+    document.getElementById('taskModal').style.display = 'flex';
+    document.getElementById('taskModal').setAttribute('aria-hidden', 'false');
+    clearTaskFormError();
+}
+
+function closeTaskModal() {
+    const modal = document.getElementById('taskModal');
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+    editingTaskId = null;
+    clearTaskFormError();
+}
+
+function clearTaskFormError() {
+    const error = document.getElementById('taskFormError');
+    error.textContent = '';
+    error.style.display = 'none';
+}
+
+function showTaskFormError(text) {
+    const error = document.getElementById('taskFormError');
+    error.textContent = text;
+    error.style.display = 'block';
+}
+
+async function submitTask(event) {
+    event.preventDefault();
+    clearTaskFormError();
+
+    const button = document.getElementById('taskSubmitButton');
+    button.disabled = true;
+
+    try {
+        const title = document.getElementById('taskTitle').value.trim();
+        const assigned = document.getElementById('taskAssignedTo').value.trim();
+        const deadline = document.getElementById('taskDeadline').value;
+        const hours = Number(document.getElementById('taskEstimatedHours').value);
+        const actual = Number(document.getElementById('taskActualHours').value || 0);
+
+        if (!title || !assigned || !deadline ||
+            !Number.isFinite(hours) || hours <= 0) {
+            throw new Error(
+                'Enter a title, employee ID, deadline and valid estimated hours.'
+            );
+        }
+
+        if (currentRole === 'employee' &&
+            String(assigned) !== String(subjectId)) {
+            throw new Error('Employees can assign tasks only to themselves.');
+        }
+        
+
+        const payload = {
+            project_id: Number(projectId),
+            assigned_to: assigned,
+            created_by: currentRole === 'employee' ? subjectId : 'manager',
+            title,
+            description: document.getElementById('taskDescription').value.trim(),
+            task_type: document.getElementById('taskType').value.trim() || 'Task',
+            sprint: document.getElementById('taskSprint').value.trim(),
+            priority: document.getElementById('taskPriority').value,
+            status: document.getElementById('taskStatus').value,
+            deadline,
+            estimated_hours: hours,
+            actual_hours: Number.isFinite(actual) && actual >= 0 ? actual : 0
+        };
+
+        const isEdit = Boolean(editingTaskId);
+        const url = isEdit
+            ? `/api/tasks/${encodeURIComponent(editingTaskId)}`
+            : '/api/tasks';
+
+        const response = await fetch(url, {
+            method: isEdit ? 'PUT' : 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await readApiResponse(response);
+
+        if (!response.ok) {
+            throw new Error(result.error || result.message || 'Could not save task.');
+        }
+
+        closeTaskModal();
+        window.location.reload();
+
+    } catch (error) {
+        showTaskFormError(error.message || 'Could not save task.');
+    } finally {
+        button.disabled = false;
+    }
 }
 
 </script>

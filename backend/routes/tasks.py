@@ -799,12 +799,19 @@ def create_task():
 
 
 
+        # Accept the task name from either frontend field name.
+        title = str(
+            data.get("title") or data.get("task_name") or ""
+        ).strip()
+
+        if not title:
+            return jsonify({"error": "Task title is required."}), 400
+
+        data["title"] = title
+
         task_data = clean_task_data(
-
             data,
-
             partial=False
-
         )
 
 

@@ -1,1 +1,807 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>InfraSync AI | Result</title><style>*{box-sizing:border-box}body{margin:0;background:#07111f;color:#e5e7eb;font-family:Arial,sans-serif}.nav{height:70px;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between;align-items:center;padding:0 7%}.logo{color:#38bdf8;font-weight:800;font-size:22px}.links{display:flex;gap:24px}.links a{color:#cbd5e1;text-decoration:none}.container{width:90%;max-width:1100px;margin:40px auto}.card{background:#0c1b2b;border:1px solid #1e293b;border-radius:18px;padding:30px;margin-bottom:20px}.risk{font-size:36px;font-weight:900;margin-top:8px}.low{color:#22c55e}.medium{color:#facc15}.high{color:#fb923c}.critical{color:#ef4444}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.item{background:#101f30;padding:16px;border-radius:10px}.item span{display:block;color:#91a6b8;font-size:12px;margin-bottom:6px}.item strong{font-size:20px}.btn{display:inline-block;background:#38bdf8;color:#06111d;padding:12px 20px;border-radius:8px;font-weight:800;margin-right:8px;text-decoration:none}@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:550px){.grid{grid-template-columns:1fr}}</style></head><body><nav class="nav"><a class="logo" href="/">InfraSync AI</a><div class="links"><a href="/dashboard">Dashboard</a></div></nav><main class="container"><div class="card"><div style="color:#8ea5b9;font-size:12px">INITIAL AI ASSESSMENT</div><h1>{{ result.project_name }}</h1><div>Predicted Risk</div><div class="risk {{ result.risk_level|lower }}">{{ result.risk_level }}</div><p style="color:#94a3b8">This is the project-creation baseline. No tasks were used at this stage. The updated project risk is generated later from actual task data.</p></div><div class="card"><h2>Project Summary</h2><div class="grid"><div class="item"><span>Start Date</span><strong>{{ result.start_date }}</strong></div><div class="item"><span>End Date</span><strong>{{ result.end_date }}</strong></div><div class="item"><span>Timeline</span><strong>{{ '%.2f'|format(result.timeline_months|float) }} mo</strong></div><div class="item"><span>Budget</span><strong>${{ '%.2f'|format(result.project_budget|float) }}</strong></div><div class="item"><span>Team Size</span><strong>{{ result.team_size }}</strong></div><div class="item"><span>Team Experience</span><strong>{{ result.team_experience }}</strong></div><div class="item"><span>Stakeholders</span><strong>{{ result.stakeholder_count }}</strong></div><div class="item"><span>Tasks</span><strong>0</strong></div></div></div><div class="card"><a class="btn" href="{{ url_for('project_details.project_details',project_id=result.project_id) }}">View Project Details</a><a class="btn" href="/dashboard">Dashboard</a></div></main></body></html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Assessment Result | InfraSync AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #07111f;
+            color: #e5f3ff;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .navbar {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            background: #081421;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            color: #b8c9d9;
+        }
+
+        .nav-links a:hover {
+            color: #38bdf8;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 0 70px;
+        }
+
+        .page-title {
+            margin-bottom: 25px;
+        }
+
+        .small-title,
+        .xai-kicker {
+            color: #38bdf8;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .page-title h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .page-title p,
+        .baseline-note {
+            color: #9fb2c4;
+            line-height: 1.6;
+        }
+
+        .result-card {
+            background: #0c1b2b;
+            border: 1px solid rgba(56,189,248,.15);
+            border-radius: 18px;
+            padding: 30px;
+            margin-bottom: 22px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .project-label,
+        .risk-label {
+            color: #8ea5b9;
+            font-size: 12px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .project-name {
+            font-size: 25px;
+            font-weight: bold;
+            color: white;
+            overflow-wrap: anywhere;
+        }
+
+        .risk-box {
+            min-width: 200px;
+            padding: 20px;
+            background: #101f30;
+            border-radius: 14px;
+            text-align: center;
+        }
+
+        .risk-value {
+            font-size: 32px;
+            font-weight: 900;
+        }
+
+        .risk-low { color: #22c55e; }
+        .risk-medium { color: #facc15; }
+        .risk-high { color: #fb923c; }
+        .risk-critical { color: #ef4444; }
+
+        .baseline-note {
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        .section-heading {
+            font-size: 19px;
+            margin: 25px 0 15px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            min-width: 0;
+            background: #101f30;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .label {
+            color: #91a6b8;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .value {
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        /* Explainable AI */
+        .xai-section,
+        .recommendation-section {
+            background: #0b1a2a;
+            border: 1px solid rgba(56,189,248,.13);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 25px 0;
+        }
+
+        .xai-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+
+        .xai-subtitle {
+            color: #91a6b8;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+
+        .confidence-box {
+            min-width: 145px;
+            background: #101f30;
+            border: 1px solid rgba(56,189,248,.15);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .confidence-box span {
+            display: block;
+            color: #91a6b8;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .confidence-box strong {
+            color: #38bdf8;
+            font-size: 24px;
+        }
+
+        .factor-list,
+        .problem-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .factor-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            background: #101f30;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #64748b;
+        }
+
+        .factor-risk { border-left-color: #fb923c; }
+        .factor-safe { border-left-color: #22c55e; }
+
+        .factor-name {
+            color: #f8fafc;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .factor-value {
+            color: #91a6b8;
+            font-size: 13px;
+        }
+
+        .factor-impact {
+            min-width: 120px;
+            text-align: right;
+        }
+
+        .impact-label {
+            display: block;
+            color: #cbd5e1;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .factor-risk .factor-impact strong { color: #fb923c; }
+        .factor-safe .factor-impact strong { color: #22c55e; }
+
+        .sub-heading {
+            color: #dbeafe;
+            font-size: 15px;
+            margin: 24px 0 12px;
+        }
+
+        .protective-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .protective-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #0f2233;
+            border-radius: 9px;
+            color: #cbd5e1;
+        }
+
+        .protective-item small { color: #91a6b8; }
+        .protective-item strong { color: #22c55e; }
+
+        .problem-card {
+            display: flex;
+            gap: 14px;
+            padding: 17px;
+            background: #101f30;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 12px;
+        }
+
+        .problem-number {
+            width: 32px;
+            height: 32px;
+            flex: 0 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #17304a;
+            color: #38bdf8;
+            font-weight: 800;
+        }
+
+        .problem-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .problem-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .problem-title-row h3 {
+            color: #f8fafc;
+            font-size: 16px;
+            overflow-wrap: anywhere;
+        }
+
+        .shap-badge {
+            color: #fb923c;
+            background: rgba(251,146,60,.09);
+            border: 1px solid rgba(251,146,60,.2);
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .problem-label,
+        .suggestion-label {
+            color: #38bdf8;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 10px 0 6px;
+        }
+
+        .problem-content p {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .problem-content .suggestion-text {
+            color: #dbeafe;
+            background: #0c2436;
+            border-left: 3px solid #38bdf8;
+            padding: 10px 12px;
+            border-radius: 6px;
+        }
+
+        .empty-xai,
+        .no-problems,
+        .empty-message {
+            margin-top: 12px;
+            padding: 15px;
+            background: #101f30;
+            border-radius: 10px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .no-problems strong { color: #e2e8f0; }
+
+        /* Team and stakeholder tables */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 550px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #1e293b;
+            text-align: left;
+            overflow-wrap: anywhere;
+        }
+
+        th {
+            background: #091625;
+            color: #38bdf8;
+            font-size: 12px;
+        }
+
+        td {
+            background: #0a1625;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 13px 20px;
+            border-radius: 9px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .primary {
+            background: #38bdf8;
+            color: #06111d;
+        }
+
+        .secondary {
+            background: #142538;
+            color: #d6e7f5;
+            border: 1px solid rgba(255,255,255,.08);
+        }
+
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .result-header { align-items: flex-start; }
+        }
+
+        @media (max-width: 650px) {
+            .container { width: 92%; padding-top: 25px; }
+            .result-card { padding: 20px; }
+            .result-header,
+            .xai-header,
+            .factor-card,
+            .problem-title-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .risk-box,
+            .confidence-box { width: 100%; }
+            .factor-impact { text-align: left; }
+            .protective-item { grid-template-columns: 1fr; gap: 6px; }
+            .grid { grid-template-columns: 1fr 1fr; }
+            .page-title h1 { font-size: 26px; }
+            .actions { flex-direction: column; }
+        }
+
+        @media (max-width: 400px) {
+            .grid { grid-template-columns: 1fr; }
+            .nav-links { gap: 12px; font-size: 13px; }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">InfraSync AI</a>
+        <div class="nav-links">
+            <a href="/">Risk Assessment</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-title">
+            <div class="small-title">AI Risk Assessment</div>
+            <h1>Project Risk Assessment Result</h1>
+            <p>
+                Review the predicted project risk, its contributing factors,
+                and the recommended corrective actions.
+            </p>
+        </div>
+
+        <!-- Initial project risk assessment -->
+        <section class="result-card">
+            <div class="result-header">
+                <div>
+                    <div class="project-label">Project</div>
+                    <div class="project-name">{{ result.project_name }}</div>
+                </div>
+
+                {% set risk = result.risk_level|string|lower %}
+                <div class="risk-box">
+                    <div class="risk-label">Predicted Risk</div>
+                    <div class="risk-value
+                        {% if risk == 'low' %}risk-low
+                        {% elif risk == 'medium' %}risk-medium
+                        {% elif risk == 'high' %}risk-high
+                        {% elif risk == 'critical' %}risk-critical
+                        {% endif %}">
+                        {{ result.risk_level }}
+                    </div>
+                </div>
+            </div>
+
+            <p class="baseline-note">
+                This is the project-creation baseline. No tasks were used
+                at this stage. Updated project risk can be generated later
+                from actual task data.
+            </p>
+
+            <!-- Project summary: baseline and extended metrics -->
+            <h2 class="section-heading">Project Summary</h2>
+            <div class="grid">
+                <div class="metric-card">
+                    <div class="label">Start Date</div>
+                    <div class="value">{{ result.start_date|default('N/A', true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">End Date</div>
+                    <div class="value">{{ result.end_date|default('N/A', true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Timeline</div>
+                    <div class="value">
+                        {{ '%.2f'|format(result.timeline_months|default(0, true)|float) }} mo
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Project Budget</div>
+                    <div class="value">
+                        ${{ '%.2f'|format(result.project_budget|default(0, true)|float) }}
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Team Size</div>
+                    <div class="value">{{ result.team_size|default(0, true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Team Experience</div>
+                    <div class="value">{{ result.team_experience|default('N/A', true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Manager Experience</div>
+                    <div class="value">{{ result.project_manager_experience|default('N/A', true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Stakeholders</div>
+                    <div class="value">{{ result.stakeholder_count|default(0, true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Complexity</div>
+                    <div class="value">
+                        {{ '%.2f'|format(result.complexity_score|default(0, true)|float) }}/10
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Total Tasks</div>
+                    <div class="value">{{ result.total_tasks|default(0, true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Completed Tasks</div>
+                    <div class="value">{{ result.completed_tasks|default(0, true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Pending Tasks</div>
+                    <div class="value">{{ result.pending_tasks|default(0, true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Overdue Tasks</div>
+                    <div class="value">{{ result.overdue_tasks|default(0, true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Completion</div>
+                    <div class="value">{{ result.completion_percentage|default(0, true) }}%</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Delay</div>
+                    <div class="value">{{ result.delay_percentage|default(0, true) }}%</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Project Progress</div>
+                    <div class="value">{{ result.project_progress|default('N/A', true) }}</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Estimated Effort</div>
+                    <div class="value">
+                        {{ '%.2f'|format(result.estimated_effort_hours|default(0, true)|float) }} hrs
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="label">Actual Effort</div>
+                    <div class="value">
+                        {{ '%.2f'|format(result.actual_effort_hours|default(0, true)|float) }} hrs
+                    </div>
+                </div>
+            </div>
+
+            <!-- Explainable AI: SHAP factors -->
+            <section class="xai-section">
+                <div class="xai-header">
+                    <div>
+                        <div class="xai-kicker">Explainable AI</div>
+                        <h2 class="section-heading" style="margin-top:0">
+                            Why was this risk predicted?
+                        </h2>
+                        <p class="xai-subtitle">
+                            SHAP explains which project factors influenced the model's
+                            prediction. Positive contributions increase predicted risk,
+                            while negative contributions reduce it.
+                        </p>
+                    </div>
+
+                    <div class="confidence-box">
+                        <span>Model Confidence</span>
+                        <strong>{{ result.risk_confidence|default(0, true) }}%</strong>
+                    </div>
+                </div>
+
+                {% if result.xai and result.xai.top_factors %}
+                    <div class="factor-list">
+                        {% for factor in result.xai.top_factors %}
+                            <div class="factor-card
+                                {% if factor.shap_value|float > 0 %}
+                                    factor-risk
+                                {% else %}
+                                    factor-safe
+                                {% endif %}">
+                                <div>
+                                    <div class="factor-name">{{ factor.factor }}</div>
+                                    <div class="factor-value">Value: {{ factor.value }}</div>
+                                </div>
+
+                                <div class="factor-impact">
+                                    <span class="impact-label">{{ factor.impact }}</span>
+                                    <strong>{{ '%.4f'|format(factor.shap_value|float) }}</strong>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-xai">
+                        No SHAP factors were available for this prediction.
+                    </p>
+                {% endif %}
+
+                {% if result.xai and result.xai.protective_factors %}
+                    <h3 class="sub-heading">Factors Reducing Risk</h3>
+                    <div class="protective-list">
+                        {% for factor in result.xai.protective_factors %}
+                            <div class="protective-item">
+                                <span>{{ factor.factor }}</span>
+                                <small>{{ factor.value }}</small>
+                                <strong>{{ '%.4f'|format(factor.shap_value|float) }}</strong>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
+
+            <!-- Actionable recommendations -->
+            <section class="recommendation-section">
+                <div class="xai-kicker">Actionable Decision Support</div>
+                <h2 class="section-heading" style="margin-top:0">
+                    Identified Problems &amp; Suggested Actions
+                </h2>
+                <p class="xai-subtitle">
+                    These suggestions translate important risk factors into
+                    practical actions for review. They are recommendations,
+                    not automatic decisions.
+                </p>
+
+                {% if result.xai and result.xai.problems %}
+                    <div class="problem-list">
+                        {% for item in result.xai.problems %}
+                            <div class="problem-card">
+                                <div class="problem-number">{{ loop.index }}</div>
+
+                                <div class="problem-content">
+                                    <div class="problem-title-row">
+                                        <h3>{{ item.factor }}</h3>
+                                        <span class="shap-badge">
+                                            SHAP {{ '%.4f'|format(item.shap_value|float) }}
+                                        </span>
+                                    </div>
+
+                                    <div class="problem-label">Problem Identified</div>
+                                    <p>{{ item.problem }}</p>
+
+                                    <div class="suggestion-label">Suggested Action</div>
+                                    <p class="suggestion-text">{{ item.suggestion }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-problems">
+                        <strong>No specific corrective problem was detected.</strong>
+                        <p>
+                            Continue monitoring the project and review the
+                            explanatory factors above.
+                        </p>
+                    </div>
+                {% endif %}
+            </section>
+
+            <!-- Team members -->
+            <h2 class="section-heading">Team Members</h2>
+            <div class="table-wrapper">
+                {% if result.team_members %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Experience Level</th>
+                                <th>Years of Experience</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in result.team_members %}
+                                <tr>
+                                    <td>{{ member.employee_id|default('N/A', true) }}</td>
+                                    <td>{{ member.employee_name|default('N/A', true) }}</td>
+                                    <td>{{ member.role|default('N/A', true) }}</td>
+                                    <td>{{ member.experience_level|default('N/A', true) }}</td>
+                                    <td>{{ member.years_experience|default('N/A', true) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="empty-message">No team members entered.</p>
+                {% endif %}
+            </div>
+
+            <!-- Stakeholders -->
+            <h2 class="section-heading">Stakeholders</h2>
+            <div class="table-wrapper">
+                {% if result.clients %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Client ID</th>
+                                <th>Name</th>
+                                <th>Organization</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client in result.clients %}
+                                <tr>
+                                    <td>{{ client.client_id|default('N/A', true) }}</td>
+                                    <td>{{ client.client_name|default('N/A', true) }}</td>
+                                    <td>{{ client.organization|default('N/A', true) }}</td>
+                                    <td>{{ client.role|default('N/A', true) }}</td>
+                                    <td>{{ client.email|default('N/A', true) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="empty-message">No stakeholders entered.</p>
+                {% endif %}
+            </div>
+
+            <div class="actions">
+                <a href="/" class="btn primary">New Risk Assessment</a>
+                {% if result.project_id %}
+                    <a href="{{ url_for('project_details.project_details', project_id=result.project_id) }}"
+                       class="btn secondary">
+                        View Project Details
+                    </a>
+                {% endif %}
+                <a href="/dashboard" class="btn secondary">Dashboard</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

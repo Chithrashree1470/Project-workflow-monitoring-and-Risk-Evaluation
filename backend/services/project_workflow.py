@@ -1,9 +1,13 @@
-from backend.explainable_ai import explain_prediction
-
+from explainable_ai import explain_prediction
 from backend.services.project_input import (
     read_tasks_from_form,
     read_team_members,
     read_clients
+)
+from backend.supabase_client import supabase
+
+from backend.services.project_skill import (
+    update_project_skill_metrics
 )
 
 from backend.services.project_risk import (
@@ -13,7 +17,10 @@ from backend.services.project_risk import (
     safe_float,
     calculate_timeline,
     make_feature_row,
-    calculate_task_summary
+    calculate_task_summary,
+    calculate_ml_risk_score,
+    calculate_hybrid_risk,
+    risk_score_to_level
 )
 
 from backend.services.project_service import save_project
@@ -60,6 +67,20 @@ def run_project_prediction(form):
     clients = read_clients()
     tasks = read_tasks_from_form()
 
+    # Read required project technologies
+    required_technologies = [
+        technology.strip()
+        for technology in form.getlist(
+            "Required_Technology"
+        )
+        if technology and technology.strip()
+    ]
+
+    # Remove duplicate technologies
+    required_technologies = list(
+        dict.fromkeys(required_technologies)
+    )
+
     # Build the original project-risk feature row
     (
         input_df,
@@ -90,7 +111,11 @@ def run_project_prediction(form):
         end_date
     )
 
-    # Initial project-risk prediction
+    # ============================================================
+    # INITIAL PROJECT-LEVEL RISK PREDICTION
+    # ============================================================
+
+    # Original CatBoost class prediction
     prediction = model.predict(
         input_df
     )
@@ -132,6 +157,13 @@ def run_project_prediction(form):
                 min(1.0, weighted_score / probability_total)
             )
 
+    # Continuous CatBoost risk score
+    ml_risk_score, risk_probabilities = (
+        calculate_ml_risk_score(
+            input_df
+        )
+    )
+
     # Existing project-level XAI
     xai_result = explain_prediction(
         model,
@@ -157,32 +189,121 @@ def run_project_prediction(form):
         task_summary=task_summary,
         start_date=start_date,
         end_date=end_date,
+        required_technologies=required_technologies,
         predicted_risk_score=predicted_risk_score
     )
+
+    # ============================================================
+    # SKILL METRICS
+    # ============================================================
+
+    skill_metrics = update_project_skill_metrics(
+        project_id
+    )
+
+    skill_gap = skill_metrics["skill_gap"]
+
+    # ============================================================
+    # HYBRID PROJECT RISK
+    # ============================================================
+
+    hybrid_risk_score = calculate_hybrid_risk(
+        ml_risk_score,
+        skill_gap
+    )
+
+    hybrid_risk_level = risk_score_to_level(
+        hybrid_risk_score
+    )
+
+    # ============================================================
+    # SAVE PROJECT RISK SCORES
+    # ============================================================
+
+    risk_update = (
+        supabase
+        .table("projects")
+        .update({
+            "ml_risk_score": ml_risk_score,
+            "hybrid_risk_score": hybrid_risk_score,
+            "hybrid_risk_level": hybrid_risk_level
+        })
+        .eq("id", project_id)
+        .select(
+            "id, ml_risk_score, hybrid_risk_score, hybrid_risk_level"
+        )
+        .execute()
+    )
+
+    print(
+        "[PROJECT HYBRID RISK] DATABASE UPDATE:",
+        risk_update.data
+    )
+
+    if not risk_update.data:
+        raise RuntimeError(
+            f"Failed to save hybrid risk for project {project_id}"
+        )
 
     return {
         "project_id": project_id,
         "project_name": project_name,
         "risk_level": predicted_risk,
         "risk_score": predicted_risk_score,
+        "ml_risk_score": ml_risk_score,
+        "risk_probabilities": risk_probabilities,
+        "hybrid_risk_score": hybrid_risk_score,
+        "hybrid_risk_level": hybrid_risk_level,
         "start_date": start_date,
         "end_date": end_date,
         "project_type": project_type,
 
+        "required_technologies":
+            required_technologies,
+
+        "skill_coverage":
+            skill_metrics["skill_coverage"],
+
+        "skill_gap":
+            skill_metrics["skill_gap"],
+
+        "covered_skills":
+            skill_metrics["covered_skills"],
+
+        "missing_skills":
+            skill_metrics["missing_skills"],
+
+        "team_skills":
+            skill_metrics["team_skills"],
+
         "team_experience": team_experience,
-        "project_manager_experience": pm_experience,
+
+        "project_manager_experience":
+            pm_experience,
 
         "project_budget": project_budget,
+
         "timeline_months": timeline,
+
         "complexity_score": complexity,
 
-        "team_size": len(team_members),
-        "stakeholder_count": len(clients),
+        "team_size":
+            len(team_members),
 
-        "total_tasks": task_summary["total_tasks"],
-        "completed_tasks": task_summary["completed_tasks"],
-        "pending_tasks": task_summary["pending_tasks"],
-        "overdue_tasks": task_summary["overdue_tasks"],
+        "stakeholder_count":
+            len(clients),
+
+        "total_tasks":
+            task_summary["total_tasks"],
+
+        "completed_tasks":
+            task_summary["completed_tasks"],
+
+        "pending_tasks":
+            task_summary["pending_tasks"],
+
+        "overdue_tasks":
+            task_summary["overdue_tasks"],
 
         "completion_percentage":
             task_summary["completion_percentage"],
