@@ -11,6 +11,9 @@ from backend.routes.task_risk import task_risk_bp
 from backend.master_data import master_data_bp
 from backend.manager import manager_bp
 
+from backend.routes.access import access_bp
+
+
 load_dotenv()
 print("SUPABASE_URL:", os.getenv("SUPABASE_URL"))
 print("SUPABASE_KEY exists:", bool(os.getenv("SUPABASE_KEY")))
@@ -24,6 +27,9 @@ app.secret_key = os.getenv(
 app.register_blueprint(project_bp)
 app.register_blueprint(master_data_bp)
 app.register_blueprint(manager_bp)
+
+app.register_blueprint(access_bp)
+
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(project_details_bp)
 app.register_blueprint(tasks_bp)
@@ -42,4 +48,5 @@ if __name__ == "__main__":
     print("Features:", len(MODEL_FEATURES))
     print("Supabase: Connected")
     print("=" * 60)
+
     app.run(debug=True)

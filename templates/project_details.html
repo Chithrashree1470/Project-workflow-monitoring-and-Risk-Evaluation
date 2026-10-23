@@ -1,2448 +1,929 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Project Details | InfraSync AI</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ project.project_name }} | InfraSync AI</title>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #07111f;
-            color: #e5f3ff;
-            min-height: 100vh;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* =========================
-           NAVBAR
-        ========================= */
-
-        .navbar {
-            width: 100%;
-            height: 72px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 7%;
-            background: #081421;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .logo {
-            color: #38bdf8;
-            font-size: 23px;
-            font-weight: 700;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 28px;
-        }
-
-        .nav-links a {
-            color: #b8c9d9;
-            font-size: 14px;
-        }
-
-        .nav-links a:hover {
-            color: #38bdf8;
-        }
-
-        /* =========================
-           MAIN CONTAINER
-        ========================= */
-
-        .container {
-            width: 90%;
-            max-width: 1150px;
-            margin: 0 auto;
-            padding: 45px 0 70px;
-        }
-
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 25px;
-            padding: 10px 17px;
-            background: #142538;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 8px;
-            color: #d6e7f5;
-            font-size: 13px;
-        }
-
-        .back-btn:hover {
-            background: #1b3045;
-            color: #38bdf8;
-        }
-
-        .page-title {
-            margin-bottom: 30px;
-        }
-
-        .page-title h1 {
-            font-size: 34px;
-            color: white;
-            margin-bottom: 8px;
-        }
-
-        .page-title p {
-            color: #8fa5b8;
-            font-size: 14px;
-        }
-
-        /* =========================
-           CARDS
-        ========================= */
-
-        .risk-card {
-            background: #0c1b2b;
-            border: 1px solid rgba(56,189,248,0.15);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 25px;
-        }
-
-        .risk-label {
-            color: #8ea5b9;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-        }
-
-        .risk-value {
-            font-size: 30px;
-            font-weight: 800;
-        }
-
-        .risk-low {
-            color: #22c55e;
-        }
-
-        .risk-medium {
-            color: #facc15;
-        }
-
-        .risk-high {
-            color: #fb923c;
-        }
-
-        .risk-critical {
-            color: #ef4444;
-        }
-
-        .section {
-            background: #0c1b2b;
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 16px;
-            padding: 28px;
-            margin-bottom: 25px;
-        }
-
-        .section h2 {
-            color: #38bdf8;
-            font-size: 20px;
-            margin-bottom: 22px;
-        }
-
-        /* =========================
-           SUMMARY
-        ========================= */
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-        }
-
-        .summary-card {
-            background: #101f30;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 12px;
-            padding: 18px;
-        }
-
-        .summary-label {
-            color: #91a6b8;
-            font-size: 13px;
-            margin-bottom: 9px;
-        }
-
-        .summary-value {
-            color: white;
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        /* =========================
-           TASK TABLE
-        ========================= */
-
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .task-header h2 {
-            margin-bottom: 0;
-        }
-
-        .add-task-btn {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 8px;
-            background: #38bdf8;
-            color: #07111f;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .add-task-btn:hover {
-            background: #7dd3fc;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        .task-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 700px;
-        }
-
-        .task-table th {
-            background: #091625;
-            color: #38bdf8;
-            font-size: 12px;
-            text-align: left;
-            padding: 13px;
-            border-bottom: 1px solid #1e293b;
-        }
-
-        .task-table td {
-            background: #0a1625;
-            color: #dbe7f0;
-            font-size: 13px;
-            padding: 13px;
-            border-bottom: 1px solid #1e293b;
-        }
-
-        .task-loading {
-            color: #8ea5b9;
-            text-align: center;
-            padding: 20px !important;
-        }
-
-        .task-message {
-            display: none;
-            padding: 10px 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 13px;
-        }
-
-        .task-success {
-            display: block;
-            background: rgba(34,197,94,0.12);
-            border: 1px solid rgba(34,197,94,0.3);
-            color: #4ade80;
-        }
-
-        .task-error {
-            display: block;
-            background: rgba(239,68,68,0.12);
-            border: 1px solid rgba(239,68,68,0.3);
-            color: #f87171;
-        }
-
-        .task-action-btn {
-            padding: 7px 11px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-
-        .edit-btn {
-            background: #2563eb;
-            color: white;
-        }
-
-        .delete-btn {
-            background: #dc2626;
-            color: white;
-        }
-
-        /* =========================
-           TASK MODAL
-        ========================= */
-
-        .task-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-
-            width: 100%;
-            height: 100%;
-
-            background: rgba(0, 0, 0, 0.75);
-
-            align-items: center;
-            justify-content: center;
-
-            padding: 20px;
-        }
-
-        /*
-         * IMPORTANT:
-         * The entire form is INSIDE this container.
-         */
-        .task-modal-content {
-            position: relative;
-
-            width: 100%;
-            max-width: 850px;
-
-            max-height: calc(100vh - 40px);
-
-            overflow-y: auto;
-            overflow-x: hidden;
-
-            background: #0c1b2b;
-
-            border: 1px solid rgba(56,189,248,0.25);
-            border-radius: 16px;
-
-            padding: 28px;
-
-            box-shadow: 0 20px 60px rgba(0,0,0,0.45);
-        }
-
-        .task-modal-header {
-            width: 100%;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            margin-bottom: 20px;
-        }
-
-        .task-modal-header h2 {
-            color: #38bdf8;
-            font-size: 22px;
             margin: 0;
+            background: #07111f;
+            color: #e5e7eb;
+            font-family: Arial, sans-serif;
         }
 
-        .close-modal {
-            background: transparent;
-            border: none;
+        a { color: inherit; text-decoration: none; }
 
-            color: #94a3b8;
-
-            font-size: 30px;
-            line-height: 1;
-
-            cursor: pointer;
+        .nav {
+            min-height: 70px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 7%;
         }
 
-        .close-modal:hover {
-            color: white;
-        }
+        .logo { color: #38bdf8; font-weight: 800; font-size: 22px; }
+        .links, .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .links a { color: #cbd5e1; }
+        .container { width: 90%; max-width: 1200px; margin: 35px auto 70px; }
+        .top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+        .muted { color: #94a3b8; }
 
-        /* =========================
-           FORM ERROR
-        ========================= */
-
-        .task-form-error {
-            display: none;
-
-            width: 100%;
-
-            background: rgba(239,68,68,0.12);
-            color: #f87171;
-
-            border: 1px solid rgba(239,68,68,0.35);
+        .btn {
+            border: 1px solid #334155;
+            background: #142538;
+            color: #d6e7f5;
+            padding: 10px 15px;
             border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
 
-            padding: 11px 13px;
+        .btn:disabled { opacity: .55; cursor: wait; }
+        .btn.primary { background: #38bdf8; color: #06111d; border-color: #38bdf8; }
+        .btn.danger { background: #7f1d1d; border-color: #991b1b; color: #fff; }
+        .btn.danger:hover { background: #991b1b; }
+        .btn.small { padding: 7px 10px; font-size: 12px; }
 
-            margin-bottom: 18px;
+        .card, .section {
+            background: #0c1b2b;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 20px;
+        }
 
-            font-size: 13px;
+        .risk { font-size: 36px; font-weight: 900; margin-top: 7px; }
+        .low { color: #22c55e; }
+        .medium { color: #facc15; }
+        .high { color: #fb923c; }
+        .critical { color: #ef4444; }
+
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .item { background: #101f30; border-radius: 10px; padding: 15px; }
+        .item span { display: block; color: #91a6b8; font-size: 12px; margin-bottom: 6px; }
+        .item strong { font-size: 19px; }
+        .tablewrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #1e293b;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th { color: #38bdf8; font-size: 12px; }
+        .badge { display: inline-block; padding: 5px 8px; border-radius: 6px; background: #101f30; font-size: 12px; }
+        .role { color: #38bdf8; font-weight: 800; }
+
+        .notice {
+            background: #081827;
+            border: 1px solid rgba(56,189,248,.18);
+            border-radius: 10px;
+            padding: 14px;
+            color: #b8c9d9;
             line-height: 1.5;
+        }
 
-            white-space: pre-wrap;
+        .editor {
+            display: none;
+            margin-top: 18px;
+            padding: 20px;
+            background: #081827;
+            border: 1px solid rgba(56,189,248,.2);
+            border-radius: 12px;
+        }
+
+        .formgrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .formgrid label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .formgrid input, .formgrid select, .formgrid textarea,
+        .inline-edit {
+            width: 100%;
+            margin-top: 6px;
+            background: #07111f;
+            color: #fff;
+            border: 1px solid #334155;
+            border-radius: 7px;
+            padding: 10px;
+        }
+
+        .inline-edit { min-width: 100px; margin: 0; }
+        .full { grid-column: 1 / -1; }
+
+        .message {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 10px;
+            min-height: 18px;
             overflow-wrap: anywhere;
         }
 
-        /* =========================
-           FORM
-        ========================= */
+        .message.error { color: #fca5a5; }
+        .message.success { color: #86efac; }
+        .empty { color: #64748b; padding: 20px; text-align: center; }
+        .row-actions { display: flex; gap: 6px; align-items: center; }
+        .editing-row { background: rgba(56,189,248,.04); }
 
-        #taskForm {
-            width: 100%;
-            display: block;
+        @media(max-width: 900px) {
+            .grid, .formgrid { grid-template-columns: 1fr 1fr; }
+            .top { flex-direction: column; }
         }
 
-        .task-form-grid {
-            width: 100%;
-
-            display: grid;
-
-            grid-template-columns: minmax(0,1fr) minmax(0,1fr);
-
-            gap: 16px;
-        }
-
-        .task-form-group {
-            width: 100%;
-            min-width: 0;
-
-            display: flex;
-            flex-direction: column;
-
-            gap: 7px;
-        }
-
-        .task-form-group.full {
-            grid-column: 1 / -1;
-        }
-
-        .task-form-group label {
-            color: #91a6b8;
-            font-size: 12px;
-        }
-
-        .task-form-group input,
-        .task-form-group textarea,
-        .task-form-group select {
-            width: 100%;
-            max-width: 100%;
-
-            padding: 10px 12px;
-
-            background: #091625;
-
-            border: 1px solid #26384b;
-            border-radius: 7px;
-
-            color: #e5f3ff;
-
-            outline: none;
-
-            font-family: inherit;
-            font-size: 14px;
-
-            box-sizing: border-box;
-        }
-
-        .task-form-group input,
-        .task-form-group select {
-            height: 42px;
-        }
-
-        .task-form-group textarea {
-            min-height: 90px;
-            resize: vertical;
-        }
-
-        .task-form-group input:focus,
-        .task-form-group textarea:focus,
-        .task-form-group select:focus {
-            border-color: #38bdf8;
-        }
-
-        .task-form-group input::placeholder,
-        .task-form-group textarea::placeholder {
-            color: #64748b;
-        }
-
-        /* =========================
-           FORM BUTTONS
-        ========================= */
-
-        .task-modal-actions {
-            width: 100%;
-
-            display: flex;
-            justify-content: flex-end;
-
-            gap: 10px;
-
-            margin-top: 25px;
-
-            padding-top: 18px;
-
-            border-top: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .task-form-submit,
-        .task-form-cancel {
-            padding: 10px 20px;
-
-            border: none;
-            border-radius: 8px;
-
-            font-weight: 700;
-
-            cursor: pointer;
-        }
-
-        .task-form-submit {
-            background: #38bdf8;
-            color: #07111f;
-        }
-
-        .task-form-submit:hover {
-            background: #7dd3fc;
-        }
-
-        .task-form-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .task-form-cancel {
-            background: #334155;
-            color: white;
-        }
-
-        .task-form-cancel:hover {
-            background: #475569;
-        }
-
-        /* =========================
-           TEAM / STAKEHOLDERS
-        ========================= */
-
-        .empty-message {
-            color: #8ea5b9;
-            font-size: 14px;
-            padding: 5px 0;
-        }
-
-        /* =========================
-           FOOTER
-        ========================= */
-
-        footer {
-            text-align: center;
-            color: #71869a;
-            font-size: 13px;
-            padding: 20px;
-            border-top: 1px solid rgba(255,255,255,0.06);
-        }
-
-        /* =========================
-           RESPONSIVE
-        ========================= */
-
-        @media (max-width: 900px) {
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 700px) {
-            .task-form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .task-form-group.full {
-                grid-column: auto;
-            }
-
-            .task-modal {
-                padding: 12px;
-            }
-
-            .task-modal-content {
-                max-height: calc(100vh - 24px);
-                padding: 20px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .navbar {
-                padding: 0 5%;
-            }
-
-            .nav-links {
-                gap: 15px;
-            }
-
-            .container {
-                width: 94%;
-            }
-
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .task-header {
-                align-items: flex-start;
-                gap: 15px;
-            }
+        @media(max-width: 600px) {
+            .grid, .formgrid { grid-template-columns: 1fr; }
+            .nav { padding: 12px 5%; }
+            .container { width: 94%; }
         }
     </style>
 </head>
 
 <body>
+<nav class="nav">
+    <a class="logo" href="/">InfraSync AI</a>
+    <div class="links">
+        <a href="/dashboard">Dashboard</a>
+        <span class="role">{{ role|upper }}</span>
+    </div>
+</nav>
 
-    <!-- =========================
-         NAVBAR
-    ========================= -->
-
-    <nav class="navbar">
-
-        <a href="/" class="logo">
-            InfraSync AI
-        </a>
-
-        <div class="nav-links">
-            <a href="/">Risk Assessment</a>
-            <a href="/dashboard">Dashboard</a>
+<main class="container">
+    <div class="top">
+        <div>
+            <h1>{{ project.project_name }}</h1>
+            <p class="muted">Project details, current risk and execution workflow.</p>
         </div>
 
-    </nav>
+        <div class="actions">
+            {% if role in ['manager', 'employee'] %}
+            <button class="btn primary" type="button" onclick="toggleEditor()">
+                Edit / Add Tasks
+            </button>
+            {% endif %}
 
-
-    <!-- =========================
-         MAIN
-    ========================= -->
-
-    <main class="container">
-
-        <a href="/dashboard" class="back-btn">
-            ← Back to Dashboard
-        </a>
-
-
-        <!-- PROJECT TITLE -->
-
-        <div class="page-title">
-
-            <h1>
-                {{ project.project_name }}
-            </h1>
-
-            <p>
-                Project details and initial AI risk assessment
-            </p>
-
+            <button class="btn primary" id="pageGenerateRisk"
+                    type="button" onclick="generateRisk()">
+                Generate Risk
+            </button>
         </div>
-
-
-        <!-- RISK -->
-
-        {% set risk = project.predicted_risk|string|lower %}
-
-        <section class="risk-card">
-
-            <div>
-
-                <div class="risk-label">
-                    Predicted Risk
-                </div>
-
-                <div class="
-                    risk-value
-                    {% if risk == 'low' %}risk-low
-                    {% elif risk == 'medium' %}risk-medium
-                    {% elif risk == 'high' %}risk-high
-                    {% elif risk == 'critical' %}risk-critical
-                    {% endif %}
-                ">
-
-                    {{ project.current_risk }}
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-<!-- =========================
-     PROJECT SUMMARY
-========================= -->
-
-<section class="section">
-
-    <h2>
-        Project Summary
-    </h2>
-
-    <div class="summary-grid">
-
-        <!-- TEAM SIZE -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Team Size
-            </div>
-            <div class="summary-value">
-                {{ project.team_size | default(0, true) }}
-            </div>
-        </div>
-
-
-        <!-- STAKEHOLDERS -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Stakeholders
-            </div>
-            <div class="summary-value">
-                {{ details.stakeholder_count | default(0, true) }}
-            </div>
-        </div>
-
-
-        <!-- TIMELINE -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Timeline
-            </div>
-            <div class="summary-value">
-                {{ project.timeline_months | default(0, true) }}
-                months
-            </div>
-        </div>
-
-
-        <!-- COMPLEXITY -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Complexity
-            </div>
-            <div class="summary-value">
-                {{ project.complexity_score | default(0, true) }}
-                / 10
-            </div>
-        </div>
-
-
-        <!-- TOTAL TASKS -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Total Tasks
-            </div>
-            <div class="summary-value">
-                {{ project.total_tasks | default(0, true) }}
-            </div>
-        </div>
-
-
-        <!-- COMPLETED TASKS -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Completed Tasks
-            </div>
-            <div class="summary-value">
-                {{ project.completed_tasks | default(0, true) }}
-            </div>
-        </div>
-
-
-        <!-- PENDING TASKS -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Pending Tasks
-            </div>
-            <div class="summary-value">
-                {{ project.pending_tasks | default(0, true) }}
-            </div>
-        </div>
-
-
-        <!-- OVERDUE TASKS -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Overdue Tasks
-            </div>
-            <div class="summary-value">
-                {{ project.overdue_tasks | default(0, true) }}
-            </div>
-        </div>
-
-
-        <!-- PROJECT PROGRESS -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Project Progress
-            </div>
-            <div class="summary-value">
-                {{ project.project_progress | default("Not Started", true) }}
-            </div>
-        </div>
-
-
-        <!-- COMPLETION -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Completion
-            </div>
-            <div class="summary-value">
-                {{ project.completion_percentage | default(0, true) }}%
-            </div>
-        </div>
-
-
-        <!-- DELAY -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Delay
-            </div>
-            <div class="summary-value">
-                {{ project.delay_percentage | default(0, true) }}%
-            </div>
-        </div>
-
-
-        <!-- ESTIMATED EFFORT -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Estimated Effort
-            </div>
-            <div class="summary-value">
-
-                {% set estimated_hours =
-                    project.estimated_effort_hours
-                    | default(0, true)
-                    | float
-                %}
-
-                {% if estimated_hours == 0 %}
-                    0 hrs
-                {% else %}
-                    {{ estimated_hours|round(2) }} hrs
-                {% endif %}
-
-            </div>
-        </div>
-
-
-        <!-- ACTUAL EFFORT -->
-        <div class="summary-card">
-            <div class="summary-label">
-                Actual Effort
-            </div>
-            <div class="summary-value">
-
-                {% set actual_hours =
-                    project.actual_effort_hours
-                    | default(0, true)
-                    | float
-                %}
-
-                {% if actual_hours == 0 %}
-                    0 hrs
-                {% else %}
-                    {{ actual_hours|round(2) }} hrs
-                {% endif %}
-
-            </div>
-        </div>
-
     </div>
 
-</section>
-
-
-        <!-- =========================
-             TASK DETAILS
-        ========================= -->
-
-        <section class="section">
-
-            <div class="task-header">
-
-                <h2>
-                    Task Details
-                </h2>
-
-                <button
-                    type="button"
-                    class="add-task-btn"
-                    onclick="openAddTaskModal()"
-                >
-                    + Add Task
-                </button>
-
-            </div>
-
-            <div
-                id="taskMessage"
-                class="task-message"
-            ></div>
-
-            <div class="table-wrapper">
-
-                <table class="task-table">
-
-                    <thead>
-
-                        <tr>
-                            <th>#</th>
-                            <th>Task</th>
-                            <th>Assigned To</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Estimated Hours</th>
-                            <th>Deadline</th>
-                            <th>Actions</th>
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="taskTableBody">
-
-                        <tr>
-                            <td
-                                colspan="8"
-                                class="task-loading"
-                            >
-                                Loading tasks...
-                            </td>
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-
-        <!-- =========================
-             TASK MODAL
-        ========================= -->
-
-        <div
-            id="taskModal"
-            class="task-modal"
-        >
-
-            <div class="task-modal-content">
-
-                <!-- HEADER -->
-
-                <div class="task-modal-header">
-
-                    <h2 id="taskModalTitle">
-                        Add Task
-                    </h2>
-
-                    <button
-                        type="button"
-                        class="close-modal"
-                        onclick="closeTaskModal()"
-                    >
-                        &times;
-                    </button>
-
-                </div>
-
-
-                <!-- ERROR -->
-
-                <div
-                    id="taskFormError"
-                    class="task-form-error"
-                ></div>
-
-
-                <!-- FORM -->
-
-                <form
-                    id="taskForm"
-                    onsubmit="submitTask(event)"
-                >
-
-                    <input
-                        type="hidden"
-                        id="taskId"
-                    >
-
-
-                    <div class="task-form-grid">
-
-                        <!-- TITLE -->
-
-                        <div class="task-form-group full">
-
-                            <label for="taskTitle">
-                                Task Title *
-                            </label>
-
-                            <input
-                                type="text"
-                                id="taskTitle"
-                                required
-                            >
-
-                        </div>
-
-
-                        <!-- DESCRIPTION -->
-
-                        <div class="task-form-group full">
-
-                            <label for="taskDescription">
-                                Description
-                            </label>
-
-                            <textarea
-                                id="taskDescription"
-                            ></textarea>
-
-                        </div>
-
-
-                        <!-- ASSIGNED TO -->
-
-                        <div class="task-form-group">
-
-                            <label for="taskAssignedTo">
-                                Assigned To
-                            </label>
-
-                            <input
-                                type="text"
-                                id="taskAssignedTo"
-                                placeholder="EMP-001"
-                            >
-
-                        </div>
-
-
-                        <!-- CREATED BY -->
-
-                        <div class="task-form-group">
-
-                            <label for="taskCreatedBy">
-                                Created By *
-                            </label>
-
-                            <input
-                                type="text"
-                                id="taskCreatedBy"
-                                value="EMP-001"
-                                required
-                            >
-
-                        </div>
-
-
-                        <!-- TASK TYPE -->
-
-                        <div class="task-form-group">
-
-                            <label for="taskType">
-                                Task Type
-                            </label>
-
-                            <input
-                                type="text"
-                                id="taskType"
-                                placeholder="Bug / Feature / Task"
-                            >
-
-                        </div>
-
-
-                        <!-- PRIORITY -->
-
-                        <div class="task-form-group">
-
-                            <label for="taskPriority">
-                                Priority *
-                            </label>
-
-                            <select
-                                id="taskPriority"
-                                required
-                            >
-
-                                <option value="Low">
-                                    Low
-                                </option>
-
-                                <option
-                                    value="Medium"
-                                    selected
-                                >
-                                    Medium
-                                </option>
-
-                                <option value="High">
-                                    High
-                                </option>
-
-                                <option value="Critical">
-                                    Critical
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- STATUS -->
-
-                        <div class="task-form-group">
-
-                            <label for="taskStatus">
-                                Status *
-                            </label>
-
-                            <select
-                                id="taskStatus"
-                                required
-                            >
-
-                                <option value="TO_DO">
-                                    To Do
-                                </option>
-
-                                <option value="IN_PROGRESS">
-                                    In Progress
-                                </option>
-
-                                <option value="IN_REVIEW">
-                                    In Review
-                                </option>
-
-                                <option value="CLOSED">
-                                    Closed
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- ESTIMATED HOURS -->
-
-                        <div class="task-form-group">
-
-                            <label for="taskEstimatedHours">
-                                Estimated Hours *
-                            </label>
-
-                            <input
-                                type="number"
-                                id="taskEstimatedHours"
-                                min="0"
-                                step="0.01"
-                                required
-                            >
-
-                        </div>
-
-
-                        <!-- STORY POINTS -->
-
-                        <div class="task-form-group">
-
-                            <label for="taskStoryPoints">
-                                Story Points
-                            </label>
-
-                            <input
-                                type="number"
-                                id="taskStoryPoints"
-                                min="0"
-                                step="1"
-                            >
-
-                        </div>
-
-
-                        <!-- START DATE -->
-
-                        <div class="task-form-group">
-
-                            <label for="taskStartDate">
-                                Start Date
-                            </label>
-
-                            <input
-                                type="date"
-                                id="taskStartDate"
-                            >
-
-                        </div>
-
-
-                        <!-- DEADLINE -->
-
-                        <div class="task-form-group">
-
-                            <label for="taskDeadline">
-                                Deadline *
-                            </label>
-
-                            <input
-                                type="date"
-                                id="taskDeadline"
-                                required
-                            >
-
-                        </div>
-
-
-                        <!-- SPRINT -->
-
-                        <div class="task-form-group">
-
-                            <label for="taskSprint">
-                                Sprint
-                            </label>
-
-                            <input
-                                type="text"
-                                id="taskSprint"
-                                placeholder="Sprint 1"
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- BUTTONS -->
-
-                    <div class="task-modal-actions">
-
-                        <button
-                            type="button"
-                            class="task-form-cancel"
-                            onclick="closeTaskModal()"
-                        >
-                            Cancel
-                        </button>
-
-                        <button
-                            type="submit"
-                            class="task-form-submit"
-                            id="taskSubmitButton"
-                        >
-                            Create Task
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </div>
-
+    <section class="card">
+        <div class="muted" style="font-size:12px;text-transform:uppercase;">
+            Current Project Risk
         </div>
 
+        <div id="riskValue" class="risk {{ project.current_risk|lower }}">
+            {{ project.current_risk }}
+        </div>
 
-        <!-- =========================
-             TEAM MEMBERS
-        ========================= -->
-
-        <section class="section">
-
-            <h2>
-                Team Members
-            </h2>
-
-            {% if details.team_members is defined
-                  and details.team_members %}
-
-                <div class="table-wrapper">
-
-                    <table class="task-table">
-
-                        <thead>
-
-                            <tr>
-                                <th>Employee ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Department</th>
-                                <th>Experience</th>
-                                <th>Years</th>
-                                <th>Skills</th>
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            {% for member in details.team_members %}
-
-                                <tr>
-
-                                    <td>
-                                        {{ member.employee_id|default("", true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ member.employee_name|default("", true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ member.email|default("", true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ member.role|default("", true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ member.department|default("", true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ member.experience_level|default("", true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ member.years_experience|default(0, true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ member.skills|default("", true) }}
-                                    </td>
-
-                                </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
+        <div class="message" id="riskDetails">
+            {% if dynamic_risk %}
+                Dynamic score: {{ '%.4f'|format(dynamic_risk.risk_score|float) }}
+                · Trend: {{ dynamic_risk.risk_trend|default('Stable') }}
             {% else %}
+                Initial project-level CatBoost risk. Add tasks, then click Generate Risk.
+            {% endif %}
+        </div>
+    </section>
 
-                <div class="empty-message">
-                    No team members available.
+    <section class="section">
+        <h2>Project Summary</h2>
+        <div class="grid">
+            <div class="item"><span>Team Size</span><strong>{{ details.team_members|length }}</strong></div>
+            <div class="item"><span>Stakeholders</span><strong>{{ details.clients|length }}</strong></div>
+            <div class="item"><span>Timeline</span><strong>{{ '%.2f'|format(project.timeline_months|default(0)|float) }} mo</strong></div>
+            <div class="item"><span>Complexity</span><strong>{{ '%.2f'|format(project.complexity_score|default(0)|float) }}/10</strong></div>
+            <div class="item"><span>Total Tasks</span><strong>{{ project.total_tasks|default(0) }}</strong></div>
+            <div class="item"><span>Completed</span><strong>{{ project.completed_tasks|default(0) }}</strong></div>
+            <div class="item"><span>Progress</span><strong>{{ project.project_progress|default('Not Started', true) }}</strong></div>
+            <div class="item"><span>Estimated Effort</span><strong>{{ project.estimated_effort_hours|default(0) }} hrs</strong></div>
+            <div class="item"><span>Actual Effort</span><strong>{{ project.actual_effort_hours|default(0) }} hrs</strong></div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Team Members</h2>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Employee ID</th><th>Name</th><th>Email</th>
+                    <th>Role</th><th>Department</th><th>Experience</th>
+                    <th>Years</th><th>Skills</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for member in details.team_members %}
+                <tr>
+                    <td>{{ member.employee_id }}</td>
+                    <td>{{ member.employee_name }}</td>
+                    <td>{{ member.email }}</td>
+                    <td>{{ member.role }}</td>
+                    <td>{{ member.department }}</td>
+                    <td>{{ member.experience_level }}</td>
+                    <td>{{ member.years_experience }}</td>
+                    <td>{{ member.skills }}</td>
+                </tr>
+                {% else %}
+                <tr><td class="empty" colspan="8">No employees assigned.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Clients / Stakeholders</h2>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Client ID</th><th>Name</th><th>Organization</th>
+                    <th>Role</th><th>Email</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for client in details.clients %}
+                <tr>
+                    <td>{{ client.client_id }}</td>
+                    <td>{{ client.client_name }}</td>
+                    <td>{{ client.organization }}</td>
+                    <td>{{ client.role }}</td>
+                    <td>{{ client.email }}</td>
+                </tr>
+                {% else %}
+                <tr><td class="empty" colspan="5">No clients assigned.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="top">
+            <div>
+                <h2 style="margin-bottom:5px;">Tasks &amp; Execution Risk</h2>
+                <p class="muted">Use Edit / Add Tasks to edit, add or remove tasks.</p>
+            </div>
+        </div>
+
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Task</th><th>Assigned To</th><th>Priority</th>
+                    <th>Status</th><th>Deadline</th><th>Estimate</th>
+                    <th>Actual</th><th>Task Risk</th>
+                    {% if role in ['manager', 'employee'] %}<th>Actions</th>{% endif %}
+                </tr>
+                </thead>
+
+                <tbody id="taskTableBody">
+                {% for task in tasks %}
+                    {% set prediction = task_predictions.get(task.task_id|string) %}
+                    <tr data-task-id="{{ task.task_id }}"
+                        data-title="{{ task.title|default('', true) }}"
+                        data-assigned="{{ task.assigned_to|default('', true) }}"
+                        data-priority="{{ task.priority|default('Medium', true) }}"
+                        data-status="{{ task.status|default('TO_DO', true) }}"
+                        data-deadline="{{ task.deadline|default('', true) }}"
+                        data-estimated="{{ task.estimated_hours|default(0, true) }}"
+                        data-actual="{{ task.actual_hours|default(0, true) }}"
+                        data-description="{{ task.description|default('', true) }}"
+                        data-task-type="{{ task.task_type|default('Task', true) }}">
+
+                        <td data-field="title">{{ task.title }}</td>
+                        <td data-field="assigned_to">{{ task.assigned_to }}</td>
+                        <td data-field="priority">{{ task.priority }}</td>
+                        <td data-field="status">{{ task.status }}</td>
+                        <td data-field="deadline">{{ task.deadline }}</td>
+                        <td data-field="estimated_hours">{{ task.estimated_hours|default(0) }} hrs</td>
+                        <td data-field="actual_hours">{{ task.actual_hours|default(0) }} hrs</td>
+
+                        <td data-task-risk>
+                            {% if prediction %}
+                            <span class="badge">
+                                {{ prediction.risk_label }} ·
+                                {{ '%.3f'|format(prediction.risk_score|float) }}
+                            </span>
+                            {% else %}
+                            <span class="muted">Not calculated</span>
+                            {% endif %}
+                        </td>
+
+                        {% if role in ['manager', 'employee'] %}
+                        <td>
+                            <div class="row-actions task-actions" style="display:none;">
+                                <button class="btn small" type="button"
+                                        onclick="editTask(this)">Edit</button>
+                                <button class="btn danger small" type="button"
+                                        onclick="removeTask(this)">Remove</button>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% else %}
+                    <tr id="noTasksRow">
+                        <td class="empty"
+                            colspan="{% if role in ['manager', 'employee'] %}9{% else %}8{% endif %}">
+                            No tasks yet. Add a task to get started.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if role in ['manager', 'employee'] %}
+        <div id="editor" class="editor">
+            <div class="notice">
+                Edit task details in the table, then click <strong>Save All Changes</strong>.
+                New tasks can be added below. Generate Risk is available at the top of this page.
+            </div>
+
+            {% if role == 'manager' %}
+            <div class="notice" style="margin-top:14px;">
+                <strong>Task planning</strong>
+                <p>First choose how many tasks you need. Then generate suggestions based on the saved project type or enter tasks manually.</p>
+                <div style="max-width:260px;margin:12px 0;">
+                    <label for="taskCount">Total number of tasks</label>
+                    <input id="taskCount" type="number" min="1" max="30" value="5">
                 </div>
-
+                <div class="actions">
+                    <button class="btn primary" type="button" id="generateTaskSuggestionsButton" onclick="generateTaskSuggestions()">Generate Tasks Automatically</button>
+                    <button class="btn" type="button" onclick="startManualTasks()">Add Task Manually</button>
+                </div>
+                <div id="taskGenerationMessage" class="message" role="status" aria-live="polite"></div>
+                <div id="generatedTasks"></div>
+                <div class="actions" id="taskFormActions" style="display:none;margin-top:14px;">
+                    <button class="btn primary" type="button" id="saveGeneratedTasksButton" onclick="saveGeneratedTasks()">Save Tasks</button>
+                </div>
+            </div>
             {% endif %}
 
-        </section>
+            <div class="actions" style="margin-top:15px;">
+                <button class="btn primary" id="saveAllButton" type="button"
+                        onclick="saveAllChanges()">Save All Changes</button>
+                <button class="btn" type="button" onclick="cancelEditing()">Cancel Editing</button>
+            </div>
 
-
-        <!-- =========================
-             STAKEHOLDERS
-        ========================= -->
-
-        <section class="section">
-
-            <h2>
-                Stakeholders
-            </h2>
-
-            {% if details.clients is defined
-                  and details.clients %}
-
-                <div class="table-wrapper">
-
-                    <table class="task-table">
-
-                        <thead>
-
-                            <tr>
-                                <th>Client ID</th>
-                                <th>Name</th>
-                                <th>Organization</th>
-                                <th>Role</th>
-                                <th>Email</th>
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            {% for client in details.clients %}
-
-                                <tr>
-
-                                    <td>
-                                        {{ client.client_id|default("", true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ client.client_name|default("", true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ client.organization|default("", true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ client.role|default("", true) }}
-                                    </td>
-
-                                    <td>
-                                        {{ client.email|default("", true) }}
-                                    </td>
-
-                                </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
+            {% if role != 'manager' %}
+            <h3>Add Task</h3>
+            <div class="formgrid">
+                <div class="full">
+                    <label for="title">Task Title</label>
+                    <input id="title" required>
                 </div>
 
-            {% else %}
-
-                <div class="empty-message">
-                    No stakeholders available.
+                <div>
+                    <label for="assigned">Assigned Employee</label>
+                    <select id="assigned" required>
+                        {% for member in details.team_members %}
+                        <option value="{{ member.employee_id }}">
+                            {{ member.employee_id }} — {{ member.employee_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
                 </div>
 
+                <div>
+                    <label for="priority">Priority</label>
+                    <select id="priority">
+                        <option>Low</option><option selected>Medium</option>
+                        <option>High</option><option>Critical</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="status">Status</label>
+                    <select id="status">
+                        <option value="TO_DO" selected>TO_DO</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="IN_REVIEW">IN_REVIEW</option>
+                        <option value="CLOSED">CLOSED</option>
+                    </select>
+                </div>
+
+                {% set project_start_date = project.start_date|default(details.start_date|default('', true), true)|default('', true) %}
+                {% set project_end_date = project.end_date|default(details.end_date|default('', true), true)|default('', true) %}
+
+                <div>
+                    <label for="deadline">Task Deadline</label>
+                    <input type="date" id="deadline"
+                           min="{{ project_start_date[:10] if project_start_date else '' }}"
+                           max="{{ project_end_date[:10] if project_end_date else '' }}"
+                           required>
+                    <small class="muted">Keep the deadline within the project dates.</small>
+                </div>
+
+                <div>
+                    <label for="estimatedHours">Estimated Hours</label>
+                    <input type="number" id="estimatedHours" min="0.5" step="0.5" required>
+                </div>
+
+                <div>
+                    <label for="actualHours">Actual Hours</label>
+                    <input type="number" id="actualHours" min="0" step="0.5" value="0">
+                </div>
+
+                <div>
+                    <label for="taskType">Task Type</label>
+                    <input id="taskType" value="Task">
+                </div>
+
+                <div class="full">
+                    <label for="description">Description</label>
+                    <textarea id="description" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="actions" style="margin-top:15px;">
+                <button class="btn" id="saveTaskButton" type="button" onclick="saveTask()">
+                    Save Task
+                </button>
+            </div>
+
+            <div id="editMessage" class="message" role="status" aria-live="polite"></div>
             {% endif %}
+        </div>
+        {% endif %}
+    </section>
+</main>
 
-        </section>
+<script>
+const projectId = {{ project.id|tojson }};
+const currentRole = {{ (role or '')|tojson }};
+const subjectId = {{ (subject_id or '')|tojson }};
 
-    </main>
+let editingEnabled = false;
+const originalRows = new Map();
 
+function message(text, type = '') {
+    const element = document.getElementById('editMessage');
+    if (!element) return;
+    element.textContent = text;
+    element.className = 'message' + (type ? ' ' + type : '');
+}
 
-    <footer>
-        InfraSync AI &nbsp; | &nbsp;
-        AI-Based Predictive Workflow Monitoring System
-    </footer>
+async function readApiResponse(response) {
+    const contentType = response.headers.get('content-type') || '';
+    const body = await response.text();
 
-
-    <!-- =========================
-         JAVASCRIPT
-    ========================= -->
-
-    <script>
-
-        let editingTaskId = null;
-
-
-        /* =====================================================
-           PROJECT ID
-        ===================================================== */
-
-        const PROJECT_ID = String(
-            "{{ project.project_id | default(project.id, true) }}"
+    if (!contentType.includes('application/json')) {
+        const preview = body.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        throw new Error(
+            `Server returned HTML instead of JSON (HTTP ${response.status}). ` +
+            (preview.slice(0, 180) || 'Check the Flask terminal and API route.')
         );
+    }
 
+    try {
+        return JSON.parse(body);
+    } catch {
+        throw new Error(`Server returned invalid JSON (HTTP ${response.status}).`);
+    }
+}
 
-        /* =====================================================
-           LOAD TASKS
-        ===================================================== */
+function toggleEditor() {
+    const editor = document.getElementById('editor');
+    if (!editor) return;
 
-        async function loadTasks() {
+    editingEnabled = !editingEnabled;
+    editor.style.display = editingEnabled ? 'block' : 'none';
 
-            const tableBody =
-                document.getElementById("taskTableBody");
+    document.querySelectorAll('.task-actions').forEach(actions => {
+        actions.style.display = editingEnabled ? 'flex' : 'none';
+    });
 
-            try {
+    if (editingEnabled) {
+        document.querySelectorAll('#taskTableBody tr[data-task-id]').forEach(row => {
+            originalRows.set(row.dataset.taskId, snapshotRow(row));
+        });
+        editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('title')?.focus({ preventScroll: true });
+    } else {
+        cancelInlineEdits();
+    }
+}
 
-                const response = await fetch(
-                    `/api/tasks/project/${encodeURIComponent(PROJECT_ID)}`
-                );
+function snapshotRow(row) {
+    return {
+        title: row.dataset.title || '',
+        assigned_to: row.dataset.assigned || '',
+        priority: row.dataset.priority || 'Medium',
+        status: row.dataset.status || 'TO_DO',
+        deadline: (row.dataset.deadline || '').slice(0, 10),
+        estimated_hours: row.dataset.estimated || '0',
+        actual_hours: row.dataset.actual || '0',
+        description: row.dataset.description || '',
+        task_type: row.dataset.taskType || 'Task'
+    };
+}
 
-                const text = await response.text();
+function cancelInlineEdits() {
+    document.querySelectorAll('#taskTableBody tr[data-task-id]').forEach(row => {
+        const old = originalRows.get(row.dataset.taskId);
+        if (old) renderRow(row, old);
+    });
+}
 
-                let data = {};
+function renderRow(row, data) {
+    row.classList.remove('editing-row');
+    row.dataset.title = data.title;
+    row.dataset.assigned = data.assigned_to;
+    row.dataset.priority = data.priority;
+    row.dataset.status = data.status;
+    row.dataset.deadline = data.deadline;
+    row.dataset.estimated = data.estimated_hours;
+    row.dataset.actual = data.actual_hours;
+    row.dataset.description = data.description || '';
+    row.dataset.taskType = data.task_type || 'Task';
 
-                try {
-                    data = text ? JSON.parse(text) : {};
-                } catch {
-                    data = {
-                        error: text || "Invalid server response."
-                    };
-                }
+    row.querySelector('[data-field="title"]').textContent = data.title;
+    row.querySelector('[data-field="assigned_to"]').textContent = data.assigned_to;
+    row.querySelector('[data-field="priority"]').textContent = data.priority;
+    row.querySelector('[data-field="status"]').textContent = data.status;
+    row.querySelector('[data-field="deadline"]').textContent = data.deadline;
+    row.querySelector('[data-field="estimated_hours"]').textContent = `${data.estimated_hours} hrs`;
+    row.querySelector('[data-field="actual_hours"]').textContent = `${data.actual_hours} hrs`;
+}
 
-                if (!response.ok) {
+function editTask(button) {
+    const row = button.closest('tr');
+    if (!row) return;
 
-                    throw new Error(
-                        data.error ||
-                        `Failed to load tasks (${response.status}).`
-                    );
-                }
+    if (row.classList.contains('editing-row')) return;
 
-                renderTasks(data.tasks || []);
+    const data = snapshotRow(row);
+    row.classList.add('editing-row');
 
-            } catch (error) {
+    const fields = [
+        ['title', 'text'],
+        ['assigned_to', 'text'],
+        ['priority', 'priority'],
+        ['status', 'status'],
+        ['deadline', 'date'],
+        ['estimated_hours', 'number'],
+        ['actual_hours', 'number']
+    ];
 
-                console.error("Load tasks error:", error);
+    fields.forEach(([field, type]) => {
+        const cell = row.querySelector(`[data-field="${field}"]`);
+        if (!cell) return;
 
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="task-loading">
-                            ${escapeHtml(error.message)}
-                        </td>
-                    </tr>
-                `;
-            }
+        if (type === 'priority') {
+            cell.innerHTML = `<select class="inline-edit" data-edit-field="${field}">
+                ${['Low','Medium','High','Critical'].map(v =>
+                    `<option ${v === data[field] ? 'selected' : ''}>${v}</option>`
+                ).join('')}
+            </select>`;
+        } else if (type === 'status') {
+            const statuses = ['TO_DO','IN_PROGRESS','IN_REVIEW','CLOSED'];
+            cell.innerHTML = `<select class="inline-edit" data-edit-field="${field}">
+                ${statuses.map(v =>
+                    `<option value="${v}" ${v === data[field] ? 'selected' : ''}>${v}</option>`
+                ).join('')}
+            </select>`;
+        } else if (type === 'number') {
+            cell.innerHTML = `<input class="inline-edit" data-edit-field="${field}"
+                type="number" min="0" step="0.5" value="${escapeHtml(data[field])}">`;
+        } else {
+            cell.innerHTML = `<input class="inline-edit" data-edit-field="${field}"
+                type="${type}" value="${escapeHtml(data[field])}">`;
         }
-
-
-        /* =====================================================
-           RENDER TASKS
-        ===================================================== */
-
-        function renderTasks(tasks) {
-
-            const tableBody =
-                document.getElementById("taskTableBody");
-
-            tableBody.innerHTML = "";
-
-            if (!tasks.length) {
-
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="task-loading">
-                            No tasks found.
-                        </td>
-                    </tr>
-                `;
-
-                return;
-            }
-
-
-            tasks.forEach((task, index) => {
-
-                const row =
-                    document.createElement("tr");
-
-                row.innerHTML = `
-
-                    <td>
-                        ${index + 1}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(task.title || "-")}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(task.assigned_to || "-")}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(task.priority || "-")}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(formatStatus(task.status))}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            task.estimated_hours ?? "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            formatDate(task.deadline)
-                        )}
-                    </td>
-
-                    <td>
-
-                        <button
-                            type="button"
-                            class="task-action-btn edit-btn"
-                            onclick="editTask('${escapeHtml(task.task_id)}')"
-                        >
-                            Edit
-                        </button>
-
-                        <button
-                            type="button"
-                            class="task-action-btn delete-btn"
-                            onclick="deleteTask('${escapeHtml(task.task_id)}')"
-                        >
-                            Delete
-                        </button>
-
-                    </td>
-                `;
-
-                tableBody.appendChild(row);
-
-            });
-        }
-
-
-        /* =====================================================
-           OPEN ADD TASK
-        ===================================================== */
-
-        function openAddTaskModal() {
-
-            editingTaskId = null;
-
-            const form =
-                document.getElementById("taskForm");
-
-            form.reset();
-
-            document.getElementById(
-                "taskModalTitle"
-            ).textContent = "Add Task";
-
-            document.getElementById(
-                "taskSubmitButton"
-            ).textContent = "Create Task";
-
-            document.getElementById(
-                "taskCreatedBy"
-            ).value = "EMP-001";
-
-            document.getElementById(
-                "taskPriority"
-            ).value = "Medium";
-
-            document.getElementById(
-                "taskStatus"
-            ).value = "TO_DO";
-
-            clearFormError();
-
-            document.getElementById(
-                "taskModal"
-            ).style.display = "flex";
-        }
-
-
-        /* =====================================================
-           EDIT TASK
-        ===================================================== */
-
-        async function editTask(taskId) {
-
-            clearFormError();
-
-            try {
-
-                const response = await fetch(
-                    `/api/tasks/${encodeURIComponent(taskId)}`
-                );
-
-                const text = await response.text();
-
-                let data = {};
-
-                try {
-                    data = text ? JSON.parse(text) : {};
-                } catch {
-                    data = {
-                        error: text || "Invalid server response."
-                    };
-                }
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error ||
-                        `Failed to get task (${response.status}).`
-                    );
-                }
-
-                const task = data.task;
-
-                if (!task) {
-                    throw new Error("Task data was not returned.");
-                }
-
-                editingTaskId = task.task_id;
-
-
-                document.getElementById(
-                    "taskModalTitle"
-                ).textContent = "Edit Task";
-
-                document.getElementById(
-                    "taskSubmitButton"
-                ).textContent = "Update Task";
-
-
-                document.getElementById(
-                    "taskTitle"
-                ).value = task.title || "";
-
-                document.getElementById(
-                    "taskDescription"
-                ).value = task.description || "";
-
-                document.getElementById(
-                    "taskAssignedTo"
-                ).value = task.assigned_to || "";
-
-                document.getElementById(
-                    "taskCreatedBy"
-                ).value =
-                    task.created_by || "EMP-001";
-
-                document.getElementById(
-                    "taskType"
-                ).value = task.task_type || "";
-
-                document.getElementById(
-                    "taskPriority"
-                ).value =
-                    task.priority || "Medium";
-
-                document.getElementById(
-                    "taskStatus"
-                ).value =
-                    task.status || "TO_DO";
-
-                document.getElementById(
-                    "taskEstimatedHours"
-                ).value =
-                    task.estimated_hours ?? "";
-
-                document.getElementById(
-                    "taskStoryPoints"
-                ).value =
-                    task.story_points ?? "";
-
-                document.getElementById(
-                    "taskStartDate"
-                ).value =
-                    formatDateForInput(task.start_date);
-
-                document.getElementById(
-                    "taskDeadline"
-                ).value =
-                    formatDateForInput(task.deadline);
-
-                document.getElementById(
-                    "taskSprint"
-                ).value =
-                    task.sprint || "";
-
-
-                document.getElementById(
-                    "taskModal"
-                ).style.display = "flex";
-
-            } catch (error) {
-
-                console.error(
-                    "Edit task error:",
-                    error
-                );
-
-                showTaskMessage(
-                    error.message,
-                    "error"
-                );
-            }
-        }
-
-
-        /* =====================================================
-           CLOSE MODAL
-        ===================================================== */
-
-        function closeTaskModal() {
-
-            document.getElementById(
-                "taskModal"
-            ).style.display = "none";
-
-            editingTaskId = null;
-
-            clearFormError();
-        }
-
-
-        /* =====================================================
-           SUBMIT TASK
-        ===================================================== */
-
-        async function submitTask(event) {
-
-            event.preventDefault();
-
-            clearFormError();
-
-
-            const submitButton =
-                document.getElementById(
-                    "taskSubmitButton"
-                );
-
-            submitButton.disabled = true;
-
-
-            try {
-
-                const title =
-                    document.getElementById(
-                        "taskTitle"
-                    ).value.trim();
-
-                const createdBy =
-                    document.getElementById(
-                        "taskCreatedBy"
-                    ).value.trim();
-
-                const priority =
-                    document.getElementById(
-                        "taskPriority"
-                    ).value;
-
-                const status =
-                    document.getElementById(
-                        "taskStatus"
-                    ).value;
-
-                const estimatedHoursValue =
-                    document.getElementById(
-                        "taskEstimatedHours"
-                    ).value;
-
-                const deadline =
-                    document.getElementById(
-                        "taskDeadline"
-                    ).value;
-
-
-                /* Client-side validation */
-
-                if (!title) {
-                    throw new Error(
-                        "Task Title is required."
-                    );
-                }
-
-                if (!createdBy) {
-                    throw new Error(
-                        "Created By is required."
-                    );
-                }
-
-                if (!priority) {
-                    throw new Error(
-                        "Priority is required."
-                    );
-                }
-
-                if (!status) {
-                    throw new Error(
-                        "Status is required."
-                    );
-                }
-
-                if (!estimatedHoursValue) {
-                    throw new Error(
-                        "Estimated Hours is required."
-                    );
-                }
-
-                if (!deadline) {
-                    throw new Error(
-                        "Deadline is required."
-                    );
-                }
-
-
-                const estimatedHours =
-                    Number(estimatedHoursValue);
-
-                if (
-                    Number.isNaN(estimatedHours) ||
-                    estimatedHours < 0
-                ) {
-                    throw new Error(
-                        "Estimated Hours must be a valid number."
-                    );
-                }
-
-
-                /*
-                 * Task payload.
-                 *
-                 * weight is NOT sent because backend
-                 * calculates it automatically from priority.
-                 *
-                 * actual_hours is NOT sent because it should
-                 * represent actual work performed.
-                 */
-
-                const taskData = {
-
-                    assigned_to:
-                        document.getElementById(
-                            "taskAssignedTo"
-                        ).value.trim() || null,
-
-                    created_by:
-                        createdBy,
-
-                    title:
-                        title,
-
-                    description:
-                        document.getElementById(
-                            "taskDescription"
-                        ).value.trim() || null,
-
-                    task_type:
-                        document.getElementById(
-                            "taskType"
-                        ).value.trim() || null,
-
-                    priority:
-                        priority,
-
-                    estimated_hours:
-                        estimatedHours,
-
-                    start_date:
-                        document.getElementById(
-                            "taskStartDate"
-                        ).value || null,
-
-                    deadline:
-                        deadline,
-
-                    status:
-                        status,
-
-                    story_points:
-                        getNumberOrNull(
-                            "taskStoryPoints"
-                        ),
-
-                    sprint:
-                        document.getElementById(
-                            "taskSprint"
-                        ).value.trim() || null
-                };
-
-
-                let url;
-                let method;
-
-
-                if (editingTaskId) {
-
-                    url =
-                        `/api/tasks/${encodeURIComponent(editingTaskId)}`;
-
-                    method = "PUT";
-
-                } else {
-
-                    url = "/api/tasks";
-
-                    method = "POST";
-
-                    const numericProjectId =
-                        Number(PROJECT_ID);
-
-                    if (
-                        !PROJECT_ID ||
-                        Number.isNaN(numericProjectId)
-                    ) {
-                        throw new Error(
-                            "Invalid project ID. Cannot create task."
-                        );
-                    }
-
-                    taskData.project_id =
-                        numericProjectId;
-                }
-
-
-                console.log(
-                    "Sending task:",
-                    taskData
-                );
-
-
-                const response = await fetch(
-                    url,
-                    {
-                        method: method,
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(taskData)
-                    }
-                );
-
-
-                /*
-                 * IMPORTANT:
-                 * Read response body ONLY ONCE.
-                 */
-
-                const responseText =
-                    await response.text();
-
-                let result = {};
-
-                try {
-
-                    result =
-                        responseText
-                            ? JSON.parse(responseText)
-                            : {};
-
-                } catch {
-
-                    result = {
-                        error:
-                            responseText ||
-                            "Server returned an invalid response."
-                    };
-                }
-
-
-                console.log(
-                    "Task API response:",
-                    response.status,
-                    result
-                );
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        result.error ||
-                        result.message ||
-                        `Task operation failed (${response.status}).`
-                    );
-                }
-
-
-                /*
-                 * SUCCESS
-                 */
-
-                const wasEditing =
-                    Boolean(editingTaskId);
-
-                closeTaskModal();
-
-                await loadTasks();
-
-                showTaskMessage(
-                    wasEditing
-                        ? "Task updated successfully."
-                        : "Task created successfully.",
-                    "success"
-                );
-
-
-                /*
-                 * Reload after a short delay so
-                 * project summary values update.
-                 */
-
-                setTimeout(
-                    () => {
-                        window.location.reload();
-                    },
-                    700
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Task submit error:",
-                    error
-                );
-
-                /*
-                 * Show error INSIDE the modal.
-                 */
-
-                showFormError(
-                    error.message ||
-                    "Failed to save task."
-                );
-
-            } finally {
-
-                submitButton.disabled = false;
-            }
-        }
-
-
-        /* =====================================================
-           DELETE TASK
-        ===================================================== */
-
-        async function deleteTask(taskId) {
-
-            if (
-                !confirm(
-                    "Are you sure you want to delete this task?"
-                )
-            ) {
-                return;
+    });
+
+    const assignedCell = row.querySelector('[data-field="assigned_to"]');
+    const employeeOptions = [
+        {% for member in details.team_members %}
+        {
+            id: {{ member.employee_id|tojson }},
+            name: {{ (member.employee_name or '')|tojson }}
+        },
+        {% endfor %}
+    ];
+
+    assignedCell.innerHTML = `<select class="inline-edit" data-edit-field="assigned_to">
+        ${employeeOptions.map(e =>
+            `<option value="${escapeHtml(e.id)}" ${String(e.id) === String(data.assigned_to) ? 'selected' : ''}>
+                ${escapeHtml(e.id)} — ${escapeHtml(e.name)}
+            </option>`
+        ).join('')}
+    </select>`;
+}
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+}
+
+function readEditedRow(row) {
+    const data = snapshotRow(row);
+    row.querySelectorAll('[data-edit-field]').forEach(input => {
+        data[input.dataset.editField] = input.value;
+    });
+    return data;
+}
+
+async function saveAllChanges() {
+    const button = document.getElementById('saveAllButton');
+    if (button) button.disabled = true;
+
+    try {
+        const rows = [...document.querySelectorAll('#taskTableBody tr[data-task-id]')];
+
+        for (const row of rows) {
+            if (!row.classList.contains('editing-row')) continue;
+
+            const data = readEditedRow(row);
+            if (!data.title.trim() || !data.deadline ||
+                !Number.isFinite(Number(data.estimated_hours)) ||
+                Number(data.estimated_hours) <= 0) {
+                throw new Error(`Please check the title, deadline and estimated hours for task ${row.dataset.taskId}.`);
             }
 
-
-            try {
-
-                const response =
-                    await fetch(
-                        `/api/tasks/${encodeURIComponent(taskId)}`,
-                        {
-                            method: "DELETE"
-                        }
-                    );
-
-
-                const responseText =
-                    await response.text();
-
-                let data = {};
-
-                try {
-
-                    data =
-                        responseText
-                            ? JSON.parse(responseText)
-                            : {};
-
-                } catch {
-
-                    data = {
-                        error:
-                            responseText ||
-                            "Invalid server response."
-                    };
-                }
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error ||
-                        data.message ||
-                        `Failed to delete task (${response.status}).`
-                    );
-                }
-
-
-                await loadTasks();
-
-                showTaskMessage(
-                    "Task deleted successfully.",
-                    "success"
-                );
-
-
-                setTimeout(
-                    () => {
-                        window.location.reload();
-                    },
-                    700
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Delete task error:",
-                    error
-                );
-
-                showTaskMessage(
-                    error.message ||
-                    "Failed to delete task.",
-                    "error"
-                );
-            }
-        }
-
-
-        /* =====================================================
-           FORM ERROR
-        ===================================================== */
-
-        function showFormError(message) {
-
-            const errorBox =
-                document.getElementById(
-                    "taskFormError"
-                );
-
-            errorBox.textContent =
-                message || "An error occurred.";
-
-            errorBox.style.display =
-                "block";
-
-            /*
-             * Scroll the modal to the error.
-             */
-
-            errorBox.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-        }
-
-
-        function clearFormError() {
-
-            const errorBox =
-                document.getElementById(
-                    "taskFormError"
-                );
-
-            errorBox.textContent = "";
-
-            errorBox.style.display =
-                "none";
-        }
-
-
-        /* =====================================================
-           NUMBER HELPER
-        ===================================================== */
-
-        function getNumberOrNull(id) {
-
-            const element =
-                document.getElementById(id);
-
-            if (!element) {
-                return null;
-            }
-
-            const value =
-                element.value;
-
-            if (value === "") {
-                return null;
-            }
-
-            const number =
-                Number(value);
-
-            return Number.isNaN(number)
-                ? null
-                : number;
-        }
-
-
-        /* =====================================================
-           STATUS
-        ===================================================== */
-
-        function formatStatus(status) {
-
-            const statusMap = {
-
-                "TO_DO":
-                    "To Do",
-
-                "IN_PROGRESS":
-                    "In Progress",
-
-                "IN_REVIEW":
-                    "In Review",
-
-                "CLOSED":
-                    "Closed"
+            const payload = {
+                title: data.title.trim(),
+                assigned_to: data.assigned_to,
+                priority: data.priority,
+                status: data.status,
+                deadline: data.deadline,
+                estimated_hours: Number(data.estimated_hours),
+                actual_hours: Number(data.actual_hours || 0),
+                description: data.description || '',
+                task_type: data.task_type || 'Task'
             };
 
-            return (
-                statusMap[status] ||
-                status ||
-                "-"
-            );
-        }
-
-
-        /* =====================================================
-           DATE
-        ===================================================== */
-
-        function formatDate(value) {
-
-            if (!value) {
-                return "-";
-            }
-
-            return String(value)
-                .substring(0, 10);
-        }
-
-
-        function formatDateForInput(value) {
-
-            if (!value) {
-                return "";
-            }
-
-            return String(value)
-                .substring(0, 10);
-        }
-
-
-        /* =====================================================
-           HTML ESCAPE
-        ===================================================== */
-
-        function escapeHtml(value) {
-
-            if (
-                value === null ||
-                value === undefined
-            ) {
-                return "";
-            }
-
-            return String(value)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-
-        /* =====================================================
-           TASK MESSAGE
-        ===================================================== */
-
-        function showTaskMessage(
-            message,
-            type
-        ) {
-
-            const element =
-                document.getElementById(
-                    "taskMessage"
-                );
-
-            element.textContent =
-                message;
-
-            element.className =
-                "task-message " +
-                (
-                    type === "success"
-                        ? "task-success"
-                        : "task-error"
-                );
-
-            element.style.display =
-                "block";
-
-
-            setTimeout(
-                () => {
-
-                    element.style.display =
-                        "none";
-
+            const response = await fetch(`/api/tasks/${encodeURIComponent(row.dataset.taskId)}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
-                4000
-            );
+                body: JSON.stringify(payload)
+            });
+
+            const result = await readApiResponse(response);
+            if (!response.ok) {
+                throw new Error(result.error || `Could not save task ${row.dataset.taskId}.`);
+            }
+
+            renderRow(row, { ...data, ...payload });
+            originalRows.set(row.dataset.taskId, snapshotRow(row));
         }
 
+        message('All task changes saved successfully. Click Generate Risk when ready.', 'success');
+    } catch (error) {
+        message(error.message || 'Could not save task changes.', 'error');
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
 
-        /* =====================================================
-           MODAL OUTSIDE CLICK
-        ===================================================== */
+async function saveTask() {
+    const assigned = document.getElementById('assigned').value;
+    const title = document.getElementById('title').value.trim();
+    const deadline = document.getElementById('deadline').value;
+    const estimatedHours = Number(document.getElementById('estimatedHours').value);
 
-        document
-            .getElementById("taskModal")
-            .addEventListener(
-                "click",
-                function(event) {
+    if (!assigned) return message('Select an employee.', 'error');
 
-                    if (
-                        event.target === this
-                    ) {
-                        closeTaskModal();
-                    }
+    if (currentRole === 'employee' && String(assigned) !== String(subjectId)) {
+        return message('Employees can add tasks only for themselves.', 'error');
+    }
 
-                }
-            );
+    if (!title || !deadline || !Number.isFinite(estimatedHours) || estimatedHours <= 0) {
+        return message('Enter a task title, deadline and estimated hours greater than zero.', 'error');
+    }
 
+    const data = {
+        project_id: projectId,
+        assigned_to: assigned,
+        created_by: currentRole === 'employee' ? subjectId : 'manager',
+        title,
+        description: document.getElementById('description').value,
+        task_type: document.getElementById('taskType').value || 'Task',
+        priority: document.getElementById('priority').value,
+        estimated_hours: estimatedHours,
+        actual_hours: Number(document.getElementById('actualHours').value || 0),
+        deadline,
+        status: document.getElementById('status').value
+    };
 
-        /* =====================================================
-           ESC KEY
-        ===================================================== */
+    const button = document.getElementById('saveTaskButton');
+    button.disabled = true;
+    message('Saving task...');
 
-        document.addEventListener(
-            "keydown",
-            function(event) {
+    try {
+        const response = await fetch('/api/tasks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
 
-                if (
-                    event.key === "Escape"
-                ) {
+        const result = await readApiResponse(response);
+        if (!response.ok) throw new Error(result.error || 'Task could not be saved.');
 
-                    const modal =
-                        document.getElementById(
-                            "taskModal"
-                        );
+        message('Task saved. Refreshing the task list...', 'success');
+        window.location.reload();
+    } catch (error) {
+        message(error.message || 'Task could not be saved.', 'error');
+    } finally {
+        button.disabled = false;
+    }
+}
 
-                    if (
-                        modal.style.display === "flex"
-                    ) {
-                        closeTaskModal();
-                    }
-                }
+async function removeTask(button) {
+    const row = button.closest('tr');
+    if (!row) return;
+
+    if (!window.confirm('Remove this task?')) return;
+
+    button.disabled = true;
+    message('Removing task...');
+
+    try {
+        const response = await fetch(`/api/tasks/${encodeURIComponent(row.dataset.taskId)}`, {
+            method: 'DELETE',
+            headers: { 'Accept': 'application/json' }
+        });
+
+        const result = await readApiResponse(response);
+        if (!response.ok) throw new Error(result.error || 'Task could not be removed.');
+
+        row.remove();
+        originalRows.delete(row.dataset.taskId);
+
+        if (!document.querySelector('#taskTableBody tr[data-task-id]')) {
+            const body = document.getElementById('taskTableBody');
+            const empty = document.createElement('tr');
+            empty.id = 'noTasksRow';
+            empty.innerHTML = `<td class="empty" colspan="9">No tasks yet. Add a task to get started.</td>`;
+            body.appendChild(empty);
+        }
+
+        message('Task removed. Click Generate Risk when ready to recalculate project risk.', 'success');
+    } catch (error) {
+        message(error.message || 'Task could not be removed.', 'error');
+        button.disabled = false;
+    }
+}
+
+async function generateRisk() {
+    const button = document.getElementById('pageGenerateRisk');
+    if (button) button.disabled = true;
+
+    const editMessage = document.getElementById('editMessage');
+    if (editMessage) message('Running CatBoost task-risk predictions and calculating project risk...');
+
+    try {
+        const response = await fetch(
+            `/api/tasks/project/${encodeURIComponent(projectId)}/calculate-risk`,
+            {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' }
             }
         );
 
+        const result = await readApiResponse(response);
+        if (!response.ok) throw new Error(result.error || 'Risk generation failed.');
 
-        /* =====================================================
-           PAGE LOAD
-        ===================================================== */
+        const projectRisk = result.project_risk;
+        if (!projectRisk || !projectRisk.risk_level) {
+            throw new Error(result.error || 'The server did not return project risk. Check the Flask terminal.');
+        }
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            function() {
+        const risk = String(projectRisk.risk_level)
+            .replace(/^\[?['"]?/, '')
+            .replace(/['"]?\]?$/, '')
+            .trim();
 
-                loadTasks();
+        const riskElement = document.getElementById('riskValue');
+        riskElement.textContent = risk;
+        riskElement.className = 'risk ' + risk.toLowerCase();
 
-            }
-        );
+        const detailsElement = document.getElementById('riskDetails');
+        detailsElement.textContent =
+            `Dynamic score: ${Number(projectRisk.risk_score || 0).toFixed(4)} · Trend: ${projectRisk.risk_trend || 'Stable'}`;
 
-    </script>
+        if (editMessage) message(result.message || 'Project risk updated successfully.', 'success');
 
+        window.setTimeout(() => window.location.reload(), 700);
+    } catch (error) {
+        if (editMessage) message(error.message || 'Risk generation failed.', 'error');
+        else alert(error.message || 'Risk generation failed.');
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
+
+// ---------------- Task suggestion and draft management ----------------
+let taskDrafts = [];
+let taskGenerationEmployees = [];
+function taskGenerationMessage(text, type = '') {
+    const element = document.getElementById('taskGenerationMessage');
+    if (!element) return;
+    element.textContent = text;
+    element.className = 'message' + (type ? ' ' + type : '');
+}
+function chosenTaskCount() {
+    const count = Number(document.getElementById('taskCount')?.value || 0);
+    if (!Number.isInteger(count) || count < 1 || count > 30) throw new Error('Choose a task count from 1 to 30.');
+    return count;
+}
+async function generateTaskSuggestions() {
+    if (currentRole !== 'manager') return taskGenerationMessage('Only the manager can generate tasks.', 'error');
+    let count;
+    try { count = chosenTaskCount(); } catch (e) { return taskGenerationMessage(e.message, 'error'); }
+    const button = document.getElementById('generateTaskSuggestionsButton');
+    button.disabled = true;
+    taskGenerationMessage('Generating task suggestions...');
+    try {
+        const response = await fetch(`/api/tasks/project/${encodeURIComponent(projectId)}/suggestions?count=${count}`);
+        const result = await readApiResponse(response);
+        if (!response.ok || !result.success) throw new Error(result.error || 'Could not generate suggestions.');
+        taskGenerationEmployees = result.employees || [];
+        taskDrafts = (result.tasks || []).map((task, index) => ({...task, draft_id:`suggested-${Date.now()}-${index}`, required_skills_text:(task.required_skills||[]).join(', ')}));
+        renderTaskDrafts();
+        document.getElementById('taskFormActions').style.display = taskDrafts.length ? 'flex' : 'none';
+        taskGenerationMessage(`Generated ${taskDrafts.length} editable task(s) for ${result.project_type || 'this project'}. Fill in deadlines, estimates and assignees, then save.`, 'success');
+    } catch (error) { taskGenerationMessage(error.message || 'Could not generate suggestions.', 'error'); }
+    finally { button.disabled = false; }
+}
+function startManualTasks() {
+    if (currentRole !== 'manager') return;
+    let count;
+    try { count = chosenTaskCount(); } catch (e) { return taskGenerationMessage(e.message, 'error'); }
+    taskDrafts = Array.from({length:count}, (_,i)=>({draft_id:`manual-${Date.now()}-${i}`, title:'',description:'',task_type:'Task',required_skills:[],required_skills_text:'',priority:'Medium',status:'TO_DO',estimated_hours:'',actual_hours:0,deadline:'',assigned_to:'',employee_recommendations:[]}));
+    // Employee list is loaded from the suggestions endpoint but task suggestions are not used.
+    fetch(`/api/tasks/project/${encodeURIComponent(projectId)}/suggestions?count=1`).then(readApiResponse).then(r=>{if(r.success){taskGenerationEmployees=r.employees||[];renderTaskDrafts();}}).catch(()=>renderTaskDrafts());
+    renderTaskDrafts();
+    document.getElementById('taskFormActions').style.display = 'flex';
+    taskGenerationMessage(`Enter details for ${count} task(s) manually.`, 'success');
+}
+function updateTaskDraft(draftId, field, value) {
+    const draft = taskDrafts.find(item => item.draft_id === draftId); if (!draft) return;
+    draft[field] = value;
+    if (field === 'required_skills_text') draft.required_skills = value.split(/[,;\n]+/).map(v=>v.trim()).filter(Boolean);
+}
+function removeTaskDraft(draftId) {
+    taskDrafts = taskDrafts.filter(item=>item.draft_id!==draftId); renderTaskDrafts();
+    document.getElementById('taskFormActions').style.display = taskDrafts.length ? 'flex' : 'none';
+}
+function renderTaskDrafts() {
+    const container = document.getElementById('generatedTasks'); if (!container) return;
+    if (!taskDrafts.length) { container.innerHTML=''; return; }
+    const employeeOptions = `<option value="">Choose employee</option>` + taskGenerationEmployees.map(e=>`<option value="${escapeHtml(String(e.employee_id))}">${escapeHtml(String(e.employee_id))} — ${escapeHtml(e.employee_name||'Employee')}</option>`).join('');
+    container.innerHTML = taskDrafts.map((task,index)=>{
+        const recommendations=(task.employee_recommendations||[]).map(e=>`<div class="muted" style="font-size:12px;margin-top:4px;">${escapeHtml(String(e.employee_id||''))} — ${escapeHtml(e.employee_name||'')}: matching skills: ${escapeHtml((e.matching_skills||[]).join(', ')||'No direct skill match')}${e.project_type_match?' · project type match':''}</div>`).join('');
+        const assigneeOptions = employeeOptions.replace(`value="${escapeHtml(String(task.assigned_to||'__none__'))}"`,`value="${escapeHtml(String(task.assigned_to||'__none__'))}" selected`);
+        return `<div class="item" style="margin-top:12px;"><div class="actions" style="justify-content:space-between;margin-bottom:10px;"><strong>Task ${index+1}</strong><button class="btn danger small" type="button" onclick="removeTaskDraft('${task.draft_id}')">Remove task</button></div><div class="formgrid">
+        <div class="full"><label>Task title</label><input value="${escapeHtml(task.title||'')}" onchange="updateTaskDraft('${task.draft_id}','title',this.value)" required></div>
+        <div class="full"><label>Description</label><textarea rows="2" onchange="updateTaskDraft('${task.draft_id}','description',this.value)">${escapeHtml(task.description||'')}</textarea></div>
+        <div><label>Task type</label><input value="${escapeHtml(task.task_type||'Task')}" onchange="updateTaskDraft('${task.draft_id}','task_type',this.value)"></div>
+        <div><label>Required skills (comma-separated)</label><input value="${escapeHtml(task.required_skills_text||'')}" onchange="updateTaskDraft('${task.draft_id}','required_skills_text',this.value)"></div>
+        <div><label>Priority</label><select onchange="updateTaskDraft('${task.draft_id}','priority',this.value)">${['Low','Medium','High','Critical'].map(v=>`<option ${v===task.priority?'selected':''}>${v}</option>`).join('')}</select></div>
+        <div><label>Deadline</label><input type="date" value="${escapeHtml((task.deadline||'').slice(0,10))}" onchange="updateTaskDraft('${task.draft_id}','deadline',this.value)" required></div>
+        <div><label>Estimated hours</label><input type="number" min="0.5" step="0.5" value="${escapeHtml(task.estimated_hours ?? '')}" placeholder="Enter estimated hours" onchange="updateTaskDraft('${task.draft_id}','estimated_hours',this.value)" required></div>
+        <div><label>Final assignee</label><select onchange="updateTaskDraft('${task.draft_id}','assigned_to',this.value)" required>${employeeOptions.replace('value="'+escapeHtml(String(task.assigned_to||'__none__'))+'"','value="'+escapeHtml(String(task.assigned_to||''))+'" selected')}</select></div></div><div style="margin-top:10px"><strong>Employee recommendations</strong>${recommendations||'<div class="muted" style="font-size:12px">Recommendations appear for automatically generated tasks; you may choose any employee.</div>'}</div></div>`;
+    }).join('');
+}
+async function saveGeneratedTasks() {
+    if (currentRole !== 'manager') return taskGenerationMessage('Only the manager can save tasks.', 'error');
+    if (!taskDrafts.length) return taskGenerationMessage('Generate or add tasks first.', 'error');
+    const button=document.getElementById('saveGeneratedTasksButton'); button.disabled=true; let saved=0;
+    try {
+        for (const draft of taskDrafts) {
+            const title=String(draft.title||'').trim(), deadline=String(draft.deadline||'').slice(0,10), hours=Number(draft.estimated_hours), assignee=String(draft.assigned_to||'').trim();
+            if(!title||!deadline||!Number.isFinite(hours)||hours<=0||!assignee) throw new Error(`Task ${saved+1} needs a title, deadline, estimated hours greater than zero, and assignee. ${saved} saved so far.`);
+            const response=await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:projectId,assigned_to:assignee,created_by:'manager',title,description:draft.description||'',task_type:draft.task_type||'Task',priority:draft.priority||'Medium',estimated_hours:hours,actual_hours:Number(draft.actual_hours||0),deadline,status:draft.status||'TO_DO'})});
+            const result=await readApiResponse(response); if(!response.ok) throw new Error(`${result.error||'Task could not be saved.'} ${saved} saved so far.`); saved++;
+        }
+        taskGenerationMessage(`${saved} task(s) saved. Existing risk scoring has not been changed; use Generate Risk when ready.`, 'success');
+        window.setTimeout(()=>window.location.reload(),900);
+    } catch(error) { taskGenerationMessage(error.message||'Could not save tasks.', 'error'); }
+    finally { button.disabled=false; }
+}
+
+</script>
 </body>
-
 </html>

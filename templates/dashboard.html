@@ -1,15 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>InfraSync AI | Dashboard</title>
 
 <style>
-
 * {
     box-sizing: border-box;
     margin: 0;
@@ -21,8 +20,6 @@ body {
     background: #07111f;
     color: #e5e7eb;
 }
-
-/* ================= NAVBAR ================= */
 
 .navbar {
     height: 70px;
@@ -53,8 +50,6 @@ body {
     color: #38bdf8;
 }
 
-/* ================= CONTAINER ================= */
-
 .container {
     width: 90%;
     max-width: 1250px;
@@ -69,8 +64,6 @@ h1 {
     color: #94a3b8;
     margin-bottom: 30px;
 }
-
-/* ================= STATS ================= */
 
 .stats {
     display: grid;
@@ -96,8 +89,6 @@ h1 {
     font-size: 32px;
     font-weight: bold;
 }
-
-/* ================= TABLE ================= */
 
 .table-card {
     background: #0b1728;
@@ -128,8 +119,6 @@ td {
     color: #cbd5e1;
 }
 
-/* ================= PROJECT LINK ================= */
-
 .project-link {
     color: #38bdf8;
     text-decoration: none;
@@ -139,8 +128,6 @@ td {
 .project-link:hover {
     text-decoration: underline;
 }
-
-/* ================= DETAILS LINK ================= */
 
 .details-link {
     color: #38bdf8;
@@ -153,13 +140,17 @@ td {
     text-decoration: underline;
 }
 
-/* ================= RISK ================= */
-
 .risk {
     font-weight: bold;
 }
 
-/* ================= EMPTY ================= */
+.risk-score {
+    display: block;
+    margin-top: 5px;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: normal;
+}
 
 .empty {
     padding: 40px;
@@ -167,18 +158,13 @@ td {
     color: #64748b;
 }
 
-/* ================= RESPONSIVE ================= */
-
 @media (max-width: 900px) {
-
     .stats {
         grid-template-columns: 1fr 1fr;
     }
-
 }
 
 @media (max-width: 500px) {
-
     .stats {
         grid-template-columns: 1fr;
     }
@@ -190,314 +176,174 @@ td {
     .nav-links {
         gap: 12px;
     }
-
 }
-
 </style>
-
 </head>
-
 
 <body>
 
-<!-- ================= NAVBAR ================= -->
-
 <nav class="navbar">
-
     <div class="logo">
         InfraSync AI
     </div>
 
     <div class="nav-links">
-
-        <a href="/">
-            Risk Assessment
-        </a>
-
-        <a href="/dashboard">
-            Dashboard
-        </a>
-
+        <a href="/">Risk Assessment</a>
+        <a href="/dashboard">Dashboard</a>
     </div>
-
 </nav>
-
-
-<!-- ================= MAIN CONTAINER ================= -->
 
 <div class="container">
 
-    <h1>
-        Project Risk Dashboard
-    </h1>
+    <h1>Project Risk Dashboard</h1>
 
     <p class="subtitle">
-        Initial AI-based project risk assessment history
+        Current project risk and execution metrics
     </p>
-
-
-    <!-- ================= RISK STATISTICS ================= -->
 
     <div class="stats">
 
         <div class="stat">
-
-            <h3>
-                LOW RISK
-            </h3>
-
-            <p>
-                {{ counts.get("Low", 0) if counts else 0 }}
-            </p>
-
+            <h3>LOW RISK</h3>
+            <p>{{ counts.get("Low", 0) if counts else 0 }}</p>
         </div>
 
-
         <div class="stat">
-
-            <h3>
-                MEDIUM RISK
-            </h3>
-
-            <p>
-                {{ counts.get("Medium", 0) if counts else 0 }}
-            </p>
-
+            <h3>MEDIUM RISK</h3>
+            <p>{{ counts.get("Medium", 0) if counts else 0 }}</p>
         </div>
 
-
         <div class="stat">
-
-            <h3>
-                HIGH RISK
-            </h3>
-
-            <p>
-                {{ counts.get("High", 0) if counts else 0 }}
-            </p>
-
+            <h3>HIGH RISK</h3>
+            <p>{{ counts.get("High", 0) if counts else 0 }}</p>
         </div>
 
-
         <div class="stat">
-
-            <h3>
-                CRITICAL RISK
-            </h3>
-
-            <p>
-                {{ counts.get("Critical", 0) if counts else 0 }}
-            </p>
-
+            <h3>CRITICAL RISK</h3>
+            <p>{{ counts.get("Critical", 0) if counts else 0 }}</p>
         </div>
 
     </div>
-
-
-    <!-- ================= PROJECT TABLE ================= -->
 
     <div class="table-card">
 
         {% if projects %}
 
         <table>
-
             <thead>
-
                 <tr>
-
-                    <th>
-                        Project
-                    </th>
-
-                    <th>
-                        Team Size
-                    </th>
-
-                    <th>
-                        Budget
-                    </th>
-
-                    <th>
-                        Timeline
-                    </th>
-
-                    <th>
-                        Complexity
-                    </th>
-
-                    <th>
-                        Total Tasks
-                    </th>
-
-                    <th>
-                        Completed
-                    </th>
-
-                    <th>
-                        Overdue
-                    </th>
-
-                    <th>
-                        Risk
-                    </th>
-
-                    <th>
-                        Details
-                    </th>
-
+                    <th>Project</th>
+                    <th>Team Size</th>
+                    <th>Budget</th>
+                    <th>Timeline</th>
+                    <th>Complexity</th>
+                    <th>Total Tasks</th>
+                    <th>Completed</th>
+                    <th>Overdue</th>
+                    <th>Risk</th>
+                    <th>Details</th>
                 </tr>
-
             </thead>
 
-
             <tbody>
-
                 {% for project in projects %}
-
                 <tr>
 
-                    <!-- PROJECT NAME -->
-
                     <td>
-
                         {% if project.get("id") %}
-
                         <a
                             class="project-link"
-href="{{ url_for('project_details.project_details', project_id=project.get('id')) }}"                        >
+                            href="{{ url_for(
+                                'project_details.project_details',
+                                project_id=project.get('id')
+                            ) }}"
+                        >
                             {{ project.get("project_name", "-") }}
                         </a>
-
                         {% else %}
-
-                        {{ project.get("project_name", "-") }}
-
+                            {{ project.get("project_name", "-") }}
                         {% endif %}
-
                     </td>
 
-
-                    <!-- TEAM SIZE -->
-
-                    <td>
-                        {{ project.get("team_size", 0) }}
-                    </td>
-
-
-                    <!-- BUDGET -->
+                    <td>{{ project.get("team_size", 0) }}</td>
 
                     <td>
-
                         {% if project.get("project_budget") is not none %}
-
-                        ${{ "{:,.2f}".format(project.get("project_budget")|float) }}
-
+                            ${{ "{:,.2f}".format(
+                                project.get("project_budget")|float
+                            ) }}
                         {% else %}
-
-                        -
-
+                            -
                         {% endif %}
-
                     </td>
 
-
-                    <!-- TIMELINE -->
-
                     <td>
-
                         {% if project.get("timeline_months") is not none %}
-
-                        {{ "{:.2f}".format(project.get("timeline_months")|float) }} months
-
+                            {{ "{:.2f}".format(
+                                project.get("timeline_months")|float
+                            ) }} months
                         {% else %}
-
-                        -
-
+                            -
                         {% endif %}
-
                     </td>
 
-
-                    <!-- COMPLEXITY -->
-
                     <td>
-
                         {% if project.get("complexity_score") is not none %}
-
-                        {{ "{:.2f}".format(project.get("complexity_score")|float) }}
-
+                            {{ "{:.2f}".format(
+                                project.get("complexity_score")|float
+                            ) }}
                         {% else %}
-
-                        -
-
+                            -
                         {% endif %}
-
                     </td>
 
+                    <td>{{ project.get("total_tasks", 0) }}</td>
 
-                    <!-- TOTAL TASKS -->
+                    <td>{{ project.get("completed_tasks", 0) }}</td>
 
-                    <td>
-                        {{ project.get("total_tasks", 0) }}
-                    </td>
-
-
-                    <!-- COMPLETED TASKS -->
-
-                    <td>
-                        {{ project.get("completed_tasks", 0) }}
-                    </td>
-
-
-                    <!-- OVERDUE TASKS -->
-
-                    <td>
-                        {{ project.get("overdue_tasks", 0) }}
-                    </td>
-
-
-                    <!-- RISK -->
+                    <td>{{ project.get("overdue_tasks", 0) }}</td>
 
                     <td class="risk">
-                        {{ project.get("predicted_risk", "-") }}
+                        {{ project.get(
+                            "current_risk",
+                            project.get("predicted_risk", "-")
+                        ) }}
+
+                        {% if project.get("dynamic_risk_score") is not none %}
+                        <span class="risk-score">
+                            Dynamic score:
+                            {{ "%.4f"|format(
+                                project.get("dynamic_risk_score")|float
+                            ) }}
+                        </span>
+                        {% endif %}
                     </td>
 
-
-                    <!-- DETAILS -->
-
                     <td>
-
                         {% if project.get("id") %}
-
                         <a
                             class="details-link"
-href="{{ url_for('project_details.project_details', project_id=project.get('id')) }}"                        >
+                            href="{{ url_for(
+                                'project_details.project_details',
+                                project_id=project.get('id')
+                            ) }}"
+                        >
                             View Details
                         </a>
-
                         {% else %}
-
-                        -
-
+                            -
                         {% endif %}
-
                     </td>
 
                 </tr>
-
                 {% endfor %}
-
             </tbody>
-
         </table>
 
         {% else %}
 
         <div class="empty">
-
             No project assessments have been saved yet.
-
         </div>
 
         {% endif %}
@@ -507,5 +353,4 @@ href="{{ url_for('project_details.project_details', project_id=project.get('id')
 </div>
 
 </body>
-
 </html>

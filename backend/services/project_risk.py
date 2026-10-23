@@ -4,6 +4,7 @@ import pandas as pd
 
 from datetime import datetime
 from flask import request
+from backend.supabase_client import supabase
 
 from backend.manager import (
     extract_resume_text,
@@ -468,7 +469,8 @@ def make_feature_row(
     form,
     team_members,
     clients,
-    tasks
+    tasks,
+    resume_text=None
 ):
 
     start_date = (
@@ -565,9 +567,8 @@ def make_feature_row(
         )
     )
 
-    resume_text = (
-        extract_resume_text()
-    )
+    if resume_text is None:
+        resume_text = extract_resume_text()
 
     pm_experience = (
         manager_experience_from_resume(
@@ -763,3 +764,153 @@ def make_feature_row(
         complexity,
         resume_text
     )
+
+
+# ============================================================
+# RE-RUN PROJECT-LEVEL CATBOOST FROM CURRENT SUPABASE DATA
+# ============================================================
+
+def refresh_project_catboost_prediction(project_id):
+    """Rebuild project features from saved project details and current Tasks,
+    rerun the existing project-level model, and update projects.predicted_risk.
+
+    The trained model, feature list, feature defaults, and prediction labels are
+    unchanged. Current task rows replace the originally submitted task list.
+    """
+    project_id = int(project_id)
+    response = (
+        supabase.table("projects")
+        .select("*")
+        .eq("id", project_id)
+        .limit(1)
+        .execute()
+    )
+    projects = response.data or []
+    if not projects:
+        raise ValueError(f"Project {project_id} was not found.")
+    project = projects[0]
+    details = project.get("project_details") or {}
+    if isinstance(details, str):
+        try:
+            import json
+            details = json.loads(details)
+        except (TypeError, ValueError):
+            details = {}
+
+    tasks_response = (
+        supabase.table("Tasks")
+        .select("*")
+        .eq("project_id", project_id)
+        .execute()
+    )
+    db_tasks = tasks_response.data or []
+
+    # Convert operational task rows to the fields expected by the existing model.
+    from datetime import date
+    current_tasks = []
+    today = date.today()
+    for task in db_tasks:
+        status = str(task.get("status") or "").strip().upper()
+        deadline = task.get("deadline")
+        is_closed = status in {"CLOSED", "COMPLETED", "DONE"}
+        overdue = False
+        if deadline and not is_closed:
+            try:
+                overdue = date.fromisoformat(str(deadline)[:10]) < today
+            except ValueError:
+                overdue = False
+        if is_closed:
+            model_status = "completed"
+        elif overdue:
+            model_status = "overdue"
+        else:
+            model_status = "pending"
+        current_tasks.append({
+            "status": model_status,
+            "estimated_days": safe_float(task.get("estimated_hours")) / 8.0,
+            "actual_days": safe_float(task.get("actual_hours")) / 8.0,
+        })
+
+    # Reuse stored team/client records when available; fall back to the project's
+    # existing JSON snapshot so no new data model is introduced.
+    team_response = (
+        supabase.table("project_team_members")
+        .select("*")
+        .eq("project_id", project_id)
+        .execute()
+    )
+    team_members = team_response.data or details.get("team_members") or []
+
+    client_response = (
+        supabase.table("project_clients")
+        .select("*")
+        .eq("project_id", project_id)
+        .execute()
+    )
+    clients = client_response.data or details.get("clients") or []
+
+    form = {
+        "Project_Type": project.get("project_type") or details.get("project_type", ""),
+        "Project_Budget_USD": project.get("project_budget", details.get("project_budget", 0)),
+        "Start_Date": details.get("start_date", ""),
+        "End_Date": details.get("end_date", ""),
+    }
+    resume_text = details.get("manager_resume", "") or ""
+
+    X, team_experience, pm_experience, complexity, _ = make_feature_row(
+        form,
+        team_members,
+        clients,
+        current_tasks,
+        resume_text=resume_text,
+    )
+
+    prediction = model.predict(X)
+    predicted_risk = prediction[0]
+    if hasattr(predicted_risk, "item"):
+        predicted_risk = predicted_risk.item()
+    predicted_risk = str(predicted_risk)
+
+    # Update the canonical project prediction and refresh the stored snapshot's
+    # metrics without altering the trained model or feature engineering.
+    task_summary = calculate_task_summary(current_tasks)
+    updated_details = dict(details)
+    if not updated_details.get("initial_predicted_risk"):
+        updated_details["initial_predicted_risk"] = project.get("predicted_risk") or predicted_risk
+    updated_details.update({
+        "team_experience": team_experience,
+        "project_manager_experience": pm_experience,
+        "complexity_score": complexity,
+        "total_tasks": task_summary["total_tasks"],
+        "completed_tasks": task_summary["completed_tasks"],
+        "pending_tasks": task_summary["pending_tasks"],
+        "overdue_tasks": task_summary["overdue_tasks"],
+        "completion_percentage": task_summary["completion_percentage"],
+        "delay_percentage": task_summary["delay_percentage"],
+        "estimated_effort_hours": task_summary["estimated_days"] * 8,
+        "actual_effort_hours": task_summary["actual_days"] * 8,
+        "project_progress": task_summary["project_progress"],
+        # Keep the complete current Tasks rows in the project snapshot.
+        "tasks": db_tasks,
+        "predicted_risk": predicted_risk,
+        "risk_refreshed_at": datetime.now().isoformat(),
+    })
+    update_payload = {
+        "predicted_risk": predicted_risk,
+        "total_tasks": task_summary["total_tasks"],
+        "completed_tasks": task_summary["completed_tasks"],
+        "overdue_tasks": task_summary["overdue_tasks"],
+        "estimated_effort_hours": task_summary["estimated_days"] * 8,
+        "actual_effort_hours": task_summary["actual_days"] * 8,
+        "project_details": updated_details,
+    }
+    supabase.table("projects").update(update_payload).eq("id", project_id).execute()
+
+    return {
+        "project_id": project_id,
+        "predicted_risk": predicted_risk,
+        "total_tasks": task_summary["total_tasks"],
+        "completed_tasks": task_summary["completed_tasks"],
+        "pending_tasks": task_summary["pending_tasks"],
+        "overdue_tasks": task_summary["overdue_tasks"],
+    }

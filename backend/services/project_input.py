@@ -1,44 +1,26 @@
+
 from flask import request
 
 from backend.master_data import (
     get_employee_by_id,
-    get_client_by_id
+    get_client_by_id,
+    get_employees_capable_for_project_type,
 )
 from backend.services.project_risk import safe_float
 
+
 def read_tasks_from_form():
-
-    task_names = request.form.getlist(
-        "Task_Name"
-    )
-
-    assignee_ids = request.form.getlist(
-        "Task_Assignee_ID"
-    )
-
-    stakeholder_ids = request.form.getlist(
-        "Task_Stakeholder_ID"
-    )
-
-    estimated_days = request.form.getlist(
-        "Task_Estimated_Days"
-    )
-
-    actual_days = request.form.getlist(
-        "Task_Actual_Days"
-    )
-
-    statuses = request.form.getlist(
-        "Task_Status"
-    )
+    task_names = request.form.getlist("Task_Name")
+    assignee_ids = request.form.getlist("Task_Assignee_ID")
+    stakeholder_ids = request.form.getlist("Task_Stakeholder_ID")
+    estimated_days = request.form.getlist("Task_Estimated_Days")
+    actual_days = request.form.getlist("Task_Actual_Days")
+    statuses = request.form.getlist("Task_Status")
 
     tasks = []
 
     for index, task_name in enumerate(task_names):
-
-        task_name = (
-            task_name or ""
-        ).strip()
+        task_name = (task_name or "").strip()
 
         if not task_name:
             continue
@@ -74,25 +56,12 @@ def read_tasks_from_form():
         )
 
         tasks.append({
-
-            "task_name":
-                task_name,
-
-            "assignee_id":
-                assignee.strip(),
-
-            "stakeholder_id":
-                stakeholder.strip(),
-
-            "estimated_days":
-                safe_float(estimated),
-
-            "actual_days":
-                safe_float(actual),
-
-            "status":
-                status.strip()
-
+            "task_name": task_name,
+            "assignee_id": assignee.strip(),
+            "stakeholder_id": stakeholder.strip(),
+            "estimated_days": safe_float(estimated),
+            "actual_days": safe_float(actual),
+            "status": status.strip(),
         })
 
     return tasks
@@ -103,27 +72,29 @@ def read_tasks_from_form():
 # ============================================================
 
 def read_team_members():
-    employee_ids = request.form.getlist(
-        "Employee_ID"
-    )
+    employee_ids = request.form.getlist("Employee_ID")
 
     members = []
     seen_ids = set()
 
     for employee_id in employee_ids:
         employee_id = (employee_id or "").strip()
+        employee_key = employee_id.casefold()
 
-        if not employee_id or employee_id in seen_ids:
+        if not employee_id or employee_key in seen_ids:
             continue
 
+        # Manual selection is allowed regardless of project type.
+        # The employee must still exist in the employee master table.
         employee = get_employee_by_id(employee_id)
 
         if not employee:
             raise ValueError(
-                f"Employee ID '{employee_id}' was not found in the employee master table."
+                f"Employee ID '{employee_id}' was not found "
+                "in the employee master table."
             )
 
-        seen_ids.add(employee_id)
+        seen_ids.add(employee_key)
 
         members.append({
             "employee_id": employee_id,
@@ -132,33 +103,19 @@ def read_team_members():
                 or employee.get("name")
                 or ""
             ).strip(),
-            "email": (
-                employee.get("email")
-                or ""
-            ).strip(),
-            "role": (
-                employee.get("role")
-                or ""
-            ).strip(),
-            "department": (
-                employee.get("department")
-                or ""
-            ).strip(),
+            "email": (employee.get("email") or "").strip(),
+            "role": (employee.get("role") or "").strip(),
+            "department": (employee.get("department") or "").strip(),
             "experience_level": (
-                employee.get("experience_level")
-                or "Junior"
+                employee.get("experience_level") or "Junior"
             ).strip(),
             "years_experience": safe_float(
                 employee.get("years_experience", 0)
             ),
-            "skills": (
-                employee.get("skills")
-                or ""
-            ).strip()
+            "skills": employee.get("skills") or "",
         })
 
     return members
-
 
 
 # ============================================================
@@ -166,27 +123,27 @@ def read_team_members():
 # ============================================================
 
 def read_clients():
-    client_ids = request.form.getlist(
-        "Client_ID"
-    )
+    client_ids = request.form.getlist("Client_ID")
 
     clients = []
     seen_ids = set()
 
     for client_id in client_ids:
         client_id = (client_id or "").strip()
+        client_key = client_id.casefold()
 
-        if not client_id or client_id in seen_ids:
+        if not client_id or client_key in seen_ids:
             continue
 
         client = get_client_by_id(client_id)
 
         if not client:
             raise ValueError(
-                f"Client ID '{client_id}' was not found in the client master table."
+                f"Client ID '{client_id}' was not found "
+                "in the client master table."
             )
 
-        seen_ids.add(client_id)
+        seen_ids.add(client_key)
 
         clients.append({
             "client_id": client_id,
@@ -196,17 +153,10 @@ def read_clients():
                 or ""
             ).strip(),
             "organization": (
-                client.get("organization")
-                or ""
+                client.get("organization") or ""
             ).strip(),
-            "role": (
-                client.get("role")
-                or ""
-            ).strip(),
-            "email": (
-                client.get("email")
-                or ""
-            ).strip()
+            "role": (client.get("role") or "").strip(),
+            "email": (client.get("email") or "").strip(),
         })
 
     return clients
