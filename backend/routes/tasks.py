@@ -356,29 +356,44 @@ def invalidate_project_risk(project_id):
     return None
 
 
-def refresh_project_risks_after_task_change(project_id):
-    """Refresh metrics, project CatBoost, all task predictions, and dynamic risk."""
-    project_id = int(project_id)
-    project_metrics = refresh_project_task_metrics(project_id)
+def refresh_project_risks_after_task_change(project_id, changed_task=None):
+    """
+    Refresh project metrics and project risk after a task change.
+    Only regenerate the prediction for the task that changed.
+    """
 
-    # Re-run the existing project-level CatBoost model with refreshed task data.
+    project_id = int(project_id)
+
+    # Refresh project-level metrics and CatBoost prediction.
+    project_metrics = refresh_project_task_metrics(project_id)
     project_prediction = refresh_project_catboost_prediction(project_id)
 
+    # Generate a task prediction only for the affected unfinished task.
+    if changed_task:
+        task_status = str(
+            changed_task.get("status") or ""
+        ).strip().upper()
+
+        if task_status != "CLOSED":
+            trigger_task_risk_prediction(
+                changed_task,
+                refresh_project=False
+            )
+
+    # Remove prediction rows belonging to deleted tasks.
     current_tasks = (
         supabase.table("Tasks")
-        .select("*")
+        .select("task_id")
         .eq("project_id", project_id)
         .execute()
         .data or []
     )
-    current_ids = {str(task.get("task_id")) for task in current_tasks}
 
-    # Refresh task-level CatBoost predictions for all remaining tasks. The
-    # project aggregator is called once, after all current predictions exist.
-    for task in current_tasks:
-        trigger_task_risk_prediction(task, refresh_project=False)
+    current_ids = {
+        str(task.get("task_id"))
+        for task in current_tasks
+    }
 
-    # Remove prediction rows belonging to tasks that were deleted.
     existing_predictions = (
         supabase.table("task_risk_prediction")
         .select("issue_id")
@@ -386,21 +401,25 @@ def refresh_project_risks_after_task_change(project_id):
         .execute()
         .data or []
     )
+
     for prediction in existing_predictions:
         if str(prediction.get("issue_id")) not in current_ids:
-            (supabase.table("task_risk_prediction")
-             .delete()
-             .eq("project_id", project_id)
-             .eq("issue_id", prediction.get("issue_id"))
-             .execute())
+            (
+                supabase.table("task_risk_prediction")
+                .delete()
+                .eq("project_id", project_id)
+                .eq("issue_id", prediction.get("issue_id"))
+                .execute()
+            )
 
+    # Recalculate project risk using stored task predictions.
     project_risk = calculate_project_dynamic_risk(project_id)
+
     return {
         "project_metrics": project_metrics,
         "project_prediction": project_prediction,
         "project_risk": project_risk,
     }
-
 
 def clean_task_data(data, partial=False):
 
@@ -956,7 +975,10 @@ def create_task():
 
 
 
-        risk_refresh = refresh_project_risks_after_task_change(project_id)
+        risk_refresh = refresh_project_risks_after_task_change(
+            project_id,
+            changed_task=task
+        )
         project_metrics = risk_refresh["project_metrics"]
 
 
@@ -1779,7 +1801,10 @@ def update_task(task_id):
 
 
 
-        risk_refresh = refresh_project_risks_after_task_change(project_id)
+        risk_refresh = refresh_project_risks_after_task_change(
+    project_id,
+    changed_task=updated_task
+)
         project_metrics = risk_refresh["project_metrics"]
 
 

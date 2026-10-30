@@ -315,49 +315,49 @@ def calculate_project_dynamic_risk(project_id):
     tasks = task_response.data or []
     current_task_ids = {str(task.get("task_id")) for task in tasks}
 
-    # Ensure every current task has a prediction before aggregation. Missing
-    # predictions are generated without recursively recalculating project risk.
-    predicted_ids = {
-        str(row.get("issue_id"))
-        for row in predictions
-        if str(row.get("issue_id")) in current_task_ids
-    }
-    missing_tasks = [
-        task for task in tasks
-        if str(task.get("task_id")) not in predicted_ids
-    ]
+    # # Ensure every current task has a prediction before aggregation. Missing
+    # # predictions are generated without recursively recalculating project risk.
+    # predicted_ids = {
+    #     str(row.get("issue_id"))
+    #     for row in predictions
+    #     if str(row.get("issue_id")) in current_task_ids
+    # }
+    # missing_tasks = [
+    #     task for task in tasks
+    #     if str(task.get("task_id")) not in predicted_ids
+    # ]
 
-    for task in missing_tasks:
-        prediction_data = {
-            "project_id": task.get("project_id"),
-            "issue_id": task.get("task_id"),
-            "issue_type": task.get("task_type"),
-            "priority": task.get("priority"),
-            "status": task.get("status"),
-            "story_points": task.get("story_points"),
-            "story_points_missing": 1 if task.get("story_points") is None else 0,
-            "timespent": task.get("actual_hours") or 0,
-            "assignee": task.get("assigned_to"),
-            "sprint": task.get("sprint"),
-            "task_age_days": 0,
-            "status_change_count": 0,
-            "priority_change_count": 0,
-            "assignee_change_count": 0,
-            "story_point_change_count": 0,
-            "estimate_change_count": 0,
-            "changes_last_7_days": 0,
-        }
-        predict_task_risk_internal(prediction_data, refresh_project=False)
+    # for task in missing_tasks:
+    #     prediction_data = {
+    #         "project_id": task.get("project_id"),
+    #         "issue_id": task.get("task_id"),
+    #         "issue_type": task.get("task_type"),
+    #         "priority": task.get("priority"),
+    #         "status": task.get("status"),
+    #         "story_points": task.get("story_points"),
+    #         "story_points_missing": 1 if task.get("story_points") is None else 0,
+    #         "timespent": task.get("actual_hours") or 0,
+    #         "assignee": task.get("assigned_to"),
+    #         "sprint": task.get("sprint"),
+    #         "task_age_days": 0,
+    #         "status_change_count": 0,
+    #         "priority_change_count": 0,
+    #         "assignee_change_count": 0,
+    #         "story_point_change_count": 0,
+    #         "estimate_change_count": 0,
+    #         "changes_last_7_days": 0,
+    #     }
+    #     predict_task_risk_internal(prediction_data, refresh_project=False)
 
-    if missing_tasks:
-        response = (
-            supabase
-            .table("task_risk_prediction")
-            .select("issue_id, risk_score, risk_label")
-            .eq("project_id", project_id)
-            .execute()
-        )
-        predictions = response.data or []
+    # if missing_tasks:
+    #     response = (
+    #         supabase
+    #         .table("task_risk_prediction")
+    #         .select("issue_id, risk_score, risk_label")
+    #         .eq("project_id", project_id)
+    #         .execute()
+    #     )
+    #     predictions = response.data or []
 
     # --------------------------------------------------------
     # KEEP ONLY UNFINISHED TASKS FOR RISK AGGREGATION
@@ -1117,7 +1117,7 @@ def predict_task_risk_internal(data, refresh_project=True):
 
     row = {}
 
-
+    
 
     for feature in FEATURES:
 
@@ -1178,6 +1178,20 @@ def predict_task_risk_internal(data, refresh_project=True):
 
 
         row[feature] = value
+        print(
+            "[TASK RISK INPUT]",
+            "Issue ID:", issue_id,
+            "| Priority:", row.get("priority", "Unknown"),
+            "| Features:", row
+        )
+
+        if feature == "priority":
+            print(
+                "[TASK PRIORITY CHECK]",
+                "Issue ID:", issue_id,
+                "| Received:", data.get("priority"),
+                "| Model input:", value
+            )
 
 
 
@@ -1316,6 +1330,13 @@ def predict_task_risk_internal(data, refresh_project=True):
 
 
     )
+    print(
+    "[TASK RISK PROBABILITIES]",
+    "Issue ID:", issue_id,
+    "| Probabilities:", probability_map,
+    "| Predicted:", predicted_class,
+    "| Score:", round(float(risk_score), 4)
+)
 
 
 
