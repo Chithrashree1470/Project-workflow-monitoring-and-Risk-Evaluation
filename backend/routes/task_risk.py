@@ -359,18 +359,42 @@ def calculate_project_dynamic_risk(project_id):
         )
         predictions = response.data or []
 
-    # Ignore any stale predictions for deleted tasks.
-    predictions = [
-        row for row in predictions
-        if str(row.get("issue_id")) in current_task_ids
-    ]
-
-        # --------------------------------------------------------
-    # 2. CALCULATE TASK RISK AGGREGATION
+    # --------------------------------------------------------
+    # KEEP ONLY UNFINISHED TASKS FOR RISK AGGREGATION
     # --------------------------------------------------------
 
-    if predictions:
-        df = pd.DataFrame(predictions)
+    unfinished_statuses = {
+        "TODO",
+        "TO_DO",
+        "IN_PROGRESS",
+        "IN_REVIEW"
+    }
+
+    unfinished_tasks = [
+        task for task in tasks
+        if str(task.get("status") or "").strip().upper()
+        in unfinished_statuses
+    ]
+
+    unfinished_task_ids = {
+        str(task.get("task_id"))
+        for task in unfinished_tasks
+    }
+
+    active_predictions = [
+        row for row in predictions
+        if str(row.get("issue_id")) in unfinished_task_ids
+    ]
+
+    unfinished_task_count = len(unfinished_tasks)
+    total_task_count = len(tasks)
+
+    # --------------------------------------------------------
+    # TASK RISK AGGREGATION
+    # --------------------------------------------------------
+
+    if active_predictions:
+        df = pd.DataFrame(active_predictions)
 
         df["risk_score"] = (
             pd.to_numeric(df["risk_score"], errors="coerce")
@@ -386,11 +410,6 @@ def calculate_project_dynamic_risk(project_id):
             .str.title()
         )
 
-        total_task_count = len(df)
-
-        mean_task_risk = float(df["risk_score"].mean())
-        maximum_task_risk = float(df["risk_score"].max())
-
         high_task_count = int(
             (df["risk_label"] == "High").sum()
         )
@@ -399,55 +418,29 @@ def calculate_project_dynamic_risk(project_id):
             (df["risk_label"] == "Critical").sum()
         )
 
-        high_critical_count = (
-            high_task_count + critical_task_count
-        )
+        high_critical_count = high_task_count + critical_task_count
 
-        # Cumulative task risk:
-        # Each additional task can only maintain or increase this value.
         task_risk_accumulation = 1.0 - math.prod(
             1.0 - float(score)
             for score in df["risk_score"]
         )
 
     else:
-        total_task_count = 0
-        mean_task_risk = 0.0
-        maximum_task_risk = 0.0
         high_task_count = 0
         critical_task_count = 0
         high_critical_count = 0
         task_risk_accumulation = 0.0
 
     # --------------------------------------------------------
-    # 3. COUNT CURRENT UNFINISHED TASKS
-    # --------------------------------------------------------
-
-    unfinished_statuses = {
-        "TODO",
-        "TO_DO",
-        "IN_PROGRESS",
-        "IN_REVIEW"
-    }
-
-    unfinished_task_count = sum(
-        1
-        for task in tasks
-        if str(task.get("status") or "").strip().upper()
-        in unfinished_statuses
-    )
-
-    # --------------------------------------------------------
-    # 4. CALCULATE UNFINISHED TASK PRESSURE
+    # UNFINISHED TASK PRESSURE
     # --------------------------------------------------------
 
     unfinished_task_pressure = (
-        unfinished_task_count
-        / (unfinished_task_count + 5.0)
+        unfinished_task_count / (unfinished_task_count + 5.0)
     )
 
     # --------------------------------------------------------
-    # 5. CALCULATE HIGH/CRITICAL TASK PRESSURE
+    # HIGH/CRITICAL TASK PRESSURE
     # --------------------------------------------------------
 
     high_critical_pressure = (
@@ -455,7 +448,7 @@ def calculate_project_dynamic_risk(project_id):
     )
 
     # --------------------------------------------------------
-    # 6. BASE TASK RISK AGGREGATION
+    # BASE TASK RISK
     # --------------------------------------------------------
 
     task_risk_score = (
@@ -470,7 +463,7 @@ def calculate_project_dynamic_risk(project_id):
     )
 
     # --------------------------------------------------------
-    # 7. GET CURRENT SKILL GAP
+    # GET CURRENT SKILL GAP
     # --------------------------------------------------------
 
     skill_response = (
@@ -496,22 +489,17 @@ def calculate_project_dynamic_risk(project_id):
             skill_data[0].get("skill_gap") or 0.0
         )
 
-    skill_gap = max(
-        0.0,
-        min(1.0, skill_gap)
-    )
+    skill_gap = max(0.0, min(1.0, skill_gap))
 
     # --------------------------------------------------------
-    # 8. FINAL HYBRID PROJECT RISK
+    # FINAL HYBRID PROJECT RISK
     # --------------------------------------------------------
 
     SKILL_WEIGHT = 0.30
 
     current_score = (
         task_risk_score
-        + SKILL_WEIGHT
-        * skill_gap
-        * (1.0 - task_risk_score)
+        + SKILL_WEIGHT * skill_gap * (1.0 - task_risk_score)
     )
 
     current_score = max(
@@ -521,7 +509,7 @@ def calculate_project_dynamic_risk(project_id):
 
     print(
         "[PROJECT RISK]",
-        "Tasks:", len(tasks),
+        "Tasks:", total_task_count,
         "Unfinished:", unfinished_task_count,
         "Task accumulation:", round(task_risk_accumulation, 4),
         "Unfinished pressure:", round(unfinished_task_pressure, 4),
@@ -671,7 +659,20 @@ def calculate_project_dynamic_risk(project_id):
     except (TypeError, ValueError) as error:
         print(f"[RISK BASELINE] Could not read stored initial score for project {project_id}: {error}")
 
+    # --------------------------------------------------------
+    # RESTORE BASELINE WHEN ALL TASKS ARE CLOSED
+    # --------------------------------------------------------
 
+    # if unfinished_task_count == 0:
+    #     current_score = baseline_score
+
+    #     print(
+    #         "[PROJECT RISK] No unfinished tasks. "
+    #         "Restoring baseline risk:",
+    #         baseline_score
+    #     )
+
+    # current_level = get_project_risk_level(current_score)
 
     # --------------------------------------------------------
 
