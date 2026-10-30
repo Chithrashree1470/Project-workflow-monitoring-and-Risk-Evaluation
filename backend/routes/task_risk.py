@@ -1,67 +1,20 @@
 import os
-
 from pathlib import Path
-
-
-
+import math
 import pandas as pd
-
-
-
 from flask import Blueprint, jsonify, request
-
 from dotenv import load_dotenv
-
-
-
 from catboost import CatBoostClassifier
-
 from supabase import create_client
 
 
-
-
-
-# ============================================================
-
-# PATHS
-
-# ============================================================
-
-
-
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-
-
 TAWOS_ML_DIR = PROJECT_ROOT / "tawos_ml"
-
-
-
 MODEL_PATH = (
-
     TAWOS_ML_DIR
-
     / "phase1_catboost_with_sprint.pkl"
-
 )
-
-
-
 MODEL_VERSION = "phase1_10projects_v1"
-
-
-
-
-
-# ============================================================
-
-# ENVIRONMENT
-
-# ============================================================
-
-
-
 load_dotenv(
 
     PROJECT_ROOT / ".env"
@@ -412,97 +365,171 @@ def calculate_project_dynamic_risk(project_id):
         if str(row.get("issue_id")) in current_task_ids
     ]
 
+        # --------------------------------------------------------
+    # 2. CALCULATE TASK RISK AGGREGATION
+    # --------------------------------------------------------
+
     if predictions:
         df = pd.DataFrame(predictions)
-        df["risk_score"] = pd.to_numeric(df["risk_score"], errors="coerce").fillna(0.0)
-        df["risk_label"] = df["risk_label"].fillna("Low").astype(str).str.strip().str.title()
+
+        df["risk_score"] = (
+            pd.to_numeric(df["risk_score"], errors="coerce")
+            .fillna(0.0)
+            .clip(0.0, 1.0)
+        )
+
+        df["risk_label"] = (
+            df["risk_label"]
+            .fillna("Low")
+            .astype(str)
+            .str.strip()
+            .str.title()
+        )
+
         total_task_count = len(df)
+
         mean_task_risk = float(df["risk_score"].mean())
         maximum_task_risk = float(df["risk_score"].max())
-        high_task_count = int((df["risk_label"] == "High").sum())
-        critical_task_count = int((df["risk_label"] == "Critical").sum())
-        high_critical_ratio = (high_task_count + critical_task_count) / total_task_count
+
+        high_task_count = int(
+            (df["risk_label"] == "High").sum()
+        )
+
+        critical_task_count = int(
+            (df["risk_label"] == "Critical").sum()
+        )
+
+        high_critical_count = (
+            high_task_count + critical_task_count
+        )
+
+        # Cumulative task risk:
+        # Each additional task can only maintain or increase this value.
+        task_risk_accumulation = 1.0 - math.prod(
+            1.0 - float(score)
+            for score in df["risk_score"]
+        )
+
     else:
         total_task_count = 0
         mean_task_risk = 0.0
         maximum_task_risk = 0.0
         high_task_count = 0
         critical_task_count = 0
-        high_critical_ratio = 0.0
-
-
+        high_critical_count = 0
+        task_risk_accumulation = 0.0
 
     # --------------------------------------------------------
     # 3. COUNT CURRENT UNFINISHED TASKS
     # --------------------------------------------------------
 
-    unfinished_statuses = {"TODO", "TO_DO", "IN_PROGRESS", "IN_REVIEW"}
+    unfinished_statuses = {
+        "TODO",
+        "TO_DO",
+        "IN_PROGRESS",
+        "IN_REVIEW"
+    }
+
     unfinished_task_count = sum(
-        1 for task in tasks
-        if str(task.get("status") or "").strip().upper() in unfinished_statuses
+        1
+        for task in tasks
+        if str(task.get("status") or "").strip().upper()
+        in unfinished_statuses
     )
 
-
-
     # --------------------------------------------------------
-
-    # 5. CALCULATE UNFINISHED TASK PRESSURE
-
+    # 4. CALCULATE UNFINISHED TASK PRESSURE
     # --------------------------------------------------------
-
-
 
     unfinished_task_pressure = (
-        unfinished_task_count / len(tasks)
-        if tasks else 0.0
+        unfinished_task_count
+        / (unfinished_task_count + 5.0)
     )
 
-
-
+    # --------------------------------------------------------
+    # 5. CALCULATE HIGH/CRITICAL TASK PRESSURE
     # --------------------------------------------------------
 
-    # 6. HYBRID PROJECT RISK
-
-    # --------------------------------------------------------
-
-
-
-    current_score = (
-
-        (0.40 * mean_task_risk)
-
-        +
-
-        (0.25 * maximum_task_risk)
-
-        +
-
-        (0.15 * high_critical_ratio)
-
-        +
-
-        (0.20 * unfinished_task_pressure)
-
+    high_critical_pressure = (
+        1.0 - math.exp(-high_critical_count / 3.0)
     )
 
+    # --------------------------------------------------------
+    # 6. BASE TASK RISK AGGREGATION
+    # --------------------------------------------------------
 
+    task_risk_score = (
+        (0.50 * task_risk_accumulation)
+        + (0.25 * high_critical_pressure)
+        + (0.25 * unfinished_task_pressure)
+    )
 
-    # Keep score between 0 and 1
-
-    current_score = max(
-
+    task_risk_score = max(
         0.0,
+        min(1.0, float(task_risk_score))
+    )
 
-        min(
+    # --------------------------------------------------------
+    # 7. GET CURRENT SKILL GAP
+    # --------------------------------------------------------
 
-            1.0,
+    skill_response = (
+        supabase
+        .table("projects")
+        .select("skill_coverage, skill_gap")
+        .eq("id", project_id)
+        .limit(1)
+        .execute()
+    )
 
-            float(current_score)
+    skill_data = skill_response.data or []
 
+    skill_coverage = 0.0
+    skill_gap = 0.0
+
+    if skill_data:
+        skill_coverage = float(
+            skill_data[0].get("skill_coverage") or 0.0
         )
 
+        skill_gap = float(
+            skill_data[0].get("skill_gap") or 0.0
+        )
+
+    skill_gap = max(
+        0.0,
+        min(1.0, skill_gap)
     )
 
+    # --------------------------------------------------------
+    # 8. FINAL HYBRID PROJECT RISK
+    # --------------------------------------------------------
+
+    SKILL_WEIGHT = 0.30
+
+    current_score = (
+        task_risk_score
+        + SKILL_WEIGHT
+        * skill_gap
+        * (1.0 - task_risk_score)
+    )
+
+    current_score = max(
+        0.0,
+        min(1.0, float(current_score))
+    )
+
+    print(
+        "[PROJECT RISK]",
+        "Tasks:", len(tasks),
+        "Unfinished:", unfinished_task_count,
+        "Task accumulation:", round(task_risk_accumulation, 4),
+        "Unfinished pressure:", round(unfinished_task_pressure, 4),
+        "Skill coverage:", round(skill_coverage, 4),
+        "Skill gap:", round(skill_gap, 4),
+        "Task risk:", round(task_risk_score, 4),
+        "Final hybrid risk:", round(current_score, 4)
+    )
 
 
     # --------------------------------------------------------
