@@ -1,0 +1,118 @@
+PRIORITY ANALYSIS REPORT
+
+PRIORITY DISTRIBUTION
+               Count  Percentage
+priority                        
+Unknown         6436       23.63
+Medium          5393       19.80
+Major - P3      4122       15.13
+Low             4095       15.04
+Minor           2914       10.70
+High            2008        7.37
+Critical        1085        3.98
+6                414        1.52
+Highest          222        0.82
+Major            194        0.71
+Blocker          130        0.48
+Minor - P4       124        0.46
+Lowest            37        0.14
+Critical - P2     29        0.11
+Trivial           16        0.06
+Blocker - P1      11        0.04
+Trivial - P5       4        0.01
+Undefined          1        0.00
+
+RISK DISTRIBUTION
+                 Count  Percentage
+task_risk_level                   
+Medium            8986       32.99
+Low               7882       28.94
+High              5732       21.05
+Critical          4635       17.02
+
+PRIORITY VS RISK COUNTS
+task_risk_level   Low  Medium  High  Critical
+priority                                     
+6                 104     116    97        97
+Blocker            65      44    17         4
+Blocker - P1        5       6     0         0
+Critical          225     330   269       261
+Critical - P2      11      14     4         0
+High              468     585   468       487
+Highest            80      54    54        34
+Low               820    1058  1031      1186
+Lowest             30       4     3         0
+Major              32     110    41        11
+Major - P3       1701    1695   716        10
+Medium           1821    1654  1177       741
+Minor             466    1358   833       257
+Minor - P4         54      36    34         0
+Trivial            10       6     0         0
+Trivial - P5        4       0     0         0
+Undefined           0       1     0         0
+Unknown          1986    1915   988      1547
+
+PRIORITY VS RISK PERCENTAGES
+task_risk_level     Low  Medium   High  Critical
+priority                                        
+6                 25.12   28.02  23.43     23.43
+Blocker           50.00   33.85  13.08      3.08
+Blocker - P1      45.45   54.55   0.00      0.00
+Critical          20.74   30.41  24.79     24.06
+Critical - P2     37.93   48.28  13.79      0.00
+High              23.31   29.13  23.31     24.25
+Highest           36.04   24.32  24.32     15.32
+Low               20.02   25.84  25.18     28.96
+Lowest            81.08   10.81   8.11      0.00
+Major             16.49   56.70  21.13      5.67
+Major - P3        41.27   41.12  17.37      0.24
+Medium            33.77   30.67  21.82     13.74
+Minor             15.99   46.60  28.59      8.82
+Minor - P4        43.55   29.03  27.42      0.00
+Trivial           62.50   37.50   0.00      0.00
+Trivial - P5     100.00    0.00   0.00      0.00
+Undefined          0.00  100.00   0.00      0.00
+Unknown           30.86   29.75  15.35     24.04
+
+UNIQUE TASK COUNTS
+priority
+Unknown          2120
+Medium           1641
+Low              1598
+Major - P3       1009
+Minor             732
+High              652
+Critical          385
+6                 220
+Highest            81
+Major              63
+Blocker            41
+Minor - P4         38
+Lowest             12
+Critical - P2      11
+Blocker - P1        8
+Trivial             5
+Trivial - P5        1
+Undefined           1
+
+SNAPSHOT ANALYSIS
+               Snapshots  Unique Tasks  Avg Snapshots Per Task
+priority                                                      
+6                    414           220                    1.88
+Blocker              130            41                    3.17
+Blocker - P1          11             8                    1.38
+Critical            1085           385                    2.82
+Critical - P2         29            11                    2.64
+High                2008           652                    3.08
+Highest              222            81                    2.74
+Low                 4095          1598                    2.56
+Lowest                37            12                    3.08
+Major                194            63                    3.08
+Major - P3          4122          1009                    4.09
+Medium              5393          1641                    3.29
+Minor               2914           732                    3.98
+Minor - P4           124            38                    3.26
+Trivial               16             5                    3.20
+Trivial - P5           4             1                    4.00
+Undefined              1             1                    1.00
+Unknown             6436          2120                    3.04
