@@ -55,3 +55,7 @@ export function getProjectDetailsUrl(projectId) {
 export function getDashboardUrl() {
     return "/dashboard";
 }
+
+export function getDashboardProjects() {
+    return apiRequest("/api/dashboard");
+}

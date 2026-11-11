@@ -1,5 +1,4 @@
-
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, jsonify
 
 from backend.supabase_client import supabase
 from backend.services.project_service import refresh_project_task_metrics
@@ -68,8 +67,9 @@ def _normalise_risk(value, fallback="Low"):
     return value or fallback
 
 
-@dashboard_bp.route("/dashboard")
-def dashboard():
+def _load_dashboard_data():
+    """Load projects and calculate their current dashboard metrics."""
+
     try:
         response = (
             supabase
@@ -98,7 +98,7 @@ def dashboard():
         if project_id is None:
             continue
 
-        # Refresh task execution metrics from the current Tasks table.
+        # Refresh task execution metrics.
         try:
             metrics = refresh_project_task_metrics(project_id)
 
@@ -112,8 +112,7 @@ def dashboard():
                 error,
             )
 
-        # Calculate displayed team size from the union of the saved
-        # project team and employees assigned to current project tasks.
+        # Calculate team size from saved members and task assignments.
         team_members = _get_project_rows(
             "project_team_members",
             project_id,
@@ -141,11 +140,13 @@ def dashboard():
 
         project["team_size"] = len(employee_ids)
 
-        # Prefer the saved dynamic risk when available.
-        # Fall back to the original project-level prediction.
+        # Prefer dynamic risk over initial prediction.
         dynamic_risk = _get_dynamic_risk(project_id)
 
-        if dynamic_risk and dynamic_risk.get("risk_level") is not None:
+        if (
+            dynamic_risk
+            and dynamic_risk.get("risk_level") is not None
+        ):
             current_risk = dynamic_risk["risk_level"]
         else:
             current_risk = project.get("predicted_risk", "Low")
@@ -153,23 +154,54 @@ def dashboard():
         current_risk = _normalise_risk(current_risk)
 
         project["current_risk"] = current_risk
+
         project["dynamic_risk_score"] = (
             dynamic_risk.get("risk_score")
             if dynamic_risk
             else None
         )
+
         project["risk_trend"] = (
             dynamic_risk.get("risk_trend")
             if dynamic_risk
             else None
         )
 
-        # The statistics must count the risk displayed in the table.
         if current_risk in counts:
             counts[current_risk] += 1
+
+    return projects, counts
+
+
+# Existing HTML dashboard route.
+@dashboard_bp.route("/dashboard")
+def dashboard():
+    projects, counts = _load_dashboard_data()
 
     return render_template(
         "dashboard.html",
         projects=projects,
         counts=counts,
     )
+
+
+# New JSON endpoint for React.
+@dashboard_bp.route("/api/dashboard", methods=["GET"])
+def dashboard_api():
+    try:
+        projects, counts = _load_dashboard_data()
+
+        return jsonify({
+            "success": True,
+            "projects": projects,
+            "counts": counts,
+            "total_projects": len(projects),
+        }), 200
+
+    except Exception as error:
+        print("Dashboard API error:", error)
+
+        return jsonify({
+            "success": False,
+            "error": "Unable to load dashboard data.",
+        }), 500
