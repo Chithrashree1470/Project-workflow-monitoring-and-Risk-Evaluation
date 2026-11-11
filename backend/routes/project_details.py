@@ -515,3 +515,147 @@ def remove_project_employee(project_id, employee_id):
             "success": False,
             "message": str(error),
         }), 500
+    
+# =============================================================
+# GET PROJECT DETAILS - REACT API
+# =============================================================
+
+@project_details_bp.route(
+    "/api/project/<project_id>/details",
+    methods=["GET"]
+)
+def get_project_details_api(project_id):
+    try:
+        # Load project
+        project, details = _load_project(project_id)
+
+        if not project:
+            return jsonify({
+                "success": False,
+                "error": "Project not found."
+            }), 404
+
+        # Load team, clients and tasks
+        team_members, clients, all_tasks = _load_children(
+            project_id,
+            details
+        )
+
+        # Refresh project task metrics
+        try:
+            metrics = refresh_project_task_metrics(project_id)
+
+            if metrics:
+                project.update(metrics)
+
+        except Exception as error:
+            print("Project metrics refresh error:", error)
+
+        # Load risk information
+        dynamic_risk = _load_dynamic_risk(project_id)
+        task_predictions = _load_task_predictions(project_id)
+
+        # Get active project role from session
+        access_key = f"project_access_{project_id}"
+        access = session.get(access_key) or {}
+
+        role = access.get("role") or "manager"
+        subject_id = access.get("subject_id")
+
+        if role not in {"manager", "employee", "client"}:
+            role = "manager"
+            subject_id = None
+
+        # Preserve existing employee task filtering
+        if role == "employee":
+            visible_tasks = [
+                task for task in all_tasks
+                if str(task.get("assigned_to") or "")
+                == str(subject_id or "")
+            ]
+        else:
+            visible_tasks = all_tasks
+
+        # Determine current project risk
+        raw_current_risk = (
+            dynamic_risk.get("risk_level")
+            if dynamic_risk
+            else project.get("predicted_risk")
+        )
+
+        if not raw_current_risk:
+            raw_current_risk = project.get("hybrid_risk_level")
+
+        project["current_risk"] = _normalise_risk_label(
+            raw_current_risk,
+            fallback="Low"
+        )
+
+        # Refresh skill metrics
+        try:
+            skill_metrics = update_project_skill_metrics(
+                project_id
+            ) or {}
+
+            project["skill_coverage"] = skill_metrics.get(
+                "skill_coverage",
+                project.get("skill_coverage")
+            )
+
+            project["skill_gap"] = skill_metrics.get(
+                "skill_gap",
+                project.get("skill_gap")
+            )
+
+        except Exception as error:
+            print("Skill metrics refresh error:", error)
+
+        # Build response
+        return jsonify({
+            "success": True,
+
+            "project": project,
+
+            "details": {
+                **details,
+                "team_members": team_members,
+                "clients": clients,
+                "tasks": visible_tasks,
+                "all_tasks": all_tasks,
+
+                "team_member_ids": [
+                    member.get("employee_id")
+                    for member in team_members
+                    if member.get("employee_id")
+                ],
+
+                "stakeholder_ids": [
+                    client.get("client_id")
+                    for client in clients
+                    if client.get("client_id")
+                ],
+
+                "stakeholder_count": len(clients)
+            },
+
+            "tasks": visible_tasks,
+
+            "all_tasks": all_tasks,
+
+            "dynamic_risk": dynamic_risk,
+
+            "task_predictions": task_predictions,
+
+            "role": role,
+
+            "subject_id": subject_id
+
+        }), 200
+
+    except Exception as error:
+        traceback.print_exc()
+
+        return jsonify({
+            "success": False,
+            "error": str(error)
+        }), 500

@@ -12,7 +12,7 @@ import {
     UserRound,
     Building2
 } from "lucide-react";
-
+import ProjectDetails from "./pages/ProjectDetails";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import { getDashboardProjects } from "./services/projectService";
 
@@ -318,53 +318,17 @@ function App() {
 
             {/* EXISTING FLASK PROJECT PAGE */}
             {activePage === "flask-project" && (
-                <main className="workspace-page">
+    <main className="workspace-page">
+        <div className="workspace-toolbar">
+            <button className="back-button" onClick={goHome}>
+                <ArrowLeft size={16} />
+                Back to role selection
+            </button>
+        </div>
 
-                    <div className="workspace-toolbar">
-                        <button
-                            className="back-button"
-                            onClick={goHome}
-                        >
-                            <ArrowLeft size={16} />
-                            Back to role selection
-                        </button>
-
-                        <a
-                            className="open-new"
-                            href={`${FLASK_BASE}${activeUrl}`}
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            Open page separately
-                            <ExternalLink size={15} />
-                        </a>
-                    </div>
-
-                    <div className="workspace-heading">
-                        <div>
-                            <span className="eyebrow">
-                                {role.toUpperCase()} VIEW
-                            </span>
-
-                            <h1>{selected.title}</h1>
-                        </div>
-
-                        <span className="secure-label">
-                            <ShieldCheck size={15} />
-                            Existing Flask functionality
-                        </span>
-                    </div>
-
-                    <div className="frame-wrap">
-                        <iframe
-                            title={`${selected.title} - existing Flask page`}
-                            src={`${FLASK_BASE}${activeUrl}`}
-                            className="flask-frame"
-                        />
-                    </div>
-
-                </main>
-            )}
+        <ProjectDetails projectId={projectId} />
+    </main>
+)}
 
         </div>
     );
