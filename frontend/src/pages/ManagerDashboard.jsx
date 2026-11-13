@@ -38,7 +38,7 @@ function getRisk(project) {
 
     return (
         RISK_LEVELS.find(
-            (item) =>
+            item =>
                 item.label.toLowerCase() ===
                 String(value).toLowerCase()
         )?.label || "Unknown"
@@ -68,7 +68,7 @@ export default function ManagerDashboard({
             Critical: 0
         };
 
-        safeProjects.forEach((project) => {
+        safeProjects.forEach(project => {
             const risk = getRisk(project);
 
             if (Object.prototype.hasOwnProperty.call(counts, risk)) {
@@ -107,9 +107,7 @@ export default function ManagerDashboard({
         setActionMessage("");
 
         try {
-            const result = await generateProjectRisk(
-                selectedProject.id
-            );
+            const result = await generateProjectRisk(selectedProject.id);
 
             if (result.success === false) {
                 throw new Error(
@@ -121,7 +119,6 @@ export default function ManagerDashboard({
                 result.message || "Risk assessment completed."
             );
 
-            // Reload project information from the parent.
             await onRefresh?.();
 
         } catch (err) {
@@ -141,10 +138,18 @@ export default function ManagerDashboard({
         setShowProjectModal(false);
     }
 
+    function handleProjectCreated(newProjectId) {
+        setShowProjectModal(false);
+
+        // Open the newly created project in the React project details page.
+        if (onOpenProject) {
+            onOpenProject({ id: newProjectId });
+        }
+    }
+
     return (
         <div className="manager-dashboard">
 
-            {/* Header */}
             <header className="manager-dashboard__header">
                 <div>
                     <span className="manager-dashboard__eyebrow">
@@ -168,7 +173,6 @@ export default function ManagerDashboard({
                 </button>
             </header>
 
-            {/* Loading and errors */}
             {loading && (
                 <div className="manager-dashboard__notice">
                     Loading projects...
@@ -193,9 +197,8 @@ export default function ManagerDashboard({
                 </div>
             )}
 
-            {/* Risk statistics */}
             <section className="manager-dashboard__stats">
-                {RISK_LEVELS.map((risk) => (
+                {RISK_LEVELS.map(risk => (
                     <div
                         className="manager-dashboard__stat"
                         key={risk.label}
@@ -222,7 +225,6 @@ export default function ManagerDashboard({
                 ))}
             </section>
 
-            {/* Overall metrics */}
             <section className="manager-dashboard__overview">
                 <div>
                     <span>Total Projects</span>
@@ -245,18 +247,17 @@ export default function ManagerDashboard({
                 </div>
             </section>
 
-            {/* Main dashboard content */}
             <main className="manager-dashboard__content">
 
                 <section className="manager-dashboard__projects">
                     <ProjectTable
-    projects={safeProjects}
-    selectedProjectId={selectedProject?.id}
-    onSelectProject={(project) => {
-        handleProjectSelection(project);
-        onOpenProject?.(project);
-    }}
-/>
+                        projects={safeProjects}
+                        selectedProjectId={selectedProject?.id}
+                        onSelectProject={project => {
+                            handleProjectSelection(project);
+                            onOpenProject?.(project);
+                        }}
+                    />
 
                     {!loading && safeProjects.length === 0 && (
                         <p className="manager-dashboard__empty">
@@ -284,10 +285,10 @@ export default function ManagerDashboard({
 
             </main>
 
-            {/* Project creation modal */}
             <ProjectFormModal
                 isOpen={showProjectModal}
                 onClose={handleModalClose}
+                onCreated={handleProjectCreated}
             />
 
             <style>{`

@@ -1,18 +1,33 @@
-
 function formatValue(value) {
     if (value === null || value === undefined || value === "") {
         return "—";
     }
+
     return value;
 }
 
-export default function ProjectOverview({ project, dynamicRisk, teamSize }) {
+export default function ProjectOverview({
+    project = {},
+    details = {},
+    dynamicRisk,
+    teamSize
+}) {
+    const progress =
+        project.project_progress ||
+        details.project_progress ||
+        "Not Started";
+
+    const budget =
+        project.project_budget ??
+        details.project_budget ??
+        project.project_budget_usd;
+
     const stats = [
         ["Team Members", teamSize],
         ["Total Tasks", project.total_tasks],
         ["Completed Tasks", project.completed_tasks],
         ["Overdue Tasks", project.overdue_tasks],
-        ["Progress", `${Number(project.project_progress || 0).toFixed(1)}%`],
+        ["Progress Status", progress],
         ["Timeline", `${formatValue(project.timeline_months)} months`],
         ["Estimated Effort", `${formatValue(project.estimated_effort_hours)} hrs`],
         ["Actual Effort", `${formatValue(project.actual_effort_hours)} hrs`]
@@ -40,8 +55,8 @@ export default function ProjectOverview({ project, dynamicRisk, teamSize }) {
                 <div>
                     <span>Budget</span>
                     <strong>
-                        {project.project_budget_usd != null
-                            ? `$${Number(project.project_budget_usd).toLocaleString()}`
+                        {budget != null
+                            ? `$${Number(budget).toLocaleString()}`
                             : "—"}
                     </strong>
                 </div>

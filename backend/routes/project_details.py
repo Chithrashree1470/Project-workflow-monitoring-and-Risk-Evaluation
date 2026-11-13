@@ -946,3 +946,69 @@ def remove_project_client(project_id, client_id):
             "success": False,
             "error": str(error)
         }), 500
+
+@project_details_bp.route(
+    "/api/project/<project_id>",
+    methods=["PUT"]
+)
+def update_project_details_api(project_id):
+    try:
+        access = session.get(f"project_access_{project_id}") or {}
+
+        if access.get("role") != "manager":
+            return jsonify({
+                "success": False,
+                "error": "Only managers can edit project details."
+            }), 403
+
+        data = request.get_json(silent=True) or {}
+
+        project, details = _load_project(project_id)
+
+        if not project:
+            return jsonify({
+                "success": False,
+                "error": "Project not found."
+            }), 404
+
+        start_date = data.get("start_date", details.get("start_date"))
+        end_date = data.get("end_date", details.get("end_date"))
+
+        if start_date and end_date and end_date < start_date:
+            return jsonify({
+                "success": False,
+                "error": "End date cannot be before start date."
+            }), 400
+
+        details["start_date"] = start_date
+        details["end_date"] = end_date
+
+        response = (
+            supabase.table("projects")
+            .update({
+                "project_details": details
+            })
+            .eq("id", project_id)
+            .execute()
+        )
+
+        if not response.data:
+            return jsonify({
+                "success": False,
+                "error": "Project dates could not be saved."
+            }), 500
+
+        return jsonify({
+            "success": True,
+            "message": "Project dates updated.",
+            "start_date": start_date,
+            "end_date": end_date
+        }), 200
+
+    except Exception as error:
+        traceback.print_exc()
+
+        return jsonify({
+            "success": False,
+            "error": str(error)
+        }), 500
