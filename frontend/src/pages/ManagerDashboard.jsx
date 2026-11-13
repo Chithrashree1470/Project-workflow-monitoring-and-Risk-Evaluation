@@ -49,7 +49,8 @@ export default function ManagerDashboard({
     projects = [],
     loading = false,
     error = "",
-    onRefresh
+    onRefresh,
+    onOpenProject
 }) {
     const [showProjectModal, setShowProjectModal] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null);
@@ -249,10 +250,13 @@ export default function ManagerDashboard({
 
                 <section className="manager-dashboard__projects">
                     <ProjectTable
-                        projects={safeProjects}
-                        selectedProjectId={selectedProject?.id}
-                        onSelectProject={handleProjectSelection}
-                    />
+    projects={safeProjects}
+    selectedProjectId={selectedProject?.id}
+    onSelectProject={(project) => {
+        handleProjectSelection(project);
+        onOpenProject?.(project);
+    }}
+/>
 
                     {!loading && safeProjects.length === 0 && (
                         <p className="manager-dashboard__empty">

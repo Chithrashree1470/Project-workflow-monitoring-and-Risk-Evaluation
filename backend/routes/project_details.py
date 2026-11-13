@@ -2,7 +2,7 @@ import json
 import traceback
 
 from flask import Blueprint, render_template, session, request, jsonify
-
+from backend.master_data import get_employee_by_id, get_client_by_id
 from backend.supabase_client import supabase
 from backend.master_data import get_employee_by_id
 
@@ -718,6 +718,230 @@ def get_project_details_api(project_id):
     except Exception as error:
         traceback.print_exc()
 
+        return jsonify({
+            "success": False,
+            "error": str(error)
+        }), 500
+    
+
+
+# =============================================================
+# MANAGER-ONLY PROJECT EDITING
+# =============================================================
+
+def _manager_access_required(project_id):
+    access = session.get(f"project_access_{project_id}") or {}
+    return isinstance(access, dict) and access.get("role") == "manager"
+
+
+@project_details_bp.route(
+    "/api/project/<project_id>",
+    methods=["PUT"]
+)
+def update_project_api(project_id):
+    try:
+        if not _manager_access_required(project_id):
+            return jsonify({
+                "success": False,
+                "error": "Only managers can edit project details."
+            }), 403
+
+        data = request.get_json(silent=True) or {}
+
+        project, details = _load_project(project_id)
+
+        if not project:
+            return jsonify({
+                "success": False,
+                "error": "Project not found."
+            }), 404
+
+        technologies = data.get("required_technologies")
+
+        if technologies is not None:
+            if not isinstance(technologies, list):
+                return jsonify({
+                    "success": False,
+                    "error": "Required technologies must be a list."
+                }), 400
+
+            technologies = [
+                str(item).strip()
+                for item in technologies
+                if str(item).strip()
+            ]
+
+        start_date = data.get("start_date", details.get("start_date"))
+        end_date = data.get("end_date", details.get("end_date"))
+
+        if start_date and end_date and str(end_date) < str(start_date):
+            return jsonify({
+                "success": False,
+                "error": "Project end date cannot be before start date."
+            }), 400
+
+        details["start_date"] = start_date
+        details["end_date"] = end_date
+
+        update_data = {
+            "project_details": details
+        }
+
+        if technologies is not None:
+            update_data["required_technologies"] = technologies
+
+        response = (
+            supabase.table("projects")
+            .update(update_data)
+            .eq("id", project_id)
+            .execute()
+        )
+
+        if not response.data:
+            raise RuntimeError("Project details could not be saved.")
+
+        skill_metrics = update_project_skill_metrics(project_id)
+
+        return jsonify({
+            "success": True,
+            "project": response.data[0],
+            "skill_metrics": skill_metrics,
+            "message": "Project details updated successfully."
+        }), 200
+
+    except Exception as error:
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "error": str(error)
+        }), 500
+
+
+# =============================================================
+# ADD CLIENT TO PROJECT
+# =============================================================
+
+@project_details_bp.route(
+    "/api/project/<project_id>/clients",
+    methods=["POST"]
+)
+def add_project_client(project_id):
+    try:
+        if not _manager_access_required(project_id):
+            return jsonify({
+                "success": False,
+                "error": "Only managers can add clients."
+            }), 403
+
+        data = request.get_json(silent=True) or {}
+        client_id = str(data.get("client_id") or "").strip()
+
+        if not client_id:
+            return jsonify({
+                "success": False,
+                "error": "Client ID is required."
+            }), 400
+
+        project, _ = _load_project(project_id)
+
+        if not project:
+            return jsonify({
+                "success": False,
+                "error": "Project not found."
+            }), 404
+
+        client = get_client_by_id(client_id)
+
+        if not client:
+            return jsonify({
+                "success": False,
+                "error": "Client ID not found."
+            }), 404
+
+        existing = (
+            supabase.table("project_clients")
+            .select("client_id")
+            .eq("project_id", project_id)
+            .eq("client_id", client_id)
+            .limit(1)
+            .execute()
+        )
+
+        if existing.data:
+            return jsonify({
+                "success": False,
+                "error": "This client is already associated with the project."
+            }), 409
+
+        row = {
+            "project_id": project_id,
+            "client_id": client_id,
+            "client_name": client.get("client_name") or client.get("name") or "",
+            "organization": client.get("organization") or "",
+            "role": client.get("role") or "",
+            "email": client.get("email") or ""
+        }
+
+        response = (
+            supabase.table("project_clients")
+            .insert(row)
+            .execute()
+        )
+
+        if not response.data:
+            raise RuntimeError("Client could not be added.")
+
+        return jsonify({
+            "success": True,
+            "client": row,
+            "message": "Client added successfully."
+        }), 201
+
+    except Exception as error:
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "error": str(error)
+        }), 500
+
+
+# =============================================================
+# REMOVE CLIENT FROM PROJECT
+# =============================================================
+
+@project_details_bp.route(
+    "/api/project/<project_id>/clients/<client_id>",
+    methods=["DELETE"]
+)
+def remove_project_client(project_id, client_id):
+    try:
+        if not _manager_access_required(project_id):
+            return jsonify({
+                "success": False,
+                "error": "Only managers can remove clients."
+            }), 403
+
+        response = (
+            supabase.table("project_clients")
+            .delete()
+            .eq("project_id", project_id)
+            .eq("client_id", client_id)
+            .execute()
+        )
+
+        if not response.data:
+            return jsonify({
+                "success": False,
+                "error": "Client association not found."
+            }), 404
+
+        return jsonify({
+            "success": True,
+            "message": "Client removed from project."
+        }), 200
+
+    except Exception as error:
+        traceback.print_exc()
         return jsonify({
             "success": False,
             "error": str(error)
