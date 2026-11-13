@@ -74,9 +74,7 @@ export default function ProjectRiskPanel({
         };
     }, [color, displayScore]);
 
-    const canGenerate = ["manager", "employee"].includes(
-        String(role).toLowerCase()
-    );
+    const canGenerate = String(role || "").toLowerCase() === "manager";
 
     return (
         <aside className="project-risk-panel">

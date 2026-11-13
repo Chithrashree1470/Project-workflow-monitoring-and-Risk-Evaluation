@@ -13,7 +13,7 @@ import ClientsSection from "../components/project/ClientsSection";
 
 import "../styles/project-details.css";
 
-export default function ProjectDetails({ projectId: suppliedProjectId }) {
+export default function ProjectDetails({ projectId: suppliedProjectId, role: selectedRole = "manager", subjectId: selectedSubjectId = null }) {
     const projectId =
     suppliedProjectId ||
     window.location.pathname.match(/\/project\/([^/]+)/)?.[1];
@@ -33,7 +33,7 @@ export default function ProjectDetails({ projectId: suppliedProjectId }) {
 
         try {
             setError("");
-            const result = await getProjectDetails(projectId);
+            const result = await getProjectDetails(projectId, selectedRole, selectedSubjectId);
 
             if (!result.success) {
                 throw new Error(result.error || "Unable to load project.");
@@ -45,13 +45,14 @@ export default function ProjectDetails({ projectId: suppliedProjectId }) {
         } finally {
             setLoading(false);
         }
-    }, [projectId]);
+    }, [projectId, selectedRole, selectedSubjectId]);
 
     useEffect(() => {
         loadProject();
     }, [loadProject]);
 
     async function handleGenerateRisk() {
+        if (selectedRole !== "manager") return;
         try {
             setActionLoading(true);
             setMessage("");
@@ -71,6 +72,7 @@ export default function ProjectDetails({ projectId: suppliedProjectId }) {
     }
 
     async function handleAddEmployee(employeeId) {
+        if (selectedRole !== "manager") throw new Error("Only managers can manage team members.");
         const result = await apiRequest(
             `/api/project/${projectId}/employees`,
             {
@@ -85,6 +87,7 @@ export default function ProjectDetails({ projectId: suppliedProjectId }) {
     }
 
     async function handleRemoveEmployee(employeeId) {
+        if (selectedRole !== "manager") throw new Error("Only managers can manage team members.");
         const result = await apiRequest(
             `/api/project/${projectId}/employees/${employeeId}`,
             { method: "DELETE" }
@@ -100,7 +103,7 @@ export default function ProjectDetails({ projectId: suppliedProjectId }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 ...updates,
-                updated_by: data?.subject_id
+                updated_by: selectedSubjectId || data?.subject_id
             })
         });
 
@@ -135,9 +138,12 @@ export default function ProjectDetails({ projectId: suppliedProjectId }) {
         details,
         dynamic_risk,
         task_predictions,
-        role,
-        subject_id
+        role: responseRole,
+        subject_id: responseSubjectId
     } = data;
+
+    const role = selectedRole || responseRole || "manager";
+    const subject_id = selectedSubjectId || responseSubjectId || null;
 
     return (
         <main className="project-details-page">

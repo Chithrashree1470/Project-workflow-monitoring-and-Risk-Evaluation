@@ -1,4 +1,3 @@
-
 from flask import Blueprint, jsonify, request
 import json
 import re
@@ -31,68 +30,44 @@ def _normalise_values(value):
 
     if isinstance(value, (list, tuple, set)):
         values = set()
-
         for item in value:
             values.update(_normalise_values(item))
-
         return values
 
     if isinstance(value, dict):
         values = set()
-
         for key, enabled in value.items():
             if enabled:
                 values.update(_normalise_values(key))
-
         return values
 
     text = str(value).strip()
-
     if not text:
         return set()
 
     if text.startswith(("[", "{")):
         try:
             parsed = json.loads(text)
-
             if isinstance(parsed, (list, dict)):
                 return _normalise_values(parsed)
-
         except (ValueError, TypeError):
             pass
 
-    # Split common delimiters and normalize case.
     parts = re.split(r"[,;|\n\r]+", text)
-
-    return {
-        part.strip().casefold()
-        for part in parts
-        if part.strip()
-    }
+    return {part.strip().casefold() for part in parts if part.strip()}
 
 
 def _matches_project_type(employee, project_type):
-    """
-    Recommend an employee if the requested project type matches
-    their recorded skills OR their recorded project_types.
-
-    No role or department fallback is used.
-    """
     requested = _clean(project_type).casefold()
-
     if not requested:
         return False
 
     skills = _normalise_values(employee.get("skills"))
     project_types = _normalise_values(employee.get("project_types"))
-
     all_terms = skills | project_types
 
-    # Exact matching, or a phrase contained within a recorded term.
     return any(
-        requested == term
-        or requested in term
-        or term in requested
+        requested == term or requested in term or term in requested
         for term in all_terms
     )
 
@@ -101,9 +76,7 @@ def _employee_payload(employee):
     return {
         "employee_id": employee.get("employee_id", ""),
         "employee_name": (
-            employee.get("employee_name")
-            or employee.get("name")
-            or ""
+            employee.get("employee_name") or employee.get("name") or ""
         ),
         "email": employee.get("email", ""),
         "role": employee.get("role", ""),
@@ -117,7 +90,6 @@ def _employee_payload(employee):
 
 def get_employee_by_id(employee_id):
     employee_id = _clean(employee_id)
-
     if not employee_id:
         return None
 
@@ -128,14 +100,12 @@ def get_employee_by_id(employee_id):
         .limit(1)
         .execute()
     )
-
     data = response.data or []
     return data[0] if data else None
 
 
 def get_client_by_id(client_id):
     client_id = _clean(client_id)
-
     if not client_id:
         return None
 
@@ -146,21 +116,12 @@ def get_client_by_id(client_id):
         .limit(1)
         .execute()
     )
-
     data = response.data or []
     return data[0] if data else None
 
 
 def get_employees_capable_for_project_type(project_type):
-    """
-    Return employees matching the requested project type against
-    skills or project_types.
-
-    An unknown project type returns an empty recommendation list;
-    the manager can still add valid employees manually.
-    """
     project_type = _clean(project_type)
-
     if not project_type:
         return []
 
@@ -169,12 +130,10 @@ def get_employees_capable_for_project_type(project_type):
         .select("*")
         .execute()
     )
-
     employees = response.data or []
 
     matches = [
-        employee
-        for employee in employees
+        employee for employee in employees
         if _matches_project_type(employee, project_type)
     ]
 
@@ -182,13 +141,11 @@ def get_employees_capable_for_project_type(project_type):
         key=lambda employee: (
             -safe_experience(employee.get("years_experience")),
             _clean(
-                employee.get("employee_name")
-                or employee.get("name")
+                employee.get("employee_name") or employee.get("name")
             ).casefold(),
             _clean(employee.get("employee_id")).casefold(),
         )
     )
-
     return matches
 
 
@@ -199,11 +156,44 @@ def safe_experience(value):
         return 0.0
 
 
-@master_data_bp.route("/api/employee/<employee_id>")
+def _get_projects_for_membership(table_name, id_column, subject_id):
+    """
+    Fetch projects through the existing project membership tables.
+    project_team_members uses employee_id; project_clients uses client_id.
+    """
+    membership_rows = (
+        supabase.table(table_name)
+        .select("project_id")
+        .eq(id_column, subject_id)
+        .execute()
+        .data
+        or []
+    )
+
+    project_ids = list(dict.fromkeys(
+        row.get("project_id")
+        for row in membership_rows
+        if row.get("project_id") is not None
+    ))
+
+    if not project_ids:
+        return []
+
+    projects = (
+        supabase.table("projects")
+        .select("*")
+        .in_("id", project_ids)
+        .execute()
+        .data
+        or []
+    )
+    return projects
+
+
+@master_data_bp.route("/api/employee/<employee_id>", methods=["GET"])
 def api_employee(employee_id):
     try:
         employee = get_employee_by_id(employee_id)
-
         if not employee:
             return jsonify({
                 "success": False,
@@ -214,10 +204,8 @@ def api_employee(employee_id):
             "success": True,
             "employee": _employee_payload(employee),
         })
-
     except Exception as error:
         print("Employee lookup error:", error)
-
         return jsonify({
             "success": False,
             "message": (
@@ -227,11 +215,10 @@ def api_employee(employee_id):
         }), 500
 
 
-@master_data_bp.route("/api/client/<client_id>")
+@master_data_bp.route("/api/client/<client_id>", methods=["GET"])
 def api_client(client_id):
     try:
         client = get_client_by_id(client_id)
-
         if not client:
             return jsonify({
                 "success": False,
@@ -243,19 +230,15 @@ def api_client(client_id):
             "client": {
                 "client_id": client.get("client_id", ""),
                 "client_name": (
-                    client.get("client_name")
-                    or client.get("name")
-                    or ""
+                    client.get("client_name") or client.get("name") or ""
                 ),
                 "organization": client.get("organization", ""),
                 "role": client.get("role", ""),
                 "email": client.get("email", ""),
             },
         })
-
     except Exception as error:
         print("Client lookup error:", error)
-
         return jsonify({
             "success": False,
             "message": (
@@ -265,10 +248,77 @@ def api_client(client_id):
         }), 500
 
 
+@master_data_bp.route(
+    "/api/employee/<employee_id>/projects",
+    methods=["GET"]
+)
+def api_employee_projects(employee_id):
+    try:
+        employee = get_employee_by_id(employee_id)
+        if not employee:
+            return jsonify({
+                "success": False,
+                "message": "Employee ID not found.",
+                "projects": [],
+            }), 404
+
+        projects = _get_projects_for_membership(
+            "project_team_members", "employee_id", _clean(employee_id)
+        )
+
+        return jsonify({
+            "success": True,
+            "role": "employee",
+            "subject_id": _clean(employee_id),
+            "projects": projects,
+            "count": len(projects),
+        }), 200
+    except Exception as error:
+        print("Employee project lookup error:", error)
+        return jsonify({
+            "success": False,
+            "message": str(error),
+            "projects": [],
+        }), 500
+
+
+@master_data_bp.route(
+    "/api/client/<client_id>/projects",
+    methods=["GET"]
+)
+def api_client_projects(client_id):
+    try:
+        client = get_client_by_id(client_id)
+        if not client:
+            return jsonify({
+                "success": False,
+                "message": "Client ID not found.",
+                "projects": [],
+            }), 404
+
+        projects = _get_projects_for_membership(
+            "project_clients", "client_id", _clean(client_id)
+        )
+
+        return jsonify({
+            "success": True,
+            "role": "client",
+            "subject_id": _clean(client_id),
+            "projects": projects,
+            "count": len(projects),
+        }), 200
+    except Exception as error:
+        print("Client project lookup error:", error)
+        return jsonify({
+            "success": False,
+            "message": str(error),
+            "projects": [],
+        }), 500
+
+
 @master_data_bp.route("/api/employees/capable", methods=["GET"])
 def api_capable_employees():
     project_type = _clean(request.args.get("project_type"))
-
     if not project_type:
         return jsonify({
             "success": True,
@@ -279,11 +329,7 @@ def api_capable_employees():
 
     try:
         employees = get_employees_capable_for_project_type(project_type)
-
-        payload = [
-            _employee_payload(employee)
-            for employee in employees
-        ]
+        payload = [_employee_payload(employee) for employee in employees]
 
         return jsonify({
             "success": True,
@@ -291,10 +337,8 @@ def api_capable_employees():
             "count": len(payload),
             "employees": payload,
         })
-
     except Exception as error:
         print("Capable employee lookup error:", error)
-
         return jsonify({
             "success": False,
             "message": (

@@ -555,26 +555,89 @@ def get_project_details_api(project_id):
         dynamic_risk = _load_dynamic_risk(project_id)
         task_predictions = _load_task_predictions(project_id)
 
-        # Get active project role from session
+        # React role-based access: role and ID are supplied by the
+        # employee/client project-selection screen.
         access_key = f"project_access_{project_id}"
         access = session.get(access_key) or {}
 
-        role = access.get("role") or "manager"
-        subject_id = access.get("subject_id")
+        requested_role = (
+            request.args.get("view") or access.get("role") or "manager"
+        ).strip().lower()
+        subject_id = (
+            request.args.get("subject_id")
+            or access.get("subject_id")
+        )
+        subject_id = str(subject_id).strip() if subject_id else None
 
-        if role not in {"manager", "employee", "client"}:
-            role = "manager"
-            subject_id = None
+        if requested_role not in {"manager", "employee", "client"}:
+            return jsonify({
+                "success": False,
+                "error": "Invalid project view."
+            }), 400
 
-        # Preserve existing employee task filtering
+        role = requested_role
+
+        # ID-only demo access still verifies that the ID is associated
+        # with this project. A supplied ID alone does not grant access.
         if role == "employee":
+            if not subject_id:
+                return jsonify({
+                    "success": False,
+                    "error": "Employee ID is required."
+                }), 400
+
+            membership = (
+                supabase.table("project_team_members")
+                .select("employee_id")
+                .eq("project_id", project_id)
+                .eq("employee_id", subject_id)
+                .limit(1)
+                .execute()
+            )
+
+            if not membership.data:
+                return jsonify({
+                    "success": False,
+                    "error": "This employee is not assigned to this project."
+                }), 403
+
             visible_tasks = [
                 task for task in all_tasks
-                if str(task.get("assigned_to") or "")
-                == str(subject_id or "")
+                if str(task.get("assigned_to") or "").strip() == subject_id
             ]
-        else:
+
+        elif role == "client":
+            if not subject_id:
+                return jsonify({
+                    "success": False,
+                    "error": "Client ID is required."
+                }), 400
+
+            membership = (
+                supabase.table("project_clients")
+                .select("client_id")
+                .eq("project_id", project_id)
+                .eq("client_id", subject_id)
+                .limit(1)
+                .execute()
+            )
+
+            if not membership.data:
+                return jsonify({
+                    "success": False,
+                    "error": "This client is not associated with this project."
+                }), 403
+
             visible_tasks = all_tasks
+
+        else:
+            subject_id = None
+            visible_tasks = all_tasks
+
+        session[access_key] = {
+            "role": role,
+            "subject_id": subject_id
+        }
 
         # Determine current project risk
         raw_current_risk = (
