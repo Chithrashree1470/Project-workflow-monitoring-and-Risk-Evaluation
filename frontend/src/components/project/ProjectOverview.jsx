@@ -1,3 +1,4 @@
+
 function formatValue(value) {
     if (value === null || value === undefined || value === "") {
         return "—";
@@ -35,7 +36,7 @@ export default function ProjectOverview({
 
     return (
         <section className="project-section">
-            <h2>Project Summary</h2>
+            <h2>Project Overview</h2>
 
             <div className="project-stats-grid">
                 {stats.map(([label, value]) => (

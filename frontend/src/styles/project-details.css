@@ -298,3 +298,42 @@ button:disabled {
         flex-direction: column;
     }
 }
+
+/* Project timeline readability */
+.project-date-display > div {
+    padding: 16px;
+    border: 1px solid #334155;
+    border-radius: 9px;
+    background: #17263a;
+}
+
+.project-date-display span {
+    display: block;
+    margin-bottom: 8px;
+    color: #cbd5e1 !important;
+    font-size: 13px;
+}
+
+.project-date-display strong {
+    display: block;
+    color: #f8fafc !important;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+/* Task table spacing */
+.task-table {
+    margin-top: 16px;
+}
+
+.task-table th,
+.task-table td {
+    vertical-align: middle;
+}
+
+/* Modal should remain above the project layout */
+.task-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+}

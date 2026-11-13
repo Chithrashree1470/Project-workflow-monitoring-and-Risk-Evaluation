@@ -1,7 +1,9 @@
+
 import { useCallback, useEffect, useState } from "react";
 
 import { getProjectDetails } from "../services/projectDetailsService";
 import { apiRequest } from "../services/api";
+import { createTask } from "../services/taskService";
 
 import ProjectRiskPanel from "../components/common/ProjectRiskPanel";
 import ProjectOverview from "../components/project/ProjectOverview";
@@ -13,24 +15,6 @@ import "../styles/project-details.css";
 
 function dateValue(value) {
     return value ? String(value).slice(0, 10) : "";
-}
-
-function getProgress(project, details) {
-    if (project?.completion_percentage != null) {
-        return Number(project.completion_percentage);
-    }
-
-    const tasks = details?.tasks || [];
-
-    if (tasks.length === 0) return 0;
-
-    const completed = tasks.filter(task =>
-        ["CLOSED", "COMPLETED", "DONE"].includes(
-            String(task.status || "").toUpperCase()
-        )
-    ).length;
-
-    return (completed / tasks.length) * 100;
 }
 
 function getBudget(project, details) {
@@ -81,9 +65,7 @@ export default function ProjectDetails({
             );
 
             if (!result.success) {
-                throw new Error(
-                    result.error || "Unable to load project."
-                );
+                throw new Error(result.error || "Unable to load project.");
             }
 
             setData(result);
@@ -102,7 +84,6 @@ export default function ProjectDetails({
                 project.end_date ||
                 project.project_details?.end_date
             ));
-
         } catch (err) {
             setError(err.message);
         } finally {
@@ -114,7 +95,7 @@ export default function ProjectDetails({
         loadProject();
     }, [loadProject]);
 
-    // Existing risk button handler. We will revise this separately.
+    // Risk generation is intentionally left unchanged for now.
     async function handleGenerateRisk() {
         if (!isManager) return;
 
@@ -129,7 +110,6 @@ export default function ProjectDetails({
 
             setMessage(result.message || "Risk calculated successfully.");
             await loadProject();
-
         } catch (err) {
             setMessage(err.message);
         } finally {
@@ -153,9 +133,7 @@ export default function ProjectDetails({
                 `/api/project/${encodeURIComponent(projectId)}/details`,
                 {
                     method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         start_date: startDate,
                         end_date: endDate
@@ -172,7 +150,6 @@ export default function ProjectDetails({
             setEditingDates(false);
             setMessage("Project dates updated.");
             await loadProject();
-
         } catch (err) {
             setMessage(err.message);
         } finally {
@@ -189,14 +166,14 @@ export default function ProjectDetails({
             `/api/project/${encodeURIComponent(projectId)}/employees`,
             {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    employee_id: employeeId
-                })
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ employee_id: employeeId })
             }
         );
+
+        if (result.success === false) {
+            throw new Error(result.error || result.message || "Unable to add employee.");
+        }
 
         await loadProject();
         return result;
@@ -212,18 +189,78 @@ export default function ProjectDetails({
             { method: "DELETE" }
         );
 
+        if (result.success === false) {
+            throw new Error(result.error || result.message || "Unable to remove employee.");
+        }
+
+        await loadProject();
+        return result;
+    }
+
+    async function handleAddClient(clientId) {
+        if (!isManager) {
+            throw new Error("Only managers can manage clients.");
+        }
+
+        const result = await apiRequest(
+            `/api/project/${encodeURIComponent(projectId)}/clients`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ client_id: clientId })
+            }
+        );
+
+        if (result.success === false) {
+            throw new Error(result.error || result.message || "Unable to add client.");
+        }
+
+        await loadProject();
+        return result;
+    }
+
+    async function handleRemoveClient(clientId) {
+        if (!isManager) {
+            throw new Error("Only managers can manage clients.");
+        }
+
+        const result = await apiRequest(
+            `/api/project/${encodeURIComponent(projectId)}/clients/${encodeURIComponent(clientId)}`,
+            { method: "DELETE" }
+        );
+
+        if (result.success === false) {
+            throw new Error(result.error || result.message || "Unable to remove client.");
+        }
+
+        await loadProject();
+        return result;
+    }
+
+    async function handleCreateTask(taskData) {
+        if (!isManager) {
+            throw new Error("Only managers can create tasks.");
+        }
+
+        const result = await createTask({
+            ...taskData,
+            project_id: projectId
+        });
+
+        if (result.success === false) {
+            throw new Error(result.error || result.message || "Unable to create task.");
+        }
+
         await loadProject();
         return result;
     }
 
     async function handleUpdateTask(taskId, updates) {
-        await apiRequest(
+        const result = await apiRequest(
             `/api/tasks/${encodeURIComponent(taskId)}`,
             {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...updates,
                     updated_by: selectedSubjectId || data?.subject_id
@@ -231,24 +268,30 @@ export default function ProjectDetails({
             }
         );
 
+        if (result.success === false) {
+            throw new Error(result.error || result.message || "Unable to update task.");
+        }
+
         await loadProject();
+        return result;
     }
 
     async function handleDeleteTask(taskId) {
-        await apiRequest(
+        const result = await apiRequest(
             `/api/tasks/${encodeURIComponent(taskId)}`,
             { method: "DELETE" }
         );
 
+        if (result.success === false) {
+            throw new Error(result.error || result.message || "Unable to delete task.");
+        }
+
         await loadProject();
+        return result;
     }
 
     if (loading) {
-        return (
-            <div className="project-loading">
-                Loading project details...
-            </div>
-        );
+        return <div className="project-loading">Loading project details...</div>;
     }
 
     if (error) {
@@ -274,96 +317,43 @@ export default function ProjectDetails({
     const role = selectedRole || responseRole || "manager";
     const subjectId = selectedSubjectId || responseSubjectId || null;
 
-    const progress = getProgress(project, details);
     const budget = getBudget(project, details);
+    const formattedBudget = budget == null
+        ? "Not specified"
+        : `$${Number(budget).toLocaleString()}`;
 
     const teamMembers = details.team_members || [];
     const tasks = details.tasks || [];
     const clients = details.clients || [];
-
-    const formattedBudget = budget == null
-        ? "Not specified"
-        : `$${Number(budget).toLocaleString()}`;
 
     return (
         <main className="project-details-page">
             <header className="project-details-header">
                 <div>
                     <p className="project-eyebrow">PROJECT WORKSPACE</p>
-
-                    <h1>
-                        {project.project_name || "Untitled Project"}
-                    </h1>
-
-                    <span className="project-role">
-                        {role} view
-                    </span>
+                    <h1>{project.project_name || "Untitled Project"}</h1>
+                    <span className="project-role">{role} view</span>
                 </div>
 
-                <button
-                    className="refresh-button"
-                    onClick={loadProject}
-                >
+                <button className="refresh-button" onClick={loadProject}>
                     Refresh
                 </button>
             </header>
 
-            {message && (
-                <div className="project-message">
-                    {message}
-                </div>
-            )}
-
-            {/* Project progress and budget */}
-            <section className="project-section project-key-metrics">
-                <div>
-                    <span>Project Progress</span>
-
-                    <strong>{progress.toFixed(1)}%</strong>
-
-                    <div className="project-progress-track">
-                        <div
-                            className="project-progress-fill"
-                            style={{
-                                width: `${Math.min(100, Math.max(0, progress))}%`
-                            }}
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <span>Project Budget</span>
-                    <strong>{formattedBudget}</strong>
-                </div>
-
-                <div>
-                    <span>Project Status</span>
-                    <strong>
-                        {project.project_progress ||
-                            project.status ||
-                            "Not specified"}
-                    </strong>
-                </div>
-
-                <div>
-                    <span>Project Deadline</span>
-                    <strong>{endDate || "Not specified"}</strong>
-                </div>
-            </section>
+            {message && <div className="project-message">{message}</div>}
 
             <div className="project-details-layout">
                 <div className="project-main-column">
                     <ProjectOverview
                         project={{
                             ...project,
-                            project_budget_usd: budget,
-                            project_progress: progress
+                            project_budget_usd: budget
                         }}
+                        details={details}
                         dynamicRisk={dynamic_risk}
                         teamSize={teamMembers.length}
                     />
 
-                    {/* Project dates */}
                     <section className="project-section">
                         <div className="project-section-heading">
                             <h2>Project Timeline</h2>
@@ -386,9 +376,7 @@ export default function ProjectDetails({
                                     <input
                                         type="date"
                                         value={startDate}
-                                        onChange={event =>
-                                            setStartDate(event.target.value)
-                                        }
+                                        onChange={event => setStartDate(event.target.value)}
                                     />
                                 </label>
 
@@ -398,9 +386,7 @@ export default function ProjectDetails({
                                         type="date"
                                         min={startDate || undefined}
                                         value={endDate}
-                                        onChange={event =>
-                                            setEndDate(event.target.value)
-                                        }
+                                        onChange={event => setEndDate(event.target.value)}
                                     />
                                 </label>
 
@@ -488,11 +474,17 @@ export default function ProjectDetails({
                         predictions={task_predictions || {}}
                         role={role}
                         subjectId={subjectId}
+                        onCreate={handleCreateTask}
                         onUpdate={handleUpdateTask}
                         onDelete={handleDeleteTask}
                     />
 
-                    <ClientsSection clients={clients} />
+                    <ClientsSection
+                        clients={clients}
+                        role={role}
+                        onAdd={handleAddClient}
+                        onRemove={handleRemoveClient}
+                    />
                 </div>
 
                 <aside className="project-sidebar">
@@ -505,17 +497,12 @@ export default function ProjectDetails({
 
                     <div className="project-sidebar-info">
                         <span>Project ID</span>
-                        <strong>{project.id}</strong>
+                        <strong>{project.id ?? project.project_id ?? projectId}</strong>
 
                         <span>Project Type</span>
                         <strong>
-                            {project.project_type ||
-                                project.type ||
-                                "Not specified"}
+                            {project.project_type || project.type || "Not specified"}
                         </strong>
-
-                        <span>Project Budget</span>
-                        <strong>{formattedBudget}</strong>
 
                         <span>Current Role</span>
                         <strong>{role}</strong>
@@ -524,45 +511,6 @@ export default function ProjectDetails({
             </div>
 
             <style>{`
-                .project-key-metrics {
-                    display: grid;
-                    grid-template-columns: repeat(4, minmax(0, 1fr));
-                    gap: 20px;
-                }
-
-                .project-key-metrics > div {
-                    min-width: 0;
-                }
-
-                .project-key-metrics span,
-                .project-date-display span {
-                    display: block;
-                    color: #64748b;
-                    font-size: 13px;
-                    margin-bottom: 8px;
-                }
-
-                .project-key-metrics strong,
-                .project-date-display strong {
-                    display: block;
-                    color: #0f172a;
-                    font-size: 20px;
-                }
-
-                .project-progress-track {
-                    height: 7px;
-                    margin-top: 12px;
-                    background: #e2e8f0;
-                    border-radius: 20px;
-                    overflow: hidden;
-                }
-
-                .project-progress-fill {
-                    height: 100%;
-                    background: #2563eb;
-                    border-radius: 20px;
-                }
-
                 .project-section-heading {
                     display: flex;
                     justify-content: space-between;
@@ -586,16 +534,16 @@ export default function ProjectDetails({
                     display: flex;
                     flex-direction: column;
                     gap: 8px;
-                    color: #475569;
+                    color: #cbd5e1;
                     font-size: 13px;
                 }
 
                 .project-date-editor input {
                     padding: 11px;
-                    border: 1px solid #cbd5e1;
+                    border: 1px solid #475569;
                     border-radius: 8px;
-                    color: #0f172a;
-                    background: white;
+                    color: #f8fafc;
+                    background: #0b1728;
                 }
 
                 .project-date-actions {
@@ -607,21 +555,14 @@ export default function ProjectDetails({
 
                 .project-date-actions button {
                     padding: 10px 15px;
-                    border: 1px solid #cbd5e1;
+                    border: 1px solid #475569;
                     border-radius: 8px;
-                    background: white;
-                    color: #334155;
+                    background: #17263a;
+                    color: #e2e8f0;
                     cursor: pointer;
                 }
 
-                @media (max-width: 850px) {
-                    .project-key-metrics {
-                        grid-template-columns: repeat(2, minmax(0, 1fr));
-                    }
-                }
-
                 @media (max-width: 550px) {
-                    .project-key-metrics,
                     .project-date-editor,
                     .project-date-display {
                         grid-template-columns: 1fr;
