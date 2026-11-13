@@ -7,26 +7,10 @@ import ProjectRiskPanel from "../components/common/ProjectRiskPanel";
 import { generateProjectRisk } from "../services/taskService";
 
 const RISK_LEVELS = [
-    {
-        label: "Low",
-        color: "#16a34a",
-        background: "#dcfce7"
-    },
-    {
-        label: "Medium",
-        color: "#d97706",
-        background: "#fef3c7"
-    },
-    {
-        label: "High",
-        color: "#ea580c",
-        background: "#ffedd5"
-    },
-    {
-        label: "Critical",
-        color: "#dc2626",
-        background: "#fee2e2"
-    }
+    { label: "Low", color: "#16a34a" },
+    { label: "Medium", color: "#d97706" },
+    { label: "High", color: "#ea580c" },
+    { label: "Critical", color: "#dc2626" }
 ];
 
 function getRisk(project) {
@@ -38,9 +22,7 @@ function getRisk(project) {
 
     return (
         RISK_LEVELS.find(
-            item =>
-                item.label.toLowerCase() ===
-                String(value).toLowerCase()
+            item => item.label.toLowerCase() === String(value).toLowerCase()
         )?.label || "Unknown"
     );
 }
@@ -82,37 +64,35 @@ export default function ManagerDashboard({
     const totalProjects = safeProjects.length;
 
     const completedTasks = safeProjects.reduce(
-        (total, project) =>
-            total + Number(project.completed_tasks || 0),
+        (total, project) => total + Number(project.completed_tasks || 0),
         0
     );
 
     const totalTasks = safeProjects.reduce(
-        (total, project) =>
-            total + Number(project.total_tasks || 0),
+        (total, project) => total + Number(project.total_tasks || 0),
         0
     );
 
     const overdueTasks = safeProjects.reduce(
-        (total, project) =>
-            total + Number(project.overdue_tasks || 0),
+        (total, project) => total + Number(project.overdue_tasks || 0),
         0
     );
 
     async function handleGenerateRisk() {
-        if (!selectedProject?.id) return;
+        if (!selectedProject) return;
+
+        const id = selectedProject.id ?? selectedProject.project_id;
+        if (!id) return;
 
         setRiskLoading(true);
         setActionError("");
         setActionMessage("");
 
         try {
-            const result = await generateProjectRisk(selectedProject.id);
+            const result = await generateProjectRisk(id);
 
             if (result.success === false) {
-                throw new Error(
-                    result.error || "Risk calculation failed."
-                );
+                throw new Error(result.error || "Risk calculation failed.");
             }
 
             setActionMessage(
@@ -120,7 +100,6 @@ export default function ManagerDashboard({
             );
 
             await onRefresh?.();
-
         } catch (err) {
             setActionError(err.message);
         } finally {
@@ -134,22 +113,17 @@ export default function ManagerDashboard({
         setActionMessage("");
     }
 
-    function handleModalClose() {
-        setShowProjectModal(false);
-    }
-
     function handleProjectCreated(newProjectId) {
         setShowProjectModal(false);
 
-        // Open the newly created project in the React project details page.
-        if (onOpenProject) {
-            onOpenProject({ id: newProjectId });
-        }
+        onOpenProject?.({
+            id: newProjectId,
+            project_id: newProjectId
+        });
     }
 
     return (
         <div className="manager-dashboard">
-
             <header className="manager-dashboard__header">
                 <div>
                     <span className="manager-dashboard__eyebrow">
@@ -159,8 +133,7 @@ export default function ManagerDashboard({
                     <h1>Manager Dashboard</h1>
 
                     <p>
-                        Monitor project execution, team progress
-                        and project risk.
+                        Monitor project execution, team progress and project risk.
                     </p>
                 </div>
 
@@ -248,21 +221,19 @@ export default function ManagerDashboard({
             </section>
 
             <main className="manager-dashboard__content">
-
                 <section className="manager-dashboard__projects">
                     <ProjectTable
                         projects={safeProjects}
-                        selectedProjectId={selectedProject?.id}
-                        onSelectProject={project => {
-                            handleProjectSelection(project);
-                            onOpenProject?.(project);
-                        }}
+                        selectedProjectId={
+                            selectedProject?.id ??
+                            selectedProject?.project_id
+                        }
+                        onSelectProject={handleProjectSelection}
                     />
 
                     {!loading && safeProjects.length === 0 && (
                         <p className="manager-dashboard__empty">
-                            No projects available. Create a project
-                            to get started.
+                            No projects available. Create a project to get started.
                         </p>
                     )}
                 </section>
@@ -277,17 +248,15 @@ export default function ManagerDashboard({
 
                     {!selectedProject && (
                         <p className="manager-dashboard__hint">
-                            Select a project from the table to view
-                            its current risk assessment.
+                            Select a project from the table to view its current risk assessment.
                         </p>
                     )}
                 </section>
-
             </main>
 
             <ProjectFormModal
                 isOpen={showProjectModal}
-                onClose={handleModalClose}
+                onClose={() => setShowProjectModal(false)}
                 onCreated={handleProjectCreated}
             />
 
@@ -337,10 +306,6 @@ export default function ManagerDashboard({
                     white-space: nowrap;
                 }
 
-                .manager-dashboard__create:hover {
-                    background: #1d4ed8;
-                }
-
                 .manager-dashboard__stats {
                     display: grid;
                     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -358,7 +323,6 @@ export default function ManagerDashboard({
                 .manager-dashboard__stat-heading {
                     display: flex;
                     justify-content: space-between;
-                    align-items: center;
                     color: #64748b;
                     font-size: 13px;
                 }
@@ -371,8 +335,8 @@ export default function ManagerDashboard({
 
                 .manager-dashboard__stat strong {
                     display: block;
-                    margin-top: 13px;
                     font-size: 30px;
+                    margin: 12px 0 5px;
                 }
 
                 .manager-dashboard__stat-caption {
@@ -384,32 +348,32 @@ export default function ManagerDashboard({
                     display: grid;
                     grid-template-columns: repeat(4, minmax(0, 1fr));
                     gap: 16px;
-                    margin-bottom: 22px;
+                    margin-bottom: 24px;
                 }
 
                 .manager-dashboard__overview > div {
-                    padding: 18px;
+                    background: white;
                     border: 1px solid #e2e8f0;
                     border-radius: 12px;
-                    background: white;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 9px;
+                    padding: 18px;
                 }
 
                 .manager-dashboard__overview span {
+                    display: block;
                     color: #64748b;
-                    font-size: 13px;
+                    font-size: 12px;
                 }
 
                 .manager-dashboard__overview strong {
-                    font-size: 23px;
+                    display: block;
+                    margin-top: 8px;
+                    font-size: 24px;
                 }
 
                 .manager-dashboard__content {
                     display: grid;
-                    grid-template-columns: minmax(0, 1fr) 310px;
-                    gap: 22px;
+                    grid-template-columns: minmax(0, 1fr) 320px;
+                    gap: 24px;
                     align-items: start;
                 }
 
@@ -419,7 +383,7 @@ export default function ManagerDashboard({
 
                 .manager-dashboard__risk {
                     position: sticky;
-                    top: 24px;
+                    top: 20px;
                 }
 
                 .manager-dashboard__hint,
@@ -453,13 +417,7 @@ export default function ManagerDashboard({
                     color: #166534;
                 }
 
-                @media (max-width: 1100px) {
-                    .manager-dashboard__content {
-                        grid-template-columns: minmax(0, 1fr) 280px;
-                    }
-                }
-
-                @media (max-width: 850px) {
+                @media (max-width: 900px) {
                     .manager-dashboard__content {
                         grid-template-columns: 1fr;
                     }

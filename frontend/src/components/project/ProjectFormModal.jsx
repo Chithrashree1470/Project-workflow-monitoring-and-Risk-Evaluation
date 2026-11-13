@@ -54,9 +54,7 @@ export default function ProjectFormModal({
         if (!isOpen) return;
 
         function handleEscape(event) {
-            if (event.key === "Escape" && !isSubmitting) {
-                onClose();
-            }
+            if (event.key === "Escape") onClose();
         }
 
         window.addEventListener("keydown", handleEscape);
@@ -64,7 +62,7 @@ export default function ProjectFormModal({
         return () => {
             window.removeEventListener("keydown", handleEscape);
         };
-    }, [isOpen, isSubmitting, onClose]);
+    }, [isOpen, onClose]);
 
     if (!isOpen) return null;
 
@@ -105,18 +103,14 @@ export default function ProjectFormModal({
         setLookupError("");
         setEmployee(null);
 
-        if (!employeeId.trim()) return;
-
         try {
-            const data = await getEmployee(employeeId.trim());
+            const result = await getEmployee(employeeId.trim());
 
-            if (data.success === false || !data.employee) {
-                throw new Error(
-                    data.error || data.message || "Employee not found."
-                );
+            if (!result.employee || result.success === false) {
+                throw new Error(result.error || "Employee not found.");
             }
 
-            setEmployee(data.employee);
+            setEmployee(result.employee);
         } catch (error) {
             setLookupError(error.message);
         }
@@ -126,18 +120,14 @@ export default function ProjectFormModal({
         setLookupError("");
         setClient(null);
 
-        if (!clientId.trim()) return;
-
         try {
-            const data = await getClient(clientId.trim());
+            const result = await getClient(clientId.trim());
 
-            if (data.success === false || !data.client) {
-                throw new Error(
-                    data.error || data.message || "Client not found."
-                );
+            if (!result.client || result.success === false) {
+                throw new Error(result.error || "Client not found.");
             }
 
-            setClient(data.client);
+            setClient(result.client);
         } catch (error) {
             setLookupError(error.message);
         }
@@ -145,8 +135,7 @@ export default function ProjectFormModal({
 
     async function handleSubmit(event) {
         event.preventDefault();
-
-        if (isSubmitting) return;
+        setLookupError("");
 
         if (
             project.Start_Date &&
@@ -157,33 +146,17 @@ export default function ProjectFormModal({
             return;
         }
 
-        if (employeeId.trim() && !employee) {
-            setLookupError("Please verify the employee ID first.");
-            return;
-        }
-
-        if (clientId.trim() && !client) {
-            setLookupError("Please verify the client ID first.");
-            return;
-        }
+        if (isSubmitting) return;
 
         setIsSubmitting(true);
-        setLookupError("");
 
         try {
             const formData = new FormData(event.currentTarget);
 
-            // The backend calculates the complexity score automatically.
+            // Complexity is calculated by the backend.
             formData.delete("Complexity_Score");
 
-            // Submit selected technologies.
-            formData.delete("Required_Technology");
-
-            technologies.forEach(technology => {
-                formData.append("Required_Technology", technology);
-            });
-
-            // These names are read by the existing backend creation workflow.
+            // Send the verified employee and client IDs.
             if (employee) {
                 formData.append("Employee_ID", employeeId.trim());
             }
@@ -201,30 +174,39 @@ export default function ProjectFormModal({
                 }
             });
 
+            const contentType = response.headers.get("content-type");
+
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error(
+                    "The project was submitted, but the backend returned HTML instead of JSON. " +
+                    "The /predict route needs to return the created project ID as JSON."
+                );
+            }
+
             const result = await response.json();
 
             if (!response.ok || result.success === false) {
                 throw new Error(
-                    result.error ||
-                    result.message ||
-                    "Project creation failed."
+                    result.error || "Project creation failed."
                 );
             }
 
-            if (!result.project_id) {
+            const newProjectId =
+                result.project_id ??
+                result.id ??
+                result.project?.id;
+
+            if (!newProjectId) {
                 throw new Error(
-                    "Project was created, but the server did not return its project ID."
+                    "Project was created, but the response did not contain a project ID."
                 );
             }
-
-            // Navigate to the newly created project in the React application.
-            onCreated?.(result.project_id);
 
             onClose();
+            onCreated?.(newProjectId);
+
         } catch (error) {
-            setLookupError(
-                error.message || "Unable to create project."
-            );
+            setLookupError(error.message);
         } finally {
             setIsSubmitting(false);
         }
@@ -234,10 +216,7 @@ export default function ProjectFormModal({
         <div
             className="project-modal__overlay"
             onMouseDown={event => {
-                if (
-                    event.target === event.currentTarget &&
-                    !isSubmitting
-                ) {
+                if (event.target === event.currentTarget) {
                     onClose();
                 }
             }}
@@ -253,9 +232,8 @@ export default function ProjectFormModal({
                         <h2 id="project-modal-title">
                             Create New Project
                         </h2>
-
                         <p>
-                            Enter project details for the initial risk assessment.
+                            Enter the project details for the initial risk assessment.
                         </p>
                     </div>
 
@@ -263,8 +241,7 @@ export default function ProjectFormModal({
                         type="button"
                         className="project-modal__close"
                         onClick={onClose}
-                        disabled={isSubmitting}
-                        aria-label="Close project form"
+                        aria-label="Close"
                     >
                         ×
                     </button>
@@ -279,7 +256,6 @@ export default function ProjectFormModal({
                     <div className="project-modal__grid">
                         <label>
                             Project Name
-
                             <input
                                 name="Project_Name"
                                 value={project.Project_Name}
@@ -290,7 +266,6 @@ export default function ProjectFormModal({
 
                         <label>
                             Project Type
-
                             <select
                                 name="Project_Type"
                                 value={project.Project_Type}
@@ -298,30 +273,17 @@ export default function ProjectFormModal({
                                 required
                             >
                                 <option value="">Select type</option>
-                                <option value="Web Development">
-                                    Web Development
-                                </option>
-                                <option value="Mobile Application">
-                                    Mobile Application
-                                </option>
-                                <option value="Machine Learning">
-                                    Machine Learning
-                                </option>
-                                <option value="Data Science">
-                                    Data Science
-                                </option>
-                                <option value="Cloud Computing">
-                                    Cloud Computing
-                                </option>
-                                <option value="Other">
-                                    Other
-                                </option>
+                                <option value="Web Development">Web Development</option>
+                                <option value="Mobile Application">Mobile Application</option>
+                                <option value="Machine Learning">Machine Learning</option>
+                                <option value="Data Science">Data Science</option>
+                                <option value="Cloud Computing">Cloud Computing</option>
+                                <option value="Other">Other</option>
                             </select>
                         </label>
 
                         <label>
                             Project Budget (USD)
-
                             <input
                                 type="number"
                                 name="Project_Budget_USD"
@@ -334,19 +296,7 @@ export default function ProjectFormModal({
                         </label>
 
                         <label>
-                            Project Manager Experience
-
-                            <input
-                                name="Project_Manager_Experience"
-                                value={project.Project_Manager_Experience}
-                                onChange={updateField}
-                                placeholder="Optional"
-                            />
-                        </label>
-
-                        <label>
                             Start Date
-
                             <input
                                 type="date"
                                 name="Start_Date"
@@ -358,10 +308,10 @@ export default function ProjectFormModal({
 
                         <label>
                             End Date
-
                             <input
                                 type="date"
                                 name="End_Date"
+                                min={project.Start_Date || undefined}
                                 value={project.End_Date}
                                 onChange={updateField}
                                 required
@@ -376,11 +326,11 @@ export default function ProjectFormModal({
                             <label key={technology}>
                                 <input
                                     type="checkbox"
+                                    name="Required_Technology"
                                     value={technology}
                                     checked={technologies.includes(technology)}
                                     onChange={() => toggleTechnology(technology)}
                                 />
-
                                 <span>{technology}</span>
                             </label>
                         ))}
@@ -393,12 +343,6 @@ export default function ProjectFormModal({
                             onChange={event =>
                                 setCustomTechnology(event.target.value)
                             }
-                            onKeyDown={event => {
-                                if (event.key === "Enter") {
-                                    event.preventDefault();
-                                    addTechnology();
-                                }
-                            }}
                         />
 
                         <button
@@ -410,22 +354,14 @@ export default function ProjectFormModal({
                     </div>
 
                     {technologies
-                        .filter(technology => !TECHNOLOGIES.includes(technology))
-                        .map(technology => (
-                            <span
-                                className="project-modal__selected-tech"
-                                key={technology}
-                            >
-                                {technology}
-
-                                <button
-                                    type="button"
-                                    onClick={() => toggleTechnology(technology)}
-                                    aria-label={`Remove ${technology}`}
-                                >
-                                    ×
-                                </button>
-                            </span>
+                        .filter(item => !TECHNOLOGIES.includes(item))
+                        .map(item => (
+                            <input
+                                key={item}
+                                type="hidden"
+                                name="Required_Technology"
+                                value={item}
+                            />
                         ))}
 
                     <h3>Team Member Lookup</h3>
@@ -454,9 +390,6 @@ export default function ProjectFormModal({
                             <strong>{employee.employee_name}</strong>
                             <span>{employee.email}</span>
                             <span>{employee.department}</span>
-                            <span className="lookup-verified">
-                                Employee verified
-                            </span>
                         </div>
                     )}
 
@@ -486,13 +419,7 @@ export default function ProjectFormModal({
                             <strong>
                                 {client.client_name || client.name || clientId}
                             </strong>
-
-                            <span>{client.organization}</span>
                             <span>{client.email}</span>
-
-                            <span className="lookup-verified">
-                                Client verified
-                            </span>
                         </div>
                     )}
 
@@ -519,7 +446,7 @@ export default function ProjectFormModal({
                         >
                             {isSubmitting
                                 ? "Creating Project..."
-                                : "Create Project & Generate Risk"}
+                                : "Create Project & Predict Risk"}
                         </button>
                     </div>
                 </form>
@@ -549,7 +476,6 @@ export default function ProjectFormModal({
                 .project-modal__header {
                     display: flex;
                     justify-content: space-between;
-                    align-items: flex-start;
                     padding: 24px;
                     border-bottom: 1px solid #e2e8f0;
                 }
@@ -596,7 +522,7 @@ export default function ProjectFormModal({
                     gap: 8px;
                     font-size: 13px;
                     font-weight: 600;
-                    color: #475569;
+                    color: #334155;
                 }
 
                 .project-modal__grid input,
@@ -612,11 +538,9 @@ export default function ProjectFormModal({
                     font-size: 14px;
                 }
 
-                .project-modal__grid input:focus,
-                .project-modal__grid select:focus,
-                .project-modal__lookup input:focus {
-                    outline: 2px solid #93c5fd;
-                    border-color: #2563eb;
+                .project-modal__grid select option {
+                    color: #0f172a;
+                    background: #fff;
                 }
 
                 .project-modal__technologies {
@@ -630,18 +554,17 @@ export default function ProjectFormModal({
                     display: flex;
                     align-items: center;
                     gap: 7px;
-                    border: 1px solid #cbd5e1;
+                    border: 1px solid #e2e8f0;
                     padding: 9px 12px;
                     border-radius: 9px;
                     font-size: 13px;
-                    color: #0f172a;
-                    background: #ffffff;
-                    font-weight: 600;
+                    color: #1e293b;
+                    background: #fff;
                     cursor: pointer;
                 }
 
                 .project-modal__technologies label span {
-                    color: #0f172a;
+                    color: #1e293b;
                 }
 
                 .project-modal__technologies input {
@@ -664,9 +587,9 @@ export default function ProjectFormModal({
                     cursor: pointer;
                 }
 
-                .project-modal__lookup input::placeholder {
-                    color: #64748b;
-                    opacity: 1;
+                .project-modal__lookup button:disabled {
+                    opacity: .5;
+                    cursor: not-allowed;
                 }
 
                 .project-modal__lookup-result {
@@ -676,42 +599,13 @@ export default function ProjectFormModal({
                     padding: 14px;
                     margin-bottom: 20px;
                     background: #f8fafc;
-                    color: #334155;
-                    border: 1px solid #e2e8f0;
+                    color: #0f172a;
                     border-radius: 9px;
                     font-size: 13px;
                 }
 
-                .lookup-verified {
-                    color: #15803d;
-                    font-weight: 600;
-                }
-
-                .project-modal__selected-tech {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 6px;
-                    margin: 0 6px 10px 0;
-                    padding: 5px 9px;
-                    border-radius: 6px;
-                    background: #eff6ff;
-                    color: #1e40af;
-                    font-size: 12px;
-                }
-
-                .project-modal__selected-tech button {
-                    border: 0;
-                    background: transparent;
-                    color: #1e40af;
-                    cursor: pointer;
-                    font-size: 16px;
-                }
-
                 .project-modal__error {
                     color: #b91c1c;
-                    background: #fef2f2;
-                    padding: 10px;
-                    border-radius: 8px;
                     font-size: 13px;
                 }
 
@@ -730,11 +624,6 @@ export default function ProjectFormModal({
                     cursor: pointer;
                 }
 
-                .project-modal__footer button:disabled {
-                    opacity: .6;
-                    cursor: not-allowed;
-                }
-
                 .project-modal__cancel {
                     background: white;
                     border: 1px solid #cbd5e1;
@@ -747,8 +636,9 @@ export default function ProjectFormModal({
                     color: white;
                 }
 
-                .project-modal__submit:hover:not(:disabled) {
-                    background: #1d4ed8;
+                .project-modal__submit:disabled {
+                    opacity: .6;
+                    cursor: wait;
                 }
 
                 @media (max-width: 600px) {

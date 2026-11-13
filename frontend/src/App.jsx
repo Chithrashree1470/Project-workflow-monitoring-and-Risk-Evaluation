@@ -123,6 +123,12 @@ export default function App() {
         setProjectId(String(project.id ?? project.project_id ?? ""));
         setActivePage("project-details");
     }
+    function openCreatedProject(project) {
+    setRole("manager");
+    setSelectedProject(project);
+    setProjectId(String(project.id ?? project.project_id));
+    setActivePage("project-details");
+}
 
     function backToProjects() {
         if (role === "manager") {
@@ -296,22 +302,23 @@ export default function App() {
             )}
 
             {activePage === "manager-dashboard" && (
-                <main className="workspace-page">
-                    <div className="workspace-toolbar">
-                        <button className="back-button" onClick={backHome}>
-                            <ArrowLeft size={16} /> Back to role selection
-                        </button>
-                    </div>
+    <main className="workspace-page">
+        <div className="workspace-toolbar">
+            <button className="back-button" onClick={backHome}>
+                <ArrowLeft size={16} />
+                Back to role selection
+            </button>
+        </div>
 
-                    <ManagerDashboard
-                        projects={managerProjects}
-                        loading={managerLoading}
-                        error={managerError}
-                        onRefresh={refreshManagerDashboard}
-                        onOpenProject={openProject}
-                    />
-                </main>
-            )}
+        <ManagerDashboard
+            projects={managerProjects}
+            loading={managerLoading}
+            error={managerError}
+            onRefresh={openManagerDashboard}
+            onOpenProject={openCreatedProject}
+        />
+    </main>
+)}
 
             {activePage === "project-details" && (
                 <main className="workspace-page">

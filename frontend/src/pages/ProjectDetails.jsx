@@ -1,100 +1,44 @@
 import { useCallback, useEffect, useState } from "react";
 
-import {
-    getProjectDetails,
-    updateProjectDetails,
-    addProjectClient,
-    removeProjectClient
-} from "../services/projectDetailsService";
-
+import { getProjectDetails } from "../services/projectDetailsService";
 import { apiRequest } from "../services/api";
-
-import {
-    createTask,
-    updateTask,
-    deleteTask
-} from "../services/taskService";
 
 import ProjectRiskPanel from "../components/common/ProjectRiskPanel";
 import ProjectOverview from "../components/project/ProjectOverview";
 import TeamMembersSection from "../components/project/TeamMembersSection";
 import TaskSection from "../components/task/TaskSection";
 import ClientsSection from "../components/project/ClientsSection";
-import ProjectFormModal from "../components/project/ProjectFormModal";
 
 import "../styles/project-details.css";
-
-const DEFAULT_TECHNOLOGIES = [
-    "Python",
-    "Java",
-    "JavaScript",
-    "React",
-    "Node.js",
-    "Flask",
-    "Spring Boot",
-    "SQL",
-    "PostgreSQL",
-    "MongoDB",
-    "REST API",
-    "Docker",
-    "AWS",
-    "Machine Learning"
-];
-
-function toTechnologyArray(value) {
-    if (Array.isArray(value)) return value;
-
-    if (!value) return [];
-
-    if (typeof value === "string") {
-        try {
-            const parsed = JSON.parse(value);
-
-            if (Array.isArray(parsed)) return parsed;
-        } catch {
-            return value
-                .split(",")
-                .map(item => item.trim())
-                .filter(Boolean);
-        }
-    }
-
-    return [];
-}
 
 function dateValue(value) {
     return value ? String(value).slice(0, 10) : "";
 }
 
-function getProgressStatus(project, details) {
-    const status =
-        project.project_progress ||
-        details.project_progress ||
-        project.progress_status;
-
-    // The backend may store progress as a text status.
-    if (typeof status === "string" && status.trim()) {
-        return status;
+function getProgress(project, details) {
+    if (project?.completion_percentage != null) {
+        return Number(project.completion_percentage);
     }
 
-    const completion = Number(
-        project.completion_percentage ??
-        details.completion_percentage ??
-        0
-    );
+    const tasks = details?.tasks || [];
 
-    if (completion >= 100) return "Completed";
-    if (completion > 0) return "In Progress";
+    if (tasks.length === 0) return 0;
 
-    return "Not Started";
+    const completed = tasks.filter(task =>
+        ["CLOSED", "COMPLETED", "DONE"].includes(
+            String(task.status || "").toUpperCase()
+        )
+    ).length;
+
+    return (completed / tasks.length) * 100;
 }
 
-function getProjectBudget(project, details) {
+function getBudget(project, details) {
     return (
-        project.project_budget ??
-        project.project_budget_usd ??
-        details.project_budget ??
-        details.project_budget_usd ??
+        project?.project_budget ??
+        project?.project_budget_usd ??
+        details?.project_budget ??
+        details?.Project_Budget_USD ??
         null
     );
 }
@@ -102,8 +46,7 @@ function getProjectBudget(project, details) {
 export default function ProjectDetails({
     projectId: suppliedProjectId,
     role: selectedRole = "manager",
-    subjectId: selectedSubjectId = null,
-    onOpenProject
+    subjectId: selectedSubjectId = null
 }) {
     const projectId = suppliedProjectId;
 
@@ -114,16 +57,12 @@ export default function ProjectDetails({
     const [actionLoading, setActionLoading] = useState(false);
     const [message, setMessage] = useState("");
 
-    const [showCreateProject, setShowCreateProject] = useState(false);
-    const [editingProject, setEditingProject] = useState(false);
-
-    const [requiredTechnologies, setRequiredTechnologies] = useState([]);
-    const [customTechnology, setCustomTechnology] = useState("");
-
+    const [editingDates, setEditingDates] = useState(false);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [savingDates, setSavingDates] = useState(false);
 
-    const isManager = String(selectedRole).toLowerCase() === "manager";
+    const isManager = selectedRole === "manager";
 
     const loadProject = useCallback(async () => {
         if (!projectId) {
@@ -151,26 +90,21 @@ export default function ProjectDetails({
 
             const project = result.project || {};
             const details = result.details || {};
-            const projectDetails = project.project_details || {};
-
-            setRequiredTechnologies(
-                toTechnologyArray(project.required_technologies)
-            );
 
             setStartDate(dateValue(
                 details.start_date ||
-                projectDetails.start_date ||
-                project.start_date
+                project.start_date ||
+                project.project_details?.start_date
             ));
 
             setEndDate(dateValue(
                 details.end_date ||
-                projectDetails.end_date ||
-                project.end_date
+                project.end_date ||
+                project.project_details?.end_date
             ));
 
         } catch (err) {
-            setError(err.message || "Unable to load project.");
+            setError(err.message);
         } finally {
             setLoading(false);
         }
@@ -180,6 +114,7 @@ export default function ProjectDetails({
         loadProject();
     }, [loadProject]);
 
+    // Existing risk button handler. We will revise this separately.
     async function handleGenerateRisk() {
         if (!isManager) return;
 
@@ -189,15 +124,10 @@ export default function ProjectDetails({
 
             const result = await apiRequest(
                 `/api/tasks/project/${encodeURIComponent(projectId)}/calculate-risk`,
-                {
-                    method: "POST"
-                }
+                { method: "POST" }
             );
 
-            setMessage(
-                result.message || "Risk calculated successfully."
-            );
-
+            setMessage(result.message || "Risk calculated successfully.");
             await loadProject();
 
         } catch (err) {
@@ -207,72 +137,47 @@ export default function ProjectDetails({
         }
     }
 
-    async function handleSaveProject() {
+    async function handleSaveDates() {
         if (!isManager) return;
 
-        if (
-            startDate &&
-            endDate &&
-            endDate < startDate
-        ) {
-            setMessage(
-                "Project deadline cannot be before its start date."
-            );
+        if (startDate && endDate && endDate < startDate) {
+            setMessage("Project end date cannot be before its start date.");
             return;
         }
 
         try {
-            setActionLoading(true);
+            setSavingDates(true);
             setMessage("");
 
-            const result = await updateProjectDetails(projectId, {
-                required_technologies: requiredTechnologies,
-                start_date: startDate,
-                end_date: endDate
-            });
+            const result = await apiRequest(
+                `/api/project/${encodeURIComponent(projectId)}/details`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        start_date: startDate,
+                        end_date: endDate
+                    })
+                }
+            );
 
             if (result.success === false) {
                 throw new Error(
-                    result.error ||
-                    result.message ||
-                    "Project update failed."
+                    result.error || result.message || "Project update failed."
                 );
             }
 
-            setEditingProject(false);
-            setMessage("Project details updated successfully.");
-
+            setEditingDates(false);
+            setMessage("Project dates updated.");
             await loadProject();
 
         } catch (err) {
             setMessage(err.message);
         } finally {
-            setActionLoading(false);
+            setSavingDates(false);
         }
-    }
-
-    function toggleTechnology(technology) {
-        setRequiredTechnologies(previous =>
-            previous.includes(technology)
-                ? previous.filter(item => item !== technology)
-                : [...previous, technology]
-        );
-    }
-
-    function addCustomTechnology() {
-        const value = customTechnology.trim();
-
-        if (!value) return;
-
-        setRequiredTechnologies(previous =>
-            previous.some(
-                item => item.toLowerCase() === value.toLowerCase()
-            )
-                ? previous
-                : [...previous, value]
-        );
-
-        setCustomTechnology("");
     }
 
     async function handleAddEmployee(employeeId) {
@@ -281,7 +186,7 @@ export default function ProjectDetails({
         }
 
         const result = await apiRequest(
-            `/api/project/${projectId}/employees`,
+            `/api/project/${encodeURIComponent(projectId)}/employees`,
             {
                 method: "POST",
                 headers: {
@@ -294,7 +199,6 @@ export default function ProjectDetails({
         );
 
         await loadProject();
-
         return result;
     }
 
@@ -304,86 +208,39 @@ export default function ProjectDetails({
         }
 
         const result = await apiRequest(
-            `/api/project/${projectId}/employees/${encodeURIComponent(employeeId)}`,
-            {
-                method: "DELETE"
-            }
+            `/api/project/${encodeURIComponent(projectId)}/employees/${encodeURIComponent(employeeId)}`,
+            { method: "DELETE" }
         );
 
         await loadProject();
-
         return result;
-    }
-
-    async function handleAddClient(clientId) {
-        if (!isManager) {
-            throw new Error("Only managers can add clients.");
-        }
-
-        const result = await addProjectClient(projectId, clientId);
-
-        await loadProject();
-
-        return result;
-    }
-
-    async function handleRemoveClient(clientId) {
-        if (!isManager) {
-            throw new Error("Only managers can remove clients.");
-        }
-
-        const result = await removeProjectClient(projectId, clientId);
-
-        await loadProject();
-
-        return result;
-    }
-
-    async function handleCreateTask(taskData) {
-        if (!isManager) {
-            throw new Error("Only managers can create tasks.");
-        }
-
-        await createTask({
-            ...taskData,
-            project_id: projectId,
-            created_by: "Manager",
-
-            // New tasks always start with zero actual hours.
-            actual_hours: 0
-        });
-
-        await loadProject();
     }
 
     async function handleUpdateTask(taskId, updates) {
-        if (!isManager && selectedRole !== "employee") {
-            throw new Error("You cannot update this task.");
-        }
-
-        await updateTask(taskId, {
-            ...updates,
-            updated_by: selectedSubjectId || data?.subject_id || "Manager"
-        });
+        await apiRequest(
+            `/api/tasks/${encodeURIComponent(taskId)}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    ...updates,
+                    updated_by: selectedSubjectId || data?.subject_id
+                })
+            }
+        );
 
         await loadProject();
     }
 
     async function handleDeleteTask(taskId) {
-        if (!isManager) {
-            throw new Error("Only managers can delete tasks.");
-        }
-
-        await deleteTask(taskId);
+        await apiRequest(
+            `/api/tasks/${encodeURIComponent(taskId)}`,
+            { method: "DELETE" }
+        );
 
         await loadProject();
-    }
-
-    function handleProjectCreated(newProjectId) {
-        setShowCreateProject(false);
-
-        // Use the parent React navigation handler when available.
-        onOpenProject?.({ id: newProjectId });
     }
 
     if (loading) {
@@ -398,10 +255,7 @@ export default function ProjectDetails({
         return (
             <div className="project-error">
                 <p>{error}</p>
-
-                <button onClick={loadProject}>
-                    Retry
-                </button>
+                <button onClick={loadProject}>Retry</button>
             </div>
         );
     }
@@ -412,314 +266,239 @@ export default function ProjectDetails({
         project = {},
         details = {},
         dynamic_risk,
-        task_predictions
+        task_predictions,
+        role: responseRole,
+        subject_id: responseSubjectId
     } = data;
 
-    const budget = getProjectBudget(project, details);
-    const progressStatus = getProgressStatus(project, details);
+    const role = selectedRole || responseRole || "manager";
+    const subjectId = selectedSubjectId || responseSubjectId || null;
 
-    const completionPercentage = Number(
-        project.completion_percentage ??
-        details.completion_percentage ??
-        0
-    );
+    const progress = getProgress(project, details);
+    const budget = getBudget(project, details);
 
-    // Normalize the values expected by the existing ProjectOverview component.
-    const overviewProject = {
-        ...project,
-        project_budget_usd: budget,
-        project_progress: completionPercentage
-    };
+    const teamMembers = details.team_members || [];
+    const tasks = details.tasks || [];
+    const clients = details.clients || [];
+
+    const formattedBudget = budget == null
+        ? "Not specified"
+        : `$${Number(budget).toLocaleString()}`;
 
     return (
         <main className="project-details-page">
-
             <header className="project-details-header">
                 <div>
-                    <p className="project-eyebrow">
-                        PROJECT WORKSPACE
-                    </p>
+                    <p className="project-eyebrow">PROJECT WORKSPACE</p>
 
                     <h1>
                         {project.project_name || "Untitled Project"}
                     </h1>
 
                     <span className="project-role">
-                        {selectedRole} view
+                        {role} view
                     </span>
                 </div>
 
-                <div className="project-header-actions">
-                    {isManager && (
-                        <button
-                            className="project-action-button"
-                            onClick={() => setShowCreateProject(true)}
-                        >
-                            + Create New Project
-                        </button>
-                    )}
-
-                    <button
-                        className="refresh-button"
-                        onClick={loadProject}
-                    >
-                        Refresh
-                    </button>
-                </div>
+                <button
+                    className="refresh-button"
+                    onClick={loadProject}
+                >
+                    Refresh
+                </button>
             </header>
 
             {message && (
-                <div className="project-message" role="status">
+                <div className="project-message">
                     {message}
                 </div>
             )}
 
+            {/* Project progress and budget */}
+            <section className="project-section project-key-metrics">
+                <div>
+                    <span>Project Progress</span>
+
+                    <strong>{progress.toFixed(1)}%</strong>
+
+                    <div className="project-progress-track">
+                        <div
+                            className="project-progress-fill"
+                            style={{
+                                width: `${Math.min(100, Math.max(0, progress))}%`
+                            }}
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <span>Project Budget</span>
+                    <strong>{formattedBudget}</strong>
+                </div>
+
+                <div>
+                    <span>Project Status</span>
+                    <strong>
+                        {project.project_progress ||
+                            project.status ||
+                            "Not specified"}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Project Deadline</span>
+                    <strong>{endDate || "Not specified"}</strong>
+                </div>
+            </section>
+
             <div className="project-details-layout">
-
                 <div className="project-main-column">
-
                     <ProjectOverview
-                        project={overviewProject}
-                        details={details}
+                        project={{
+                            ...project,
+                            project_budget_usd: budget,
+                            project_progress: progress
+                        }}
                         dynamicRisk={dynamic_risk}
-                        teamSize={details.team_members?.length || 0}
+                        teamSize={teamMembers.length}
                     />
 
-                    {/* Explicit project status and budget display */}
-                    <section className="project-section project-summary-section">
-                        <h2>Project Progress & Budget</h2>
-
-                        <div className="project-summary-grid">
-                            <div className="project-summary-card">
-                                <span>Progress Status</span>
-                                <strong>{progressStatus}</strong>
-                            </div>
-
-                            <div className="project-summary-card">
-                                <span>Project Budget</span>
-                                <strong>
-                                    {budget !== null && budget !== undefined
-                                        ? `$${Number(budget).toLocaleString()}`
-                                        : "Not specified"}
-                                </strong>
-                            </div>
-
-                            <div className="project-summary-card">
-                                <span>Completion</span>
-                                <strong>
-                                    {completionPercentage.toFixed(1)}%
-                                </strong>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Project technologies and timeline */}
+                    {/* Project dates */}
                     <section className="project-section">
+                        <div className="project-section-heading">
+                            <h2>Project Timeline</h2>
 
-                        <div className="section-heading-row">
-                            <h2>Project Details</h2>
-
-                            {isManager && (
+                            {isManager && !editingDates && (
                                 <button
-                                    className="project-action-button"
-                                    onClick={() => {
-                                        setEditingProject(value => !value);
-                                        setMessage("");
-                                    }}
+                                    type="button"
+                                    className="primary-button"
+                                    onClick={() => setEditingDates(true)}
                                 >
-                                    {editingProject
-                                        ? "Cancel Edit"
-                                        : "Edit Project"}
+                                    Edit Dates
                                 </button>
                             )}
                         </div>
 
-                        {editingProject ? (
-                            <div className="project-edit-form">
-
-                                <h3>Required Technologies</h3>
-
-                                <div className="technology-checkboxes">
-                                    {[...new Set([
-                                        ...DEFAULT_TECHNOLOGIES,
-                                        ...requiredTechnologies
-                                    ])].map(technology => (
-                                        <label key={technology}>
-                                            <input
-                                                type="checkbox"
-                                                checked={requiredTechnologies.includes(
-                                                    technology
-                                                )}
-                                                onChange={() =>
-                                                    toggleTechnology(technology)
-                                                }
-                                            />
-
-                                            <span>{technology}</span>
-                                        </label>
-                                    ))}
-                                </div>
-
-                                <div className="technology-add-row">
+                        {editingDates ? (
+                            <div className="project-date-editor">
+                                <label>
+                                    Start Date
                                     <input
-                                        value={customTechnology}
+                                        type="date"
+                                        value={startDate}
                                         onChange={event =>
-                                            setCustomTechnology(event.target.value)
+                                            setStartDate(event.target.value)
                                         }
-                                        onKeyDown={event => {
-                                            if (event.key === "Enter") {
-                                                event.preventDefault();
-                                                addCustomTechnology();
-                                            }
-                                        }}
-                                        placeholder="Add another technology"
                                     />
+                                </label>
+
+                                <label>
+                                    End Date
+                                    <input
+                                        type="date"
+                                        min={startDate || undefined}
+                                        value={endDate}
+                                        onChange={event =>
+                                            setEndDate(event.target.value)
+                                        }
+                                    />
+                                </label>
+
+                                <div className="project-date-actions">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setEditingDates(false);
+                                            loadProject();
+                                        }}
+                                        disabled={savingDates}
+                                    >
+                                        Cancel
+                                    </button>
 
                                     <button
                                         type="button"
-                                        onClick={addCustomTechnology}
+                                        className="primary-button"
+                                        onClick={handleSaveDates}
+                                        disabled={savingDates}
                                     >
-                                        Add
+                                        {savingDates ? "Saving..." : "Save Dates"}
                                     </button>
                                 </div>
-
-                                <h3>Project Timeline</h3>
-
-                                <div className="project-date-fields">
-                                    <label>
-                                        Start Date
-
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={event =>
-                                                setStartDate(event.target.value)
-                                            }
-                                            required
-                                        />
-                                    </label>
-
-                                    <label>
-                                        Project Deadline
-
-                                        <input
-                                            type="date"
-                                            value={endDate}
-                                            onChange={event =>
-                                                setEndDate(event.target.value)
-                                            }
-                                            required
-                                        />
-                                    </label>
-                                </div>
-
-                                <button
-                                    className="project-action-button"
-                                    disabled={actionLoading}
-                                    onClick={handleSaveProject}
-                                >
-                                    {actionLoading
-                                        ? "Saving..."
-                                        : "Save Project Changes"}
-                                </button>
                             </div>
                         ) : (
-                            <>
-                                <div className="technology-list">
-                                    {toTechnologyArray(
-                                        project.required_technologies
-                                    ).map((technology, index) => (
-                                        <span key={`${technology}-${index}`}>
-                                            {technology}
-                                        </span>
-                                    ))}
-
-                                    {toTechnologyArray(
-                                        project.required_technologies
-                                    ).length === 0 && (
-                                        <p>
-                                            No required technologies recorded.
-                                        </p>
-                                    )}
+                            <div className="project-date-display">
+                                <div>
+                                    <span>Start Date</span>
+                                    <strong>{startDate || "Not specified"}</strong>
                                 </div>
 
-                                <div className="project-date-display">
-                                    <div>
-                                        <span>Start Date</span>
-                                        <strong>
-                                            {startDate || "Not specified"}
-                                        </strong>
-                                    </div>
-
-                                    <div>
-                                        <span>Project Deadline</span>
-                                        <strong>
-                                            {endDate || "Not specified"}
-                                        </strong>
-                                    </div>
+                                <div>
+                                    <span>End Date</span>
+                                    <strong>{endDate || "Not specified"}</strong>
                                 </div>
-
-                                <div className="skill-metrics">
-                                    <div>
-                                        <span>Skill Coverage</span>
-
-                                        <strong>
-                                            {Number(
-                                                project.skill_coverage || 0
-                                            ).toFixed(2)}%
-                                        </strong>
-                                    </div>
-
-                                    <div>
-                                        <span>Skill Gap</span>
-
-                                        <strong>
-                                            {Number(
-                                                project.skill_gap || 0
-                                            ).toFixed(2)}%
-                                        </strong>
-                                    </div>
-                                </div>
-                            </>
+                            </div>
                         )}
                     </section>
 
+                    <section className="project-section">
+                        <h2>Project Skill Requirements</h2>
+
+                        <div className="technology-list">
+                            {(project.required_technologies || []).map(
+                                (technology, index) => (
+                                    <span key={`${technology}-${index}`}>
+                                        {technology}
+                                    </span>
+                                )
+                            )}
+
+                            {(!project.required_technologies ||
+                                project.required_technologies.length === 0) && (
+                                <p>No required technologies recorded.</p>
+                            )}
+                        </div>
+
+                        <div className="skill-metrics">
+                            <div>
+                                <span>Skill Coverage</span>
+                                <strong>
+                                    {Number(project.skill_coverage || 0).toFixed(2)}%
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Skill Gap</span>
+                                <strong>
+                                    {Number(project.skill_gap || 0).toFixed(2)}%
+                                </strong>
+                            </div>
+                        </div>
+                    </section>
+
                     <TeamMembersSection
-                        members={details.team_members || []}
-                        role={selectedRole}
+                        members={teamMembers}
+                        role={role}
                         onAdd={handleAddEmployee}
                         onRemove={handleRemoveEmployee}
                     />
 
                     <TaskSection
-                        tasks={details.tasks || []}
+                        tasks={tasks}
                         predictions={task_predictions || {}}
-                        role={selectedRole}
-                        subjectId={data.subject_id}
-                        onCreate={handleCreateTask}
+                        role={role}
+                        subjectId={subjectId}
                         onUpdate={handleUpdateTask}
                         onDelete={handleDeleteTask}
                     />
 
-                    <ClientsSection
-                        clients={details.clients || []}
-                        role={selectedRole}
-                        onAdd={handleAddClient}
-                        onRemove={handleRemoveClient}
-                    />
-
+                    <ClientsSection clients={clients} />
                 </div>
 
                 <aside className="project-sidebar">
-
                     <ProjectRiskPanel
-                        project={{
-                            ...project,
-                            dynamic_risk_score: dynamic_risk?.risk_score,
-                            risk_trend: dynamic_risk?.risk_trend,
-                            risk_level: dynamic_risk?.risk_level
-                        }}
-                        role={selectedRole}
+                        project={project}
+                        role={role}
                         loading={actionLoading}
                         onGenerateRisk={handleGenerateRisk}
                     />
@@ -735,187 +514,116 @@ export default function ProjectDetails({
                                 "Not specified"}
                         </strong>
 
-                        <span>Current Role</span>
-                        <strong>{selectedRole}</strong>
-                    </div>
+                        <span>Project Budget</span>
+                        <strong>{formattedBudget}</strong>
 
+                        <span>Current Role</span>
+                        <strong>{role}</strong>
+                    </div>
                 </aside>
             </div>
 
-            {isManager && (
-                <ProjectFormModal
-                    isOpen={showCreateProject}
-                    onClose={() => setShowCreateProject(false)}
-                    onCreated={handleProjectCreated}
-                />
-            )}
-
             <style>{`
-                .project-header-actions,
-                .section-heading-row {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 12px;
+                .project-key-metrics {
+                    display: grid;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    gap: 20px;
                 }
 
-                .project-action-button {
-                    border: 0;
-                    border-radius: 8px;
-                    padding: 10px 14px;
-                    background: #2563eb;
-                    color: white;
-                    font-weight: 600;
-                    cursor: pointer;
+                .project-key-metrics > div {
+                    min-width: 0;
                 }
 
-                .project-action-button:disabled {
-                    opacity: .6;
-                    cursor: wait;
-                }
-
-                .project-edit-form {
-                    padding: 18px;
-                    background: #f8fafc;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 12px;
-                }
-
-                .project-edit-form h3 {
-                    color: #0f172a;
-                    font-size: 14px;
-                    margin: 16px 0 10px;
-                }
-
-                .technology-checkboxes {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 12px;
-                    margin: 14px 0;
-                }
-
-                .technology-checkboxes label {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
+                .project-key-metrics span,
+                .project-date-display span {
+                    display: block;
+                    color: #64748b;
                     font-size: 13px;
+                    margin-bottom: 8px;
+                }
+
+                .project-key-metrics strong,
+                .project-date-display strong {
+                    display: block;
+                    color: #0f172a;
+                    font-size: 20px;
+                }
+
+                .project-progress-track {
+                    height: 7px;
+                    margin-top: 12px;
+                    background: #e2e8f0;
+                    border-radius: 20px;
+                    overflow: hidden;
+                }
+
+                .project-progress-fill {
+                    height: 100%;
+                    background: #2563eb;
+                    border-radius: 20px;
+                }
+
+                .project-section-heading {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .project-section-heading h2 {
+                    margin: 0;
+                }
+
+                .project-date-editor,
+                .project-date-display {
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 18px;
+                    margin-top: 18px;
+                }
+
+                .project-date-editor label {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    color: #475569;
+                    font-size: 13px;
+                }
+
+                .project-date-editor input {
+                    padding: 11px;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    color: #0f172a;
+                    background: white;
+                }
+
+                .project-date-actions {
+                    grid-column: 1 / -1;
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                }
+
+                .project-date-actions button {
+                    padding: 10px 15px;
+                    border: 1px solid #cbd5e1;
+                    border-radius: 8px;
+                    background: white;
                     color: #334155;
                     cursor: pointer;
                 }
 
-                .technology-checkboxes input {
-                    accent-color: #2563eb;
-                }
-
-                .technology-add-row,
-                .project-date-fields {
-                    display: flex;
-                    gap: 12px;
-                    margin: 14px 0;
-                }
-
-                .technology-add-row input,
-                .project-date-fields input {
-                    padding: 10px;
-                    border: 1px solid #cbd5e1;
-                    border-radius: 8px;
-                    color: #0f172a;
-                    background: #fff;
-                }
-
-                .technology-add-row input {
-                    flex: 1;
-                }
-
-                .technology-add-row button {
-                    border: 0;
-                    border-radius: 8px;
-                    padding: 9px 16px;
-                    background: #eff6ff;
-                    color: #1d4ed8;
-                    cursor: pointer;
-                }
-
-                .project-date-fields label {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 7px;
-                    flex: 1;
-                    font-size: 13px;
-                    color: #475569;
-                }
-
-                .project-date-fields input {
-                    width: 100%;
-                    box-sizing: border-box;
-                }
-
-                .project-message {
-                    padding: 12px;
-                    margin: 12px 0;
-                    background: #eff6ff;
-                    color: #1d4ed8;
-                    border-radius: 8px;
-                }
-
-                .project-summary-grid {
-                    display: grid;
-                    grid-template-columns: repeat(3, minmax(0, 1fr));
-                    gap: 14px;
-                }
-
-                .project-summary-card {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 9px;
-                    padding: 16px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 10px;
-                    background: #ffffff;
-                    min-width: 0;
-                }
-
-                .project-summary-card span,
-                .project-date-display span {
-                    color: #64748b;
-                    font-size: 12px;
-                }
-
-                .project-summary-card strong {
-                    color: #0f172a;
-                    font-size: 17px;
-                    overflow-wrap: anywhere;
-                }
-
-                .project-date-display {
-                    display: flex;
-                    gap: 28px;
-                    margin: 18px 0;
-                }
-
-                .project-date-display > div {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 6px;
-                }
-
-                .project-date-display strong {
-                    color: #0f172a;
-                    font-size: 14px;
-                }
-
-                @media(max-width: 700px) {
-                    .project-date-fields,
-                    .technology-add-row {
-                        flex-direction: column;
+                @media (max-width: 850px) {
+                    .project-key-metrics {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
                     }
+                }
 
-                    .project-header-actions {
-                        align-items: flex-start;
-                        flex-direction: column;
-                    }
-
-                    .project-summary-grid {
+                @media (max-width: 550px) {
+                    .project-key-metrics,
+                    .project-date-editor,
+                    .project-date-display {
                         grid-template-columns: 1fr;
                     }
                 }
